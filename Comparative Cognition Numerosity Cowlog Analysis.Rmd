@@ -1,0 +1,1447 @@
+---
+title: "Comparative Cognition Numerosity Cowlog Analysis"
+author: "Kelly Wallace"
+date: "March 1, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+ R Markdown
+ This script is designed to take individual Cowlog score sheets of numerosity videos and interpret data for each video as well as summary performance stats for each fish. 
+
+The cowlog sheets should be named in the following format: 
+
+compcog_num_AK_wendy_9_1_9_12_R_75_2017-11-17T225557_738.csv
+(experiment_assay_scorerinitials_fishname_day_trial_rightscreen#_leftscreen#_correctside_ratio_timestamp.csv)
+
+time	  code	          class
+0.015	 top left thigmo	1
+6.875	 center	          1
+8.475	 top mirror     	1
+12.475 top right thigmo	1
+13.275 center	          1
+
+OUTLINE OF THIS SCRIPT
+---------------------------------
+
+STEP 1: Setup your environment and import your dataframes
+1a. load relevant packages
+1b. list the files you're going to analyze
+1c. make an empty dataframe that you'll fill with data
+
+STEP 2: Get data about proportion time the fish spent in each zone from T30-T50!
+2a. Get data about time spent in each zone
+2b. determine which zone is "correct" versus "incorrect"" and get proportion time in those zones
+2c. get trial ID column
+
+STEP 3: Get performance Data for each video
+3a. Proportion time in correct screen / (proportion time in correct screen+ proportion time in incorrect screen)
+3b. Was this performance greater than 60%? Yes or no
+
+Step 4: Get Latency to enter zones data
+4a. Latency to react to screen (i.e. move to any zone after T30)
+4b. Latency to enter correct side and incorrect side
+4c. remove video if latency to enter correct or incorrect side = 0 i.e. fish was already there
+4d. Determine which side was entered first (correct or incorrect)
+
+Step 5: Export as a csv file
+
+Step 6: Get a summary per fish- Record keeping of how many testing trials were available to analyze
+6a. make new summary empty data frame
+6b. How many 1:2 trials were analyzed?
+6c. How many 2:3 trials were analyzed?
+6d. How many 3:4 trials were analyzed?
+6e. How many total testing trials were analyzed?
+
+Step 7. Get a summary per fish of performance i.e. Etheredge et al
+7a. Determine median performance on 1:2 ratio
+7b. Determine median performance on 2:3 ratio
+7c. Determine median performance on 3:4 ratio
+7d. Determine average performance
+7e. Determine how many median scores (of 3) are above 60%
+7f. Determine if average perofrmance is significantly different from 50%
+7g. Determine learning status (high, low, non)
+
+Step 8: Determine "new" learning criterion (note- 7 learned trials in a row)
+8a. Sort the import df (earlier spreadsheet) by day then trial
+8b. filter by fishname
+8c. find longest row of consecutive 'yes' and add that as "longest streak" 
+8d. Is longest streak 7 or greater?
+
+Step 9: Export as a csv file
+
+```{r}
+#Step 1a. load relevant packages
+
+library(ggplot2)
+library(dplyr)
+library(rmarkdown)
+library(knitr)
+library(readr)
+library(utils)
+
+```
+
+
+```{r}
+#Step 1b. list the file's you're going to analyze
+
+file_list <- list.files("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/numerosity cc score sheets", pattern = "*.csv")
+file_list
+
+```
+
+
+```{r}
+#Step 1c. make an empty dataframe that you'll fill with data
+
+test_column <- vector(length = length(file_list))
+
+df <- data.frame(total = test_column)
+
+```
+
+
+```{r}
+#2a. Get data about proportion time spent in each zone
+
+for(i in 1:length(file_list)){
+  setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/numerosity cc score sheets")
+  
+  fil <- read_csv(file_list[i], col_names = TRUE, col_types = NULL)
+  filename <- file_list[i]
+  filename<-strsplit(filename, ".csv")[[1]][1]
+  filename 
+  filename.experiment<-strsplit(filename, "_")[[1]][1]
+  filename.experiment
+  filename.assay<-strsplit(filename, "_")[[1]][2]
+  filename.assay
+  filename.scorername<-strsplit(filename, "_")[[1]][3]
+  filename.scorername
+  filename.fishname<-strsplit(filename, "_")[[1]][4]
+  filename.fishname<-gsub(" ", "", filename.fishname)
+  filename.fishname
+  filename.day<-strsplit(filename, "_")[[1]][5]
+  filename.day
+  filename.trial<-strsplit(filename, "_")[[1]][6]
+  filename.trial
+  filename.rightstim<-strsplit(filename, "_")[[1]][7]
+  filename.rightstim
+  filename.leftstim<-strsplit(filename, "_")[[1]][8]
+  filename.leftstim
+  filename.correctside<-strsplit(filename, "_")[[1]][9]
+  filename.correctside
+  filename.ratio<-strsplit(filename, "_")[[1]][10]
+  filename.ratio
+  filename.sex<-strsplit(filename, "_")[[1]][11]
+  filename.sex
+  filename.stdlength<-strsplit(filename, "_")[[1]][12]
+  filename.stdlength
+  filename.round<-strsplit(filename, "_")[[1]][13]
+  filename.round
+  filename.schedule<-strsplit(filename, "_")[[1]][14]
+  filename.schedule
+  filename.order<-strsplit(filename, "_")[[1]][15]
+  filename.order
+  filename.scoredate<-strsplit(filename, "_")[[1]][16]
+  filename.scoredate
+  
+  
+  filename.vidID<-combine(filename.fishname, filename.assay, filename.day, filename.trial)
+  filename.vidID<-paste(filename.vidID, collapse="")
+  filename.vidID
+  
+  fil$code<-gsub(" ", "", fil$code)
+  fil$code<-tolower(fil$code)
+  fil.entries<-nrow(fil)
+  
+    
+  change_index <- which(fil$time > 30)[1]-1
+  fil$time[change_index]<- 30
+  fil<-filter(fil, time >= 30)
+  
+  #change_index2<- which(fil$time >=50)[1]
+  #fil$time[change_index2]<- 50
+  
+  #fil<-filter(fil, time <= 50)
+  fil<-mutate(fil, time.difference = -(time -lead(time)))
+  #fil$time.difference <- replace(fil$time.difference, c(1), (fil$time[2])) use only if you're starting at time = 0 seconds
+  
+  fil.end<-fil[fil$code == "end",]
+  fil.center<-fil[fil$code == "center",]
+  fil.leftscreen<-fil[fil$code == "leftscreen",]
+  fil.rightscreen<-fil[fil$code == "rightscreen",]
+  fil.topleftthigmo<-fil[fil$code == "topleftthigmo",]
+  fil.toprightthigmo<-fil[fil$code == "toprightthigmo",]
+  fil.bottomleftthigmo<-fil[fil$code == "bottomleftthigmo",]
+  fil.bottomrightthigmo<-fil[fil$code == "bottomrightthigmo",]
+  fil.topmirror<-fil[fil$code == "topmirror",]
+  fil.bottommirror<-fil[fil$code == "bottommirror",]
+  
+  df$fishname[i]<-filename.fishname
+  df$fishname<-tolower(df$fishname)
+  df$sex[i]<- filename.sex
+  df$stdlength[i]<-filename.stdlength
+  df$round[i]<-filename.round
+  df$schedule[i]<-filename.schedule
+  df$order[i]<-filename.order
+  df$scoredate[i]<-filename.scoredate
+  df$ratio[i]<-filename.ratio
+  df$scorername[i]<-filename.scorername
+  df$assay[i]<-filename.assay
+  df$day[i]<-filename.day
+  df$trial[i]<-filename.trial
+  df$vidID[i]<-filename.vidID
+  df$correctside[i]<-filename.correctside
+  df$entries[i]<-fil.entries -1
+  df$total[i]<-(sum(fil.end$time) - 30)
+  #df$center[i]<-sum(fil.center$time.difference) / 20
+  
+  
+  df$leftscreen_full_4_minutes[i]<-sum(fil.leftscreen$time.difference) / (sum(fil.end$time) - 30)
+  df$rightscreen_full_4_minutes[i]<-sum(fil.rightscreen$time.difference) / (sum(fil.end$time) - 30)
+  
+  df$leftscreen_full_4_minutes_absolute_seconds[i]<-sum(fil.leftscreen$time.difference) 
+  df$rightscreen_full_4_minutes_absolute_seconds[i]<-sum(fil.rightscreen$time.difference)
+  
+
+  #df$topleftthigmo[i]<-sum(fil.topleftthigmo$time.difference) / 20
+  #df$toprightthigmo[i]<-sum(fil.toprightthigmo$time.difference) / 20
+  #df$bottomleftthigmo[i]<-sum(fil.bottomleftthigmo$time.difference) / 20
+  #df$bottomrightthigmo[i]<-sum(fil.bottomrightthigmo$time.difference) / 20
+  #df$topmirror[i]<-sum(fil.topmirror$time.difference) / 20
+  #df$bottommirror[i]<-sum(fil.bottommirror$time.difference) / 20
+  
+  #df$center[is.na(df$center)] <- 0
+  #df$leftscreen[is.na(df$lectscreen)] <- 0
+  #df$rightscreen[is.na(df$rightscreen)] <- 0
+  #df$topleftthigmo[is.na(df$topleftthigmo)] <- 0
+  #df$toprightthigmo[is.na(df$toprightthigmo)] <- 0
+  #df$bottomleftthigmo[is.na(df$bottomleftthigmo)] <- 0
+  #df$bottomrightthigmo[is.na(df$bottomrightthigmo)] <- 0
+  #df$topmirror[is.na(df$topmirror)] <- 0
+  #df$bottomrightthigmo[is.na(df$bottomrightthigmo)] <- 0
+  
+  #df$totalthigmo[i]<- (sum(fil.topleftthigmo$time.difference) + sum(fil.toprightthigmo$time.difference) + sum(fil.bottomleftthigmo$time.difference) + sum(fil.bottomrightthigmo$time.difference)) / 20
+  
+  #df$totalmirror[i]<- (sum(fil.topmirror$time.difference) + sum(fil.bottommirror$time.difference)) /20
+  
+  #df$totalleft[i]<- (sum(fil.leftscreen$time.difference) + sum(fil.topleftthigmo$time.difference) + sum(fil.bottomleftthigmo$time.difference))/20
+  #df$totalright[i]<- (sum(fil.rightscreen$time.difference) + sum(fil.toprightthigmo$time.difference) + sum(fil.bottomrightthigmo$time.difference))/20
+}
+
+for(i in 1:length(file_list)){
+  setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/numerosity cc score sheets")
+  
+  fil <- read_csv(file_list[i], col_names = TRUE, col_types = NULL)
+  filename <- file_list[i]
+  filename<-strsplit(filename, ".csv")[[1]][1]
+  filename 
+  filename.experiment<-strsplit(filename, "_")[[1]][1]
+  filename.experiment
+  filename.assay<-strsplit(filename, "_")[[1]][2]
+  filename.assay
+  filename.scorername<-strsplit(filename, "_")[[1]][3]
+  filename.scorername
+  filename.fishname<-strsplit(filename, "_")[[1]][4]
+  filename.fishname<-gsub(" ", "", filename.fishname)
+  filename.fishname
+  filename.day<-strsplit(filename, "_")[[1]][5]
+  filename.day
+  filename.trial<-strsplit(filename, "_")[[1]][6]
+  filename.trial
+  filename.rightstim<-strsplit(filename, "_")[[1]][7]
+  filename.rightstim
+  filename.leftstim<-strsplit(filename, "_")[[1]][8]
+  filename.leftstim
+  filename.correctside<-strsplit(filename, "_")[[1]][9]
+  filename.correctside
+  filename.ratio<-strsplit(filename, "_")[[1]][10]
+  filename.ratio
+  filename.sex<-strsplit(filename, "_")[[1]][11]
+  filename.sex
+  filename.stdlength<-strsplit(filename, "_")[[1]][12]
+  filename.stdlength
+  filename.round<-strsplit(filename, "_")[[1]][13]
+  filename.round
+  filename.schedule<-strsplit(filename, "_")[[1]][14]
+  filename.schedule
+  filename.order<-strsplit(filename, "_")[[1]][15]
+  filename.order
+  filename.scoredate<-strsplit(filename, "_")[[1]][16]
+  filename.scoredate
+  
+  
+  filename.vidID<-combine(filename.fishname, filename.assay, filename.day, filename.trial)
+  filename.vidID<-paste(filename.vidID, collapse="")
+  filename.vidID
+  
+  fil$code<-gsub(" ", "", fil$code)
+  fil$code<-tolower(fil$code)
+  fil.entries<-nrow(fil)
+  
+    
+  change_index <- which(fil$time > 30)[1]-1
+  fil$time[change_index]<- 30
+  fil<-filter(fil, time >= 30)
+  
+  change_index2<- which(fil$time >=50)[1]
+  fil$time[change_index2]<- 50
+  
+  fil<-filter(fil, time <= 50)
+  fil<-mutate(fil, time.difference = -(time -lead(time, default = 50)))
+
+  fil.end<-fil[fil$code == "end",]
+  fil.center<-fil[fil$code == "center",]
+  fil.leftscreen<-fil[fil$code == "leftscreen",]
+  fil.rightscreen<-fil[fil$code == "rightscreen",]
+  fil.topleftthigmo<-fil[fil$code == "topleftthigmo",]
+  fil.toprightthigmo<-fil[fil$code == "toprightthigmo",]
+  fil.bottomleftthigmo<-fil[fil$code == "bottomleftthigmo",]
+  fil.bottomrightthigmo<-fil[fil$code == "bottomrightthigmo",]
+  fil.topmirror<-fil[fil$code == "topmirror",]
+  fil.bottommirror<-fil[fil$code == "bottommirror",]
+
+  df$leftscreen_T30_to_T50[i]<-sum(fil.leftscreen$time.difference) / 20
+  df$rightscreen_T30_to_T50[i]<-sum(fil.rightscreen$time.difference) / 20
+  
+  df$leftscreen_T30_to_T50_absolute_seconds[i]<-sum(fil.leftscreen$time.difference) 
+  df$rightscreen_T30_to_T50_absolute_seconds[i]<-sum(fil.rightscreen$time.difference)
+}
+
+```
+
+
+```{r}
+#2b. determine which zone is "correct" versus "incorrect"" and get proportion time in those zones
+
+for(i in 1:length(file_list)){
+  if(df$correctside[i] == "R"){
+    df$correctscreen_full_4_minutes[i]<-df$rightscreen_full_4_minutes[i]
+    df$incorrectscreen_full_4_minutes[i]<-df$leftscreen_full_4_minutes[i]
+    df$correctscreen_T30_to_T50[i]<-df$rightscreen_T30_to_T50[i]
+    df$incorrectscreen_T30_to_T50[i]<-df$leftscreen_T30_to_T50[i]
+    df$correctscreen_full_4_minutes_absolute_seconds[i]<-df$rightscreen_full_4_minutes_absolute_seconds[i]
+    df$incorrectscreen_full_4_minutes_absolute_seconds[i]<- df$leftscreen_full_4_minutes_absolute_seconds[i] 
+    df$correctscreen_T30_to_T50_absolute_seconds[i]<- df$rightscreen_T30_to_T50_absolute_seconds[i]
+    df$incorrectscreen_T30_to_T50_absolute_seconds[i]<- df$leftscreen_T30_to_T50_absolute_seconds[i] 
+    } 
+  else if(df$correctside[i] == "L"){
+    df$correctscreen_full_4_minutes[i]<-df$leftscreen_full_4_minutes[i]
+    df$incorrectscreen_full_4_minutes[i]<-df$rightscreen_full_4_minutes[i]
+    df$correctscreen_T30_to_T50[i]<-df$leftscreen_T30_to_T50[i]
+    df$incorrectscreen_T30_to_T50[i]<-df$rightscreen_T30_to_T50[i]
+    df$correctscreen_full_4_minutes_absolute_seconds[i]<-df$leftscreen_full_4_minutes_absolute_seconds[i]
+    df$incorrectscreen_full_4_minutes_absolute_seconds[i]<- df$rightscreen_full_4_minutes_absolute_seconds[i] 
+    df$correctscreen_T30_to_T50_absolute_seconds[i]<-  df$leftscreen_T30_to_T50_absolute_seconds[i]
+    df$incorrectscreen_T30_to_T50_absolute_seconds[i]<- df$rightscreen_T30_to_T50_absolute_seconds[i]
+    } 
+  else if(df$correctside[i] == "B"){
+    #df$totalcorrect[i]<- NA
+    #df$totalincorrect[i]<-NA
+    df$correctscreen_full_4_minutes[i]<-NA
+    df$incorrectscreen_full_4_minutes[i]<-NA
+    df$correctscreen_T30_to_T50[i]<-NA
+    df$incorrectscreen_T30_to_T50[i]<-NA
+    df$correctscreen_full_4_minutes_absolute_seconds[i]<- NA
+    df$incorrectscreen_full_4_minutes_absolute_seconds[i]<- NA 
+    df$correctscreen_T30_to_T50_absolute_seconds[i]<- NA 
+    df$incorrectscreen_T30_to_T50_absolute_seconds[i]<- NA
+    }
+  else{
+    df$correctscreen_full_4_minutes[i]<-NA
+    df$incorrectscreen_full_4_minutes[i]<-NA
+    df$correctscreen_T30_to_T50[i]<-NA
+    df$incorrectscreen_T30_to_T50[i]<-NA
+    df$correctscreen_full_4_minutes_absolute_seconds[i]<- NA
+    df$incorrectscreen_full_4_minutes_absolute_seconds[i]<- NA 
+    df$correctscreen_T30_to_T50_absolute_seconds[i]<- NA 
+    df$incorrectscreen_T30_to_T50_absolute_seconds[i]<- NA
+    }
+}
+
+
+```
+
+
+```{r}
+#2c. get trial ID column
+
+df$trialID <- paste(df$day,df$trial, sep= "")
+#df[, c(2,12, 26)] <- sapply(df[, c(16,17, 26)], as.numeric)
+
+```
+
+
+```{r}
+#3a. Proportion time in correct screen / (proportion time in correct screen+ proportion time in incorrect screen)
+
+for(i in 1:length(file_list)){
+  df$performancescreen_full_4_minutes[i] <- (df$correctscreen_full_4_minutes[i]) / (df$correctscreen_full_4_minutes[i] + df$incorrectscreen_full_4_minutes[i]) 
+  df$performancescreen_T30_to_T50[i] <- (df$correctscreen_T30_to_T50[i]) / (df$correctscreen_T30_to_T50[i] + df$incorrectscreen_T30_to_T50[i]) 
+  }
+
+```
+
+
+```{r}
+#3b. Was this performance greater than 60%? Yes or no
+for(i in 1:length(file_list)){
+ 
+  if(is.na(df$performancescreen_full_4_minutes[i]) == TRUE){
+  df$perf_greater_than_60_full_4_minutes[i] <- NA}  
+  else if(df$performancescreen_full_4_minutes[i] >= 0.6){
+  df$perf_greater_than_60_full_4_minutes[i] <- 1 } #yes
+  else if(df$performancescreen_full_4_minutes[i] < 0.6){
+  df$perf_greater_than_60_full_4_minutes[i] <- 0} #no
+
+  if(is.na(df$performancescreen_T30_to_T50[i]) == TRUE){
+  df$perf_greater_than_60_T30_to_T50[i] <- NA}  
+  else if(df$performancescreen_T30_to_T50[i] >= 0.6){
+  df$perf_greater_than_60_T30_to_T50[i] <- 1 } #yes
+  else if(df$performancescreen_T30_to_T50[i] < 0.6){
+  df$perf_greater_than_60_T30_to_T50[i] <- 0} #no  
+}
+
+```
+
+
+```{r}
+#4a. Latency to react to screen (i.e. move to any zone after T30)
+
+
+for(i in 1:length(file_list)){
+  setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/numerosity cc score sheets")
+  
+  fil <- read_csv(file_list[i], col_names = TRUE, col_types = NULL)
+
+  fil$code<-gsub(" ", "", fil$code)
+  fil$code<-tolower(fil$code)
+  fil.entries<-nrow(fil)
+  
+    
+  change_index <- which(fil$time > 30)[1]-1
+  fil$time[change_index]<- 30
+  fil<-filter(fil, time >= 30)
+  
+  #change_index2<- which(fil$time >=50)[1]
+  #fil$time[change_index2]<- 50
+  
+  #fil<-filter(fil, time <= 50)
+  #fil<-mutate(fil, time.difference = -(time -lead(time, default = 50)))
+
+   df$reaction_time[i]<- ((fil$time[2]) - 30)
+}
+
+```
+
+
+```{r}
+#4b. Latency to enter correct side and incorrect side
+
+for(i in 1:length(file_list)){ 
+  
+  setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/numerosity cc score sheets")
+  
+  fil <- read_csv(file_list[i], col_names = TRUE, col_types = NULL)
+
+  fil$code<-gsub(" ", "", fil$code)
+  fil$code<-tolower(fil$code)
+  fil.entries<-nrow(fil)
+  
+    
+  change_index <- which(fil$time > 30)[1]-1
+  fil$time[change_index]<- 30
+  fil<-filter(fil, time >= 30)
+  
+  #change_index2<- which(fil$time >=50)[1]
+  #fil$time[change_index2]<- 50
+  
+  #fil<-filter(fil, time <= 50)
+  #fil<-mutate(fil, time.difference = -(time -lead(time, default = 50)))
+  
+  first_rightscreen_index <- which(fil$code == "rightscreen")[1]
+  first_leftscreen_index <-which(fil$code == "leftscreen")[1]
+  
+  if(df$correctside[i] == "R"){
+  df$latency_enter_corr[i]<- fil$time[first_rightscreen_index] - 30
+   df$latency_enter_incorr[i]<-fil$time[first_leftscreen_index] - 30 }
+  else if(df$correctside[i] == "L"){
+  df$latency_enter_corr[i]<- fil$time[first_leftscreen_index] - 30
+   df$latency_enter_incorr[i]<- fil$time[first_rightscreen_index] - 30}
+  else{
+  df$latency_enter_corr[i]<- NA
+   df$latency_enter_incorr[i]<- NA }
+     
+#df$latency_enter_incorr[is.na(df$latency_enter_incorr)] <- 100
+#df$latency_enter_corr[is.na(df$latency_enter_corr)] <- 100
+}
+
+```
+
+
+```{r}
+#4c. remove latency value if latency to enter correct or incorrect side = 0 i.e. fish was already there
+#df <- filter(df, df$latency_enter_corr != 0)
+#df <- filter(df, df$latency_enter_incorr != 0)
+#NEED TO FIX THIS ONE MORE    
+  
+```
+
+
+```{r}
+#4d. Determine which side was entered first (correct or incorrect)
+
+for(i in 1:length(file_list)){
+if(is.na(df$latency_enter_corr[i] < df$latency_enter_incorr[i]) == TRUE){
+     df$screen_entered_first[i]<- NA}
+else if(df$latency_enter_corr[i] == 0){
+      df$screen_entered_first[i]<- NA}
+else if(df$latency_enter_incorr[i] == 0){
+      df$screen_entered_first[i]<- NA}  
+else if((df$latency_enter_corr[i] < df$latency_enter_incorr[i]) == TRUE){
+     df$screen_entered_first[i]<- "correct"}
+else if((df$latency_enter_corr[i] < df$latency_enter_incorr[i]) == FALSE){
+     df$screen_entered_first[i]<- "incorrect"}
+}
+
+```
+
+
+```{r}
+#Make a summary master data frame (df.sum), where there will be one row per form and within that row I will have both summary data and data about performance on each trial. This chunk pulls out relevant information about each trial (i.e. correct side, performance, latency to enter correct) and adds it into this summary master data frame.
+
+#From around march 5- OK so this part is a little different than the plan, hopefully I'll be able to just take pieces of this big chunk and distribute it accordingly. I'm first putting the important metric for each trial in a bunch of columns, each row being 1 fish. Then I'll get some summary stats (i.e. median performance on 75 ratio) and append those as new columns (keeping one row per fish). 
+
+fish_list<-unique(df$fishname)
+df.sum<- data.frame(fish_name = fish_list)
+
+for(i in 1:length(fish_list)){
+  df.fish<- filter(df, fishname == fish_list[i])
+df.sum$sex[i]<-df.fish$sex[1]
+df.sum$standard_length[i]<-df.fish$stdlength[1]
+df.sum$order[i]<- df.fish$order[1] 
+}
+
+for(i in 1:length(fish_list)){
+  df.fish<- filter(df, fishname == fish_list[i])
+  df.fish.91 <- filter(df.fish, day == '9', trial == '1')
+  df.fish.93 <- filter(df.fish, day == '9', trial == '3')
+  df.fish.95 <- filter(df.fish, day == '9', trial == '5')
+  df.fish.101 <- filter(df.fish, day == '10', trial == '1')
+  df.fish.103 <- filter(df.fish, day == '10', trial == '3')
+  df.fish.105 <- filter(df.fish, day == '10', trial == '5')
+  df.fish.111 <- filter(df.fish, day == '11', trial == '1')
+  df.fish.113 <- filter(df.fish, day == '11', trial == '3')
+  df.fish.115 <- filter(df.fish, day == '11', trial == '5')
+  
+  if (nrow(df.fish.91) == 0){
+    df.sum$Trial_9_1_correctside[i] <-NA
+    df.sum$Trial_9_1_ratio[i] <-NA
+    df.sum$Trial_9_1_total_entries[i]<-NA
+    df.sum$Trial_9_1_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<-NA
+    df.sum$Trial_9_1_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<-NA
+    df.sum$Trial_9_1_was_performance_over_full_4_minutes_greater_than_60_percent[i]<-NA
+    df.sum$Trial_9_1_was_performance_T30_to_T50_greater_than_60_percent[i]<-NA 
+    df.sum$Trial_9_1_reaction_time[i]<-NA
+    df.sum$Trial_9_1_latency_to_enter_correct_side[i]<-NA
+    df.sum$Trial_9_1_latency_to_enter_incorrect_side[i]<-NA
+    df.sum$Trial_9_1_screen_entered_first[i]<-NA  
+    df.sum$Trial_9_1_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<-NA
+    df.sum$Trial_9_1_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds[i]<-NA
+    df.sum$Trial_9_1_time_spent_in_correct_screen_T30_to_T50_absolute_seconds[i]<-NA
+    df.sum$Trial_9_1_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds[i]<-NA
+    }
+  else{
+    df.sum$Trial_9_1_correctside[i] <- df.fish.91$correctside
+    df.sum$Trial_9_1_ratio[i] <-df.fish.91$ratio
+    df.sum$Trial_9_1_total_entries[i]<-df.fish.91$entries
+    df.sum$Trial_9_1_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<- df.fish.91$performancescreen_full_4_minutes
+    df.sum$Trial_9_1_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<- df.fish.91$performancescreen_T30_to_T50
+    df.sum$Trial_9_1_was_performance_over_full_4_minutes_greater_than_60_percent[i]<-df.fish.91$perf_greater_than_60_full_4_minutes
+    df.sum$Trial_9_1_was_performance_T30_to_T50_greater_than_60_percent[i]<-df.fish.91$perf_greater_than_60_T30_to_T50
+    df.sum$Trial_9_1_reaction_time[i]<-df.fish.91$reaction_time
+    df.sum$Trial_9_1_latency_to_enter_correct_side[i]<-df.fish.91$latency_enter_corr
+    df.sum$Trial_9_1_latency_to_enter_incorrect_side[i]<-df.fish.91$latency_enter_incorr
+    df.sum$Trial_9_1_screen_entered_first[i]<-df.fish.91$screen_entered_first
+    df.sum$Trial_9_1_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<- df.fish.91$correctscreen_full_4_minutes_absolute_seconds
+    df.sum$Trial_9_1_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds[i]<-df.fish.91$incorrectscreen_full_4_minutes_absolute_seconds
+    df.sum$Trial_9_1_time_spent_in_correct_screen_T30_to_T50_absolute_seconds[i]<-df.fish.91$correctscreen_T30_to_T50_absolute_seconds
+    df.sum$Trial_9_1_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds[i]<-df.fish.91$correctscreen_T30_to_T50_absolute_seconds
+  }
+  
+  if (nrow(df.fish.93) == 0){
+    df.sum$Trial_9_3_correctside[i] <-NA
+    df.sum$Trial_9_3_ratio[i] <-NA
+    df.sum$Trial_9_3_total_entries[i]<-NA
+    df.sum$Trial_9_3_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<-NA
+    df.sum$Trial_9_3_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<-NA
+    df.sum$Trial_9_3_was_performance_over_full_4_minutes_greater_than_60_percent[i]<-NA
+    df.sum$Trial_9_3_was_performance_T30_to_T50_greater_than_60_percent[i]<-NA 
+    df.sum$Trial_9_3_reaction_time[i]<-NA
+    df.sum$Trial_9_3_latency_to_enter_correct_side[i]<-NA
+    df.sum$Trial_9_3_latency_to_enter_incorrect_side[i]<-NA
+    df.sum$Trial_9_3_screen_entered_first[i]<-NA
+    df.sum$Trial_9_3_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<-NA
+    df.sum$Trial_9_3_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds[i]<-NA
+    df.sum$Trial_9_3_time_spent_in_correct_screen_T30_to_T50_absolute_seconds[i]<-NA
+    df.sum$Trial_9_3_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds[i]<-NA
+    }
+  else{
+    df.sum$Trial_9_3_correctside[i] <- df.fish.93$correctside
+    df.sum$Trial_9_3_ratio[i] <-df.fish.93$ratio
+    df.sum$Trial_9_3_total_entries[i]<-df.fish.93$entries
+    df.sum$Trial_9_3_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<- df.fish.93$performancescreen_full_4_minutes
+    df.sum$Trial_9_3_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<- df.fish.93$performancescreen_T30_to_T50
+    df.sum$Trial_9_3_was_performance_over_full_4_minutes_greater_than_60_percent[i]<-df.fish.93$perf_greater_than_60_full_4_minutes
+    df.sum$Trial_9_3_was_performance_T30_to_T50_greater_than_60_percent[i]<-df.fish.93$perf_greater_than_60_T30_to_T50
+    df.sum$Trial_9_3_reaction_time[i]<-df.fish.93$reaction_time
+    df.sum$Trial_9_3_latency_to_enter_correct_side[i]<-df.fish.93$latency_enter_corr
+    df.sum$Trial_9_3_latency_to_enter_incorrect_side[i]<-df.fish.93$latency_enter_incorr
+    df.sum$Trial_9_3_screen_entered_first[i]<-df.fish.93$screen_entered_first
+    df.sum$Trial_9_3_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<- df.fish.93$correctscreen_full_4_minutes_absolute_seconds
+    df.sum$Trial_9_3_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds[i]<-df.fish.93$incorrectscreen_full_4_minutes_absolute_seconds
+    df.sum$Trial_9_3_time_spent_in_correct_screen_T30_to_T50_absolute_seconds[i]<-df.fish.93$correctscreen_T30_to_T50_absolute_seconds
+    df.sum$Trial_9_3_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds[i]<-df.fish.93$correctscreen_T30_to_T50_absolute_seconds
+    }
+  
+  if (nrow(df.fish.95) == 0){
+    df.sum$Trial_9_5_correctside[i] <-NA
+    df.sum$Trial_9_5_ratio[i] <-NA
+    df.sum$Trial_9_5_total_entries[i]<-NA
+    df.sum$Trial_9_5_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<-NA
+    df.sum$Trial_9_5_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<-NA
+    df.sum$Trial_9_5_was_performance_over_full_4_minutes_greater_than_60_percent[i]<-NA
+    df.sum$Trial_9_5_was_performance_T30_to_T50_greater_than_60_percent[i]<-NA 
+    df.sum$Trial_9_5_reaction_time[i]<-NA
+    df.sum$Trial_9_5_latency_to_enter_correct_side[i]<-NA
+    df.sum$Trial_9_5_latency_to_enter_incorrect_side[i]<-NA
+    df.sum$Trial_9_5_screen_entered_first[i]<-NA  
+    df.sum$Trial_9_5_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<-NA
+    df.sum$Trial_9_5_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds[i]<-NA
+    df.sum$Trial_9_5_time_spent_in_correct_screen_T30_to_T50_absolute_seconds[i]<-NA
+    df.sum$Trial_9_5_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds[i]<-NA
+    }
+  else{
+    df.sum$Trial_9_5_correctside[i] <- df.fish.95$correctside
+    df.sum$Trial_9_5_ratio[i] <-df.fish.95$ratio
+    df.sum$Trial_9_5_total_entries[i]<-df.fish.95$entries
+    df.sum$Trial_9_5_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<- df.fish.95$performancescreen_full_4_minutes
+    df.sum$Trial_9_5_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<- df.fish.95$performancescreen_T30_to_T50
+    df.sum$Trial_9_5_was_performance_over_full_4_minutes_greater_than_60_percent[i]<-df.fish.95$perf_greater_than_60_full_4_minutes
+    df.sum$Trial_9_5_was_performance_T30_to_T50_greater_than_60_percent[i]<-df.fish.95$perf_greater_than_60_T30_to_T50
+    df.sum$Trial_9_5_reaction_time[i]<-df.fish.95$reaction_time
+    df.sum$Trial_9_5_latency_to_enter_correct_side[i]<-df.fish.95$latency_enter_corr
+    df.sum$Trial_9_5_latency_to_enter_incorrect_side[i]<-df.fish.95$latency_enter_incorr
+    df.sum$Trial_9_5_screen_entered_first[i]<-df.fish.95$screen_entered_first
+    df.sum$Trial_9_5_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<- df.fish.95$correctscreen_full_4_minutes_absolute_seconds
+    df.sum$Trial_9_5_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds[i]<-df.fish.95$incorrectscreen_full_4_minutes_absolute_seconds
+    df.sum$Trial_9_5_time_spent_in_correct_screen_T30_to_T50_absolute_seconds[i]<-df.fish.95$correctscreen_T30_to_T50_absolute_seconds
+    df.sum$Trial_9_5_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds[i]<-df.fish.95$correctscreen_T30_to_T50_absolute_seconds
+    }
+  
+  if (nrow(df.fish.101) == 0){
+    df.sum$Trial_10_1_correctside[i] <-NA
+    df.sum$Trial_10_1_ratio[i] <-NA
+    df.sum$Trial_10_1_total_entries[i]<-NA
+    df.sum$Trial_10_1_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<-NA
+    df.sum$Trial_10_1_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<-NA
+    df.sum$Trial_10_1_was_performance_over_full_4_minutes_greater_than_60_percent[i]<-NA
+    df.sum$Trial_10_1_was_performance_T30_to_T50_greater_than_60_percent[i]<-NA 
+    df.sum$Trial_10_1_reaction_time[i]<-NA
+    df.sum$Trial_10_1_latency_to_enter_correct_side[i]<-NA
+    df.sum$Trial_10_1_latency_to_enter_incorrect_side[i]<-NA
+    df.sum$Trial_10_1_screen_entered_first[i]<-NA 
+    df.sum$Trial_10_1_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<-NA
+    df.sum$Trial_10_1_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds[i]<-NA
+    df.sum$Trial_10_1_time_spent_in_correct_screen_T30_to_T50_absolute_seconds[i]<-NA
+    df.sum$Trial_10_1_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds[i]<-NA
+    }
+  else{
+    df.sum$Trial_10_1_correctside[i] <- df.fish.101$correctside
+    df.sum$Trial_10_1_ratio[i] <-df.fish.101$ratio
+    df.sum$Trial_10_1_total_entries[i]<-df.fish.101$entries
+    df.sum$Trial_10_1_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<- df.fish.101$performancescreen_full_4_minutes
+    df.sum$Trial_10_1_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<- df.fish.101$performancescreen_T30_to_T50
+    df.sum$Trial_10_1_was_performance_over_full_4_minutes_greater_than_60_percent[i]<-df.fish.101$perf_greater_than_60_full_4_minutes
+    df.sum$Trial_10_1_was_performance_T30_to_T50_greater_than_60_percent[i]<-df.fish.101$perf_greater_than_60_T30_to_T50
+    df.sum$Trial_10_1_reaction_time[i]<-df.fish.101$reaction_time
+    df.sum$Trial_10_1_latency_to_enter_correct_side[i]<-df.fish.101$latency_enter_corr
+    df.sum$Trial_10_1_latency_to_enter_incorrect_side[i]<-df.fish.101$latency_enter_incorr
+    df.sum$Trial_10_1_screen_entered_first[i]<-df.fish.101$screen_entered_first
+    df.sum$Trial_10_1_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<- df.fish.101$correctscreen_full_4_minutes_absolute_seconds
+    df.sum$Trial_10_1_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds[i]<-df.fish.101$incorrectscreen_full_4_minutes_absolute_seconds
+    df.sum$Trial_10_1_time_spent_in_correct_screen_T30_to_T50_absolute_seconds[i]<-df.fish.101$correctscreen_T30_to_T50_absolute_seconds
+    df.sum$Trial_10_1_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds[i]<-df.fish.101$correctscreen_T30_to_T50_absolute_seconds
+  }
+  
+  if (nrow(df.fish.103) == 0){
+    df.sum$Trial_10_3_correctside[i] <-NA
+    df.sum$Trial_10_3_ratio[i] <-NA
+    df.sum$Trial_10_3_total_entries[i]<-NA
+    df.sum$Trial_10_3_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<-NA
+    df.sum$Trial_10_3_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<-NA
+    df.sum$Trial_10_3_was_performance_over_full_4_minutes_greater_than_60_percent[i]<-NA
+    df.sum$Trial_10_3_was_performance_T30_to_T50_greater_than_60_percent[i]<-NA 
+    df.sum$Trial_10_3_reaction_time[i]<-NA
+    df.sum$Trial_10_3_latency_to_enter_correct_side[i]<-NA
+    df.sum$Trial_10_3_latency_to_enter_incorrect_side[i]<-NA
+    df.sum$Trial_10_3_screen_entered_first[i]<-NA 
+    df.sum$Trial_10_3_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<-NA
+    df.sum$Trial_10_3_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds[i]<-NA
+    df.sum$Trial_10_3_time_spent_in_correct_screen_T30_to_T50_absolute_seconds[i]<-NA
+    df.sum$Trial_10_3_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds[i]<-NA
+    }
+  else{
+    df.sum$Trial_10_3_correctside[i] <- df.fish.103$correctside
+    df.sum$Trial_10_3_ratio[i] <-df.fish.103$ratio
+    df.sum$Trial_10_3_total_entries[i]<-df.fish.103$entries
+    df.sum$Trial_10_3_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<- df.fish.103$performancescreen_full_4_minutes
+    df.sum$Trial_10_3_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<- df.fish.103$performancescreen_T30_to_T50
+    df.sum$Trial_10_3_was_performance_over_full_4_minutes_greater_than_60_percent[i]<-df.fish.103$perf_greater_than_60_full_4_minutes
+    df.sum$Trial_10_3_was_performance_T30_to_T50_greater_than_60_percent[i]<-df.fish.103$perf_greater_than_60_T30_to_T50
+    df.sum$Trial_10_3_reaction_time[i]<-df.fish.103$reaction_time
+    df.sum$Trial_10_3_latency_to_enter_correct_side[i]<-df.fish.103$latency_enter_corr
+    df.sum$Trial_10_3_latency_to_enter_incorrect_side[i]<-df.fish.103$latency_enter_incorr
+    df.sum$Trial_10_3_screen_entered_first[i]<-df.fish.103$screen_entered_first
+    df.sum$Trial_10_3_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<- df.fish.103$correctscreen_full_4_minutes_absolute_seconds
+    df.sum$Trial_10_3_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds[i]<-df.fish.103$incorrectscreen_full_4_minutes_absolute_seconds
+    df.sum$Trial_10_3_time_spent_in_correct_screen_T30_to_T50_absolute_seconds[i]<-df.fish.103$correctscreen_T30_to_T50_absolute_seconds
+    df.sum$Trial_10_3_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds[i]<-df.fish.103$correctscreen_T30_to_T50_absolute_seconds
+    }
+  
+  if (nrow(df.fish.105) == 0){
+    df.sum$Trial_10_5_correctside[i] <-NA
+    df.sum$Trial_10_5_ratio[i] <-NA
+    df.sum$Trial_10_5_total_entries[i]<-NA
+    df.sum$Trial_10_5_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<-NA
+    df.sum$Trial_10_5_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<-NA
+    df.sum$Trial_10_5_was_performance_over_full_4_minutes_greater_than_60_percent[i]<-NA
+    df.sum$Trial_10_5_was_performance_T30_to_T50_greater_than_60_percent[i]<-NA 
+    df.sum$Trial_10_5_reaction_time[i]<-NA
+    df.sum$Trial_10_5_latency_to_enter_correct_side[i]<-NA
+    df.sum$Trial_10_5_latency_to_enter_incorrect_side[i]<-NA
+    df.sum$Trial_10_5_screen_entered_first[i]<-NA
+    df.sum$Trial_10_5_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<-NA
+    df.sum$Trial_10_5_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds[i]<-NA
+    df.sum$Trial_10_5_time_spent_in_correct_screen_T30_to_T50_absolute_seconds[i]<-NA
+    df.sum$Trial_10_5_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds[i]<-NA
+    }
+  else{
+    df.sum$Trial_10_5_correctside[i] <- df.fish.105$correctside
+    df.sum$Trial_10_5_ratio[i] <-df.fish.105$ratio
+    df.sum$Trial_10_5_total_entries[i]<-df.fish.105$entries
+    df.sum$Trial_10_5_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<- df.fish.105$performancescreen_full_4_minutes
+    df.sum$Trial_10_5_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<- df.fish.105$performancescreen_T30_to_T50
+    df.sum$Trial_10_5_was_performance_over_full_4_minutes_greater_than_60_percent[i]<-df.fish.105$perf_greater_than_60_full_4_minutes
+    df.sum$Trial_10_5_was_performance_T30_to_T50_greater_than_60_percent[i]<-df.fish.105$perf_greater_than_60_T30_to_T50
+    df.sum$Trial_10_5_reaction_time[i]<-df.fish.105$reaction_time
+    df.sum$Trial_10_5_latency_to_enter_correct_side[i]<-df.fish.105$latency_enter_corr
+    df.sum$Trial_10_5_latency_to_enter_incorrect_side[i]<-df.fish.105$latency_enter_incorr
+    df.sum$Trial_10_5_screen_entered_first[i]<-df.fish.105$screen_entered_first
+    df.sum$Trial_10_5_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<- df.fish.105$correctscreen_full_4_minutes_absolute_seconds
+    df.sum$Trial_10_5_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds[i]<-df.fish.105$incorrectscreen_full_4_minutes_absolute_seconds
+    df.sum$Trial_10_5_time_spent_in_correct_screen_T30_to_T50_absolute_seconds[i]<-df.fish.105$correctscreen_T30_to_T50_absolute_seconds
+    df.sum$Trial_10_5_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds[i]<-df.fish.105$correctscreen_T30_to_T50_absolute_seconds
+    }
+  
+  if (nrow(df.fish.111) == 0){
+    df.sum$Trial_11_1_correctside[i] <-NA
+    df.sum$Trial_11_1_ratio[i] <-NA
+    df.sum$Trial_11_1_total_entries[i]<-NA
+    df.sum$Trial_11_1_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<-NA
+    df.sum$Trial_11_1_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<-NA
+    df.sum$Trial_11_1_was_performance_over_full_4_minutes_greater_than_60_percent[i]<-NA
+    df.sum$Trial_11_1_was_performance_T30_to_T50_greater_than_60_percent[i]<-NA 
+    df.sum$Trial_11_1_reaction_time[i]<-NA
+    df.sum$Trial_11_1_latency_to_enter_correct_side[i]<-NA
+    df.sum$Trial_11_1_latency_to_enter_incorrect_side[i]<-NA
+    df.sum$Trial_11_1_screen_entered_first[i]<-NA  
+    df.sum$Trial_11_1_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<-NA
+    df.sum$Trial_11_1_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds[i]<-NA
+    df.sum$Trial_11_1_time_spent_in_correct_screen_T30_to_T50_absolute_seconds[i]<-NA
+    df.sum$Trial_11_1_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds[i]<-NA
+    }
+  else{
+    df.sum$Trial_11_1_correctside[i] <- df.fish.111$correctside
+    df.sum$Trial_11_1_ratio[i] <-df.fish.111$ratio
+    df.sum$Trial_11_1_total_entries[i]<-df.fish.111$entries
+    df.sum$Trial_11_1_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<- df.fish.111$performancescreen_full_4_minutes
+    df.sum$Trial_11_1_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<- df.fish.111$performancescreen_T30_to_T50
+    df.sum$Trial_11_1_was_performance_over_full_4_minutes_greater_than_60_percent[i]<-df.fish.111$perf_greater_than_60_full_4_minutes
+    df.sum$Trial_11_1_was_performance_T30_to_T50_greater_than_60_percent[i]<-df.fish.111$perf_greater_than_60_T30_to_T50
+    df.sum$Trial_11_1_reaction_time[i]<-df.fish.111$reaction_time
+    df.sum$Trial_11_1_latency_to_enter_correct_side[i]<-df.fish.111$latency_enter_corr
+    df.sum$Trial_11_1_latency_to_enter_incorrect_side[i]<-df.fish.111$latency_enter_incorr
+    df.sum$Trial_11_1_screen_entered_first[i]<-df.fish.111$screen_entered_first
+    df.sum$Trial_11_1_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<- df.fish.111$correctscreen_full_4_minutes_absolute_seconds
+    df.sum$Trial_11_1_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds[i]<-df.fish.111$incorrectscreen_full_4_minutes_absolute_seconds
+    df.sum$Trial_11_1_time_spent_in_correct_screen_T30_to_T50_absolute_seconds[i]<-df.fish.111$correctscreen_T30_to_T50_absolute_seconds
+    df.sum$Trial_11_1_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds[i]<-df.fish.111$correctscreen_T30_to_T50_absolute_seconds
+  }
+  
+  if (nrow(df.fish.113) == 0){
+    df.sum$Trial_11_3_correctside[i] <-NA
+    df.sum$Trial_11_3_ratio[i] <-NA
+    df.sum$Trial_11_3_total_entries[i]<-NA
+    df.sum$Trial_11_3_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<-NA
+    df.sum$Trial_11_3_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<-NA
+    df.sum$Trial_11_3_was_performance_over_full_4_minutes_greater_than_60_percent[i]<-NA
+    df.sum$Trial_11_3_was_performance_T30_to_T50_greater_than_60_percent[i]<-NA 
+    df.sum$Trial_11_3_reaction_time[i]<-NA
+    df.sum$Trial_11_3_latency_to_enter_correct_side[i]<-NA
+    df.sum$Trial_11_3_latency_to_enter_incorrect_side[i]<-NA
+    df.sum$Trial_11_3_screen_entered_first[i]<-NA 
+    df.sum$Trial_11_3_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<-NA
+    df.sum$Trial_11_3_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds[i]<-NA
+    df.sum$Trial_11_3_time_spent_in_correct_screen_T30_to_T50_absolute_seconds[i]<-NA
+    df.sum$Trial_11_3_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds[i]<-NA
+    }
+  else{
+    df.sum$Trial_11_3_correctside[i] <- df.fish.113$correctside
+    df.sum$Trial_11_3_ratio[i] <-df.fish.113$ratio
+    df.sum$Trial_11_3_total_entries[i]<-df.fish.113$entries
+    df.sum$Trial_11_3_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<- df.fish.113$performancescreen_full_4_minutes
+    df.sum$Trial_11_3_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<- df.fish.113$performancescreen_T30_to_T50
+    df.sum$Trial_11_3_was_performance_over_full_4_minutes_greater_than_60_percent[i]<-df.fish.113$perf_greater_than_60_full_4_minutes
+    df.sum$Trial_11_3_was_performance_T30_to_T50_greater_than_60_percent[i]<-df.fish.113$perf_greater_than_60_T30_to_T50
+    df.sum$Trial_11_3_reaction_time[i]<-df.fish.113$reaction_time
+    df.sum$Trial_11_3_latency_to_enter_correct_side[i]<-df.fish.113$latency_enter_corr
+    df.sum$Trial_11_3_latency_to_enter_incorrect_side[i]<-df.fish.113$latency_enter_incorr
+    df.sum$Trial_11_3_screen_entered_first[i]<-df.fish.113$screen_entered_first
+    df.sum$Trial_11_3_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<- df.fish.113$correctscreen_full_4_minutes_absolute_seconds
+    df.sum$Trial_11_3_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds[i]<-df.fish.113$incorrectscreen_full_4_minutes_absolute_seconds
+    df.sum$Trial_11_3_time_spent_in_correct_screen_T30_to_T50_absolute_seconds[i]<-df.fish.113$correctscreen_T30_to_T50_absolute_seconds
+    df.sum$Trial_11_3_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds[i]<-df.fish.113$correctscreen_T30_to_T50_absolute_seconds
+    }
+  
+  if (nrow(df.fish.115) == 0){
+    df.sum$Trial_11_5_correctside[i] <-NA
+    df.sum$Trial_11_5_ratio[i] <-NA
+    df.sum$Trial_11_5_total_entries[i]<-NA
+    df.sum$Trial_11_5_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<-NA
+    df.sum$Trial_11_5_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<-NA
+    df.sum$Trial_11_5_was_performance_over_full_4_minutes_greater_than_60_percent[i]<-NA
+    df.sum$Trial_11_5_was_performance_T30_to_T50_greater_than_60_percent[i]<-NA 
+    df.sum$Trial_11_5_reaction_time[i]<-NA
+    df.sum$Trial_11_5_latency_to_enter_correct_side[i]<-NA
+    df.sum$Trial_11_5_latency_to_enter_incorrect_side[i]<-NA
+    df.sum$Trial_11_5_screen_entered_first[i]<-NA 
+    df.sum$Trial_11_5_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<-NA
+    df.sum$Trial_11_5_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds[i]<-NA
+    df.sum$Trial_11_5_time_spent_in_correct_screen_T30_to_T50_absolute_seconds[i]<-NA
+    df.sum$Trial_11_5_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds[i]<-NA
+    }
+  else{
+    df.sum$Trial_11_5_correctside[i] <- df.fish.115$correctside
+    df.sum$Trial_11_5_ratio[i] <-df.fish.115$ratio
+    df.sum$Trial_11_5_total_entries[i]<-df.fish.115$entries
+    df.sum$Trial_11_5_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<- df.fish.115$performancescreen_full_4_minutes
+    df.sum$Trial_11_5_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens[i]<- df.fish.115$performancescreen_T30_to_T50
+    df.sum$Trial_11_5_was_performance_over_full_4_minutes_greater_than_60_percent[i]<-df.fish.115$perf_greater_than_60_full_4_minutes
+    df.sum$Trial_11_5_was_performance_T30_to_T50_greater_than_60_percent[i]<-df.fish.115$perf_greater_than_60_T30_to_T50
+    df.sum$Trial_11_5_reaction_time[i]<-df.fish.115$reaction_time
+    df.sum$Trial_11_5_latency_to_enter_correct_side[i]<-df.fish.115$latency_enter_corr
+    df.sum$Trial_11_5_latency_to_enter_incorrect_side[i]<-df.fish.115$latency_enter_incorr
+    df.sum$Trial_11_5_screen_entered_first[i]<-df.fish.115$screen_entered_first
+    df.sum$Trial_11_5_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<- df.fish.115$correctscreen_full_4_minutes_absolute_seconds
+    df.sum$Trial_11_5_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds[i]<-df.fish.115$incorrectscreen_full_4_minutes_absolute_seconds
+    df.sum$Trial_11_5_time_spent_in_correct_screen_T30_to_T50_absolute_seconds[i]<-df.fish.115$correctscreen_T30_to_T50_absolute_seconds
+    df.sum$Trial_11_5_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds[i]<-df.fish.115$correctscreen_T30_to_T50_absolute_seconds
+    }
+}
+
+  
+```
+
+```{r}
+#flag trials where fish was already in the correct side when the trial started at T30 (1 means it started in the correct zone)  
+
+ for(i in 1:nrow(df.sum)){ 
+    if(is.na(df.sum$Trial_9_1_latency_to_enter_correct_side[i]) == TRUE){
+    df.sum$Trial_9_1_was_fish_in_correct_screen_at_start[i]<- NA}
+    else if(df.sum$Trial_9_1_latency_to_enter_correct_side[i] == 0){
+      df.sum$Trial_9_1_was_fish_in_correct_screen_at_start[i]<- 1}
+    else{
+      df.sum$Trial_9_1_was_fish_in_correct_screen_at_start[i]<-0}
+   
+    if(is.na(df.sum$Trial_9_3_latency_to_enter_correct_side[i]) == TRUE){
+    df.sum$Trial_9_3_was_fish_in_correct_screen_at_start[i]<- NA}
+    else if(df.sum$Trial_9_3_latency_to_enter_correct_side[i] == 0){
+      df.sum$Trial_9_3_was_fish_in_correct_screen_at_start[i]<- 1}
+    else{
+      df.sum$Trial_9_3_was_fish_in_correct_screen_at_start[i]<-0}
+   
+    if(is.na(df.sum$Trial_9_5_latency_to_enter_correct_side[i]) == TRUE){
+    df.sum$Trial_9_5_was_fish_in_correct_screen_at_start[i]<- NA}
+    else if(df.sum$Trial_9_5_latency_to_enter_correct_side[i] == 0){
+      df.sum$Trial_9_5_was_fish_in_correct_screen_at_start[i]<- 1}
+    else{
+      df.sum$Trial_9_5_was_fish_in_correct_screen_at_start[i]<-0}
+   
+    if(is.na(df.sum$Trial_10_1_latency_to_enter_correct_side[i]) == TRUE){
+    df.sum$Trial_10_1_was_fish_in_correct_screen_at_start[i]<- NA}
+    else if(df.sum$Trial_10_1_latency_to_enter_correct_side[i] == 0){
+      df.sum$Trial_10_1_was_fish_in_correct_screen_at_start[i]<- 1}
+    else{
+      df.sum$Trial_10_1_was_fish_in_correct_screen_at_start[i]<-0}   
+   
+    if(is.na(df.sum$Trial_10_3_latency_to_enter_correct_side[i]) == TRUE){
+    df.sum$Trial_10_3_was_fish_in_correct_screen_at_start[i]<- NA}
+    else if(df.sum$Trial_10_3_latency_to_enter_correct_side[i] == 0){
+      df.sum$Trial_10_3_was_fish_in_correct_screen_at_start[i]<- 1}
+    else{
+      df.sum$Trial_10_3_was_fish_in_correct_screen_at_start[i]<-0}   
+
+    if(is.na(df.sum$Trial_10_5_latency_to_enter_correct_side[i]) == TRUE){
+    df.sum$Trial_10_5_was_fish_in_correct_screen_at_start[i]<- NA}
+    else if(df.sum$Trial_10_5_latency_to_enter_correct_side[i] == 0){
+      df.sum$Trial_10_5_was_fish_in_correct_screen_at_start[i]<- 1}
+    else{
+      df.sum$Trial_10_5_was_fish_in_correct_screen_at_start[i]<-0}   
+   
+    if(is.na(df.sum$Trial_11_1_latency_to_enter_correct_side[i]) == TRUE){
+    df.sum$Trial_11_1_was_fish_in_correct_screen_at_start[i]<- NA}
+    else if(df.sum$Trial_11_1_latency_to_enter_correct_side[i] == 0){
+      df.sum$Trial_11_1_was_fish_in_correct_screen_at_start[i]<- 1}
+    else{
+      df.sum$Trial_11_1_was_fish_in_correct_screen_at_start[i]<-0}   
+   
+    if(is.na(df.sum$Trial_11_3_latency_to_enter_correct_side[i]) == TRUE){
+    df.sum$Trial_11_3_was_fish_in_correct_screen_at_start[i]<- NA}
+    else if(df.sum$Trial_11_3_latency_to_enter_correct_side[i] == 0){
+      df.sum$Trial_11_3_was_fish_in_correct_screen_at_start[i]<- 1}
+    else{
+      df.sum$Trial_11_3_was_fish_in_correct_screen_at_start[i]<-0}   
+
+    if(is.na(df.sum$Trial_11_5_latency_to_enter_correct_side[i]) == TRUE){
+    df.sum$Trial_11_5_was_fish_in_correct_screen_at_start[i]<- NA}
+    else if(df.sum$Trial_11_5_latency_to_enter_correct_side[i] == 0){
+      df.sum$Trial_11_5_was_fish_in_correct_screen_at_start[i]<- 1}
+    else{
+      df.sum$Trial_11_5_was_fish_in_correct_screen_at_start[i]<-0}    
+    }
+  
+```
+
+
+
+```{r}
+#Average number of entries per fish across all trials and average reaction time
+
+for(i in 1:nrow(df.sum)){ 
+  df.sum$average_number_of_entries[i]<- mean(c(df.sum$Trial_9_1_total_entries[i],df.sum$Trial_9_3_total_entries[i],df.sum$Trial_9_5_total_entries[i],df.sum$Trial_10_1_total_entries[i],df.sum$Trial_10_3_total_entries[i],df.sum$Trial_10_5_total_entries[i],df.sum$Trial_11_1_total_entries[i],df.sum$Trial_11_3_total_entries[i],df.sum$Trial_11_5_total_entries[i]))
+  df.sum$average_reaction_time[i]<-mean(c(df.sum$Trial_9_1_reaction_time[i],df.sum$Trial_9_3_reaction_time[i],df.sum$Trial_9_5_reaction_time[i],df.sum$Trial_10_1_reaction_time[i],df.sum$Trial_10_3_reaction_time[i],df.sum$Trial_10_5_reaction_time[i],df.sum$Trial_11_1_reaction_time[i],df.sum$Trial_11_3_reaction_time[i],df.sum$Trial_11_5_reaction_time[i]))
+}
+
+```
+
+
+
+```{r}
+
+#For each ratio, get the number of "usable trials" (i.e. where fish actually enters both sides) for full 4 minutes and T30 to T50. Then get the median performance for each ratio. 
+#Note on how I'm calculating medians: if there's 3 trials in a ratio, take the median of 3. If there's only 2, take the mean of the two. If there's only 1, just take that one
+
+for(i in 1:length(fish_list)){
+df.fish<- filter(df, fishname == fish_list[i])
+df.fish.50<-filter(df.fish,ratio == '50')
+df.fish.67<-filter(df.fish,ratio == '67')
+df.fish.75<-filter(df.fish,ratio == '75')
+
+
+  df.sum$average_performance_across_all_9_testing_trials_using_full_4_minutes_data[i]<- mean(df.fish$performancescreen_full_4_minutes, na.rm=TRUE)
+  df.sum$average_performance_across_all_9_testing_trials_using_T30_to_T50_data[i]<- mean(df.fish$performancescreen_T30_to_T50, na.rm=TRUE)
+  
+  df.sum$total_number_of_testing_trials_using_full_4_minutes_data[i]<- nrow(df.fish) - sum(is.na(df.fish$performancescreen_full_4_minutes))
+  df.sum$total_number_of_testing_trials_using_T30_to_T50_data[i]<- nrow(df.fish) - sum(is.na(df.fish$performancescreen_T30_to_T50))
+  
+  df.sum$number_of_trials_on_0.50_ratio_using_full_4_minutes_data[i]<- nrow(df.fish.50) - sum(is.na(df.fish.50$performancescreen_full_4_minutes))
+  df.sum$number_of_trials_on_0.67_ratio_using_full_4_minutes_data[i]<- nrow(df.fish.67) - sum(is.na(df.fish.67$performancescreen_full_4_minutes))
+  df.sum$number_of_trials_on_0.75_ratio_using_full_4_minutes_data[i]<- nrow(df.fish.75) - sum(is.na(df.fish.75$performancescreen_full_4_minutes))
+  
+  df.sum$number_of_trials_on_0.50_ratio_using_T30_to_T50_data[i]<- nrow(df.fish.50) - sum(is.na(df.fish.50$performancescreen_T30_to_T50))
+  df.sum$number_of_trials_on_0.67_ratio_using_T30_to_T50_data[i]<- nrow(df.fish.67) - sum(is.na(df.fish.67$performancescreen_T30_to_T50))
+  df.sum$number_of_trials_on_0.75_ratio_using_T30_to_T50_data[i]<- nrow(df.fish.75) - sum(is.na(df.fish.75$performancescreen_T30_to_T50))
+}
+
+
+for(i in 1:length(fish_list)){
+df.fish<- filter(df, fishname == fish_list[i])
+df.fish.50<-filter(df.fish,ratio == '50')
+df.fish.67<-filter(df.fish,ratio == '67')
+df.fish.75<-filter(df.fish,ratio == '75')  
+      
+if ((nrow(df.fish.50) - sum(is.na(df.fish.50$performancescreen_full_4_minutes))) == 3){
+  df.sum$median_performance_on_0.50_ratio_using_full_4_minutes_data[i]<-median(df.fish.50$performancescreen_full_4_minutes)}
+else if ((nrow(df.fish.50) - sum(is.na(df.fish.50$performancescreen_full_4_minutes))) == 2){ 
+  df.sum$median_performance_on_0.50_ratio_using_full_4_minutes_data[i]<-mean(df.fish.50$performancescreen_full_4_minutes, na.rm=TRUE)}
+else if ((nrow(df.fish.50) - sum(is.na(df.fish.50$performancescreen_full_4_minutes))) == 1){
+  df.sum$median_performance_on_0.50_ratio_using_full_4_minutes_data[i]<-mean(df.fish.50$performancescreen_full_4_minutes, na.rm=TRUE)}
+else{
+  df.sum$median_performance_on_0.50_ratio_using_full_4_minutes_data[i]<-NA}
+
+if ((nrow(df.fish.67) - sum(is.na(df.fish.67$performancescreen_full_4_minutes))) == 3){
+  df.sum$median_performance_on_0.67_ratio_using_full_4_minutes_data[i]<-median(df.fish.67$performancescreen_full_4_minutes)}
+else if ((nrow(df.fish.67) - sum(is.na(df.fish.67$performancescreen_full_4_minutes))) == 2){ 
+  df.sum$median_performance_on_0.67_ratio_using_full_4_minutes_data[i]<-mean(df.fish.67$performancescreen_full_4_minutes, na.rm=TRUE)}
+else if ((nrow(df.fish.67) - sum(is.na(df.fish.67$performancescreen_full_4_minutes))) == 1){
+  df.sum$median_performance_on_0.67_ratio_using_full_4_minutes_data[i]<-mean(df.fish.67$performancescreen_full_4_minutes, na.rm=TRUE)}
+else{
+  df.sum$median_performance_on_0.67_ratio_using_full_4_minutes_data[i]<-NA}
+
+if ((nrow(df.fish.75) - sum(is.na(df.fish.75$performancescreen_full_4_minutes))) == 3){
+  df.sum$median_performance_on_0.75_ratio_using_full_4_minutes_data[i]<-median(df.fish.75$performancescreen_full_4_minutes)}
+else if ((nrow(df.fish.75) - sum(is.na(df.fish.75$performancescreen_full_4_minutes))) == 2){ 
+  df.sum$median_performance_on_0.75_ratio_using_full_4_minutes_data[i]<-mean(df.fish.75$performancescreen_full_4_minutes, na.rm=TRUE)}
+else if ((nrow(df.fish.75) - sum(is.na(df.fish.75$performancescreen_full_4_minutes))) == 1){
+  df.sum$median_performance_on_0.75_ratio_using_full_4_minutes_data[i]<-mean(df.fish.75$performancescreen_full_4_minutes, na.rm=TRUE)}
+else{
+  df.sum$median_performance_on_0.75_ratio_using_full_4_minutes_data[i]<-NA}
+
+if ((nrow(df.fish.50) - sum(is.na(df.fish.50$performancescreen_T30_to_T50))) == 3){
+  df.sum$median_performance_on_0.50_ratio_using_T30_to_T50_data[i]<-median(df.fish.50$performancescreen_T30_to_T50)}
+else if ((nrow(df.fish.50) - sum(is.na(df.fish.50$performancescreen_T30_to_T50))) == 2){ 
+  df.sum$median_performance_on_0.50_ratio_using_T30_to_T50_data[i]<-mean(df.fish.50$performancescreen_T30_to_T50, na.rm=TRUE)}
+else if ((nrow(df.fish.50) - sum(is.na(df.fish.50$performancescreen_T30_to_T50))) == 1){
+  df.sum$median_performance_on_0.50_ratio_using_T30_to_T50_data[i]<-mean(df.fish.50$performancescreen_T30_to_T50, na.rm=TRUE)}
+else{
+  df.sum$median_performance_on_0.50_ratio_using_T30_to_T50_data[i]<-NA}
+
+if ((nrow(df.fish.67) - sum(is.na(df.fish.67$performancescreen_T30_to_T50))) == 3){
+  df.sum$median_performance_on_0.67_ratio_using_T30_to_T50_data[i]<-median(df.fish.67$performancescreen_T30_to_T50)}
+else if ((nrow(df.fish.67) - sum(is.na(df.fish.67$performancescreen_T30_to_T50))) == 2){ 
+  df.sum$median_performance_on_0.67_ratio_using_T30_to_T50_data[i]<-mean(df.fish.67$performancescreen_T30_to_T50, na.rm=TRUE)}
+else if ((nrow(df.fish.67) - sum(is.na(df.fish.67$performancescreen_T30_to_T50))) == 1){
+  df.sum$median_performance_on_0.67_ratio_using_T30_to_T50_data[i]<-mean(df.fish.67$performancescreen_T30_to_T50, na.rm=TRUE)}
+else{
+  df.sum$median_performance_on_0.67_ratio_using_T30_to_T50_data[i]<-NA}
+
+if ((nrow(df.fish.75) - sum(is.na(df.fish.75$performancescreen_T30_to_T50))) == 3){
+  df.sum$median_performance_on_0.75_ratio_using_T30_to_T50_data[i]<-median(df.fish.75$performancescreen_T30_to_T50)}
+else if ((nrow(df.fish.75) - sum(is.na(df.fish.75$performancescreen_T30_to_T50))) == 2){ 
+  df.sum$median_performance_on_0.75_ratio_using_T30_to_T50_data[i]<-mean(df.fish.75$performancescreen_T30_to_T50, na.rm=TRUE)}
+else if ((nrow(df.fish.75) - sum(is.na(df.fish.75$performancescreen_T30_to_T50))) == 1){
+  df.sum$median_performance_on_0.75_ratio_using_T30_to_T50_data[i]<-mean(df.fish.75$performancescreen_T30_to_T50, na.rm=TRUE)}
+else{
+  df.sum$median_performance_on_0.75_ratio_using_T30_to_T50_data[i]<-NA}
+}
+
+```
+
+
+
+
+```{r}
+#how many medians are above 60% using full four minutes anf T30 to 50 data. 
+
+for(i in 1:length(fish_list)){
+  print(i)
+  count = 0
+if (is.na(df.sum$median_performance_on_0.50_ratio_using_full_4_minutes_data[i]) == TRUE){
+     count<- count}
+else if (df.sum$median_performance_on_0.50_ratio_using_full_4_minutes_data[i] >= 0.60){
+     count<- count + 1
+     } 
+  
+if (is.na(df.sum$median_performance_on_0.67_ratio_using_full_4_minutes_data[i]) == TRUE){
+     count<- count}
+else if (df.sum$median_performance_on_0.67_ratio_using_full_4_minutes_data[i] >= 0.60){
+     count<- count + 1
+     } 
+
+if (is.na(df.sum$median_performance_on_0.75_ratio_using_full_4_minutes_data[i]) == TRUE){
+     count<- count
+     } else if (df.sum$median_performance_on_0.75_ratio_using_full_4_minutes_data[i] >= 0.60){
+     count<- count + 1
+     } 
+   df.sum$number_of_medians_above_60_using_full_4_minutes_data[i] <- count 
+}
+
+
+for(i in 1:length(fish_list)){
+  print(i)
+  count = 0
+if (is.na(df.sum$median_performance_on_0.50_ratio_using_T30_to_T50_data[i]) == TRUE){
+     count<- count}
+
+else if (df.sum$median_performance_on_0.50_ratio_using_T30_to_T50_data[i] >= 0.60){
+     count<- count + 1
+     } 
+
+if (is.na(df.sum$median_performance_on_0.67_ratio_using_T30_to_T50_data[i]) == TRUE){
+     count<- count}
+else if (df.sum$median_performance_on_0.67_ratio_using_T30_to_T50_data[i] >= 0.60){
+     count<- count + 1
+     } 
+
+if (is.na(df.sum$median_performance_on_0.75_ratio_using_T30_to_T50_data[i]) == TRUE){
+     count<- count
+     } else if (df.sum$median_performance_on_0.75_ratio_using_T30_to_T50_data[i] >= 0.60){
+     count<- count + 1
+     } 
+   df.sum$number_of_medians_above_60_using_T30_to_T50_data[i] <- count 
+}
+
+```
+
+
+
+
+```{r}
+#Run the shapiro-wilk test to determine if testing trials are normally distributed or not, then using that result run either a t test of a wilcox test to see if performance was significantly from mu=0.5 for a given fish
+
+for(i in 1:length(fish_list)){
+  df.fish<- filter(df, fishname == fish_list[i])
+if(nrow(df.fish) - sum(is.na(df.fish$performancescreen_full_4_minutes)) >2){
+  shapiro.results.full.4<- shapiro.test(df.fish$performancescreen_full_4_minutes)
+  df.sum$shapiro_wilk_test_p_value_using_full_4_minutes_data[i]<- shapiro.results.full.4$p.value}
+  
+else{
+ df.sum$shapiro_wilk_test_p_value_using_full_4_minutes_data[i]<-NA}
+}
+ 
+for(i in 1:length(fish_list)){
+    df.fish<- filter(df, fishname == fish_list[i])
+  if(is.na(df.sum$shapiro_wilk_test_p_value_using_full_4_minutes_data[i]) == TRUE){
+      df.sum$was_average_performance_significantly_different_from_0.5_full_4_minutes_p_value_of_either_t_test_or_wilcox[i]<-NA}
+    
+  else if(df.sum$shapiro_wilk_test_p_value_using_full_4_minutes_data[i] >0.05){
+      t.test.results.full.4 <-t.test(df.fish$performancescreen_full_4_minutes, mu=0.5)
+      df.sum$was_average_performance_significantly_different_from_0.5_full_4_minutes_p_value_of_either_t_test_or_wilcox[i]<-t.test.results.full.4$p.value}
+    
+  else{
+      wilcox.results.full.4 <-wilcox.test(df.fish$performancescreen_full_4_minutes, mu=0.5)
+      df.sum$was_average_performance_significantly_different_from_0.5_full_4_minutes_p_value_of_either_t_test_or_wilcox[i]<-wilcox.results.full.4$p.value}
+} 
+
+
+for(i in 1:length(fish_list)){
+  df.fish<- filter(df, fishname == fish_list[i])
+if(nrow(df.fish) - sum(is.na(df.fish$performancescreen_T30_to_T50)) >2){
+  shapiro.results.full.4<- shapiro.test(df.fish$performancescreen_T30_to_T50)
+  df.sum$shapiro_wilk_test_p_value_using_T30_to_T50_data[i]<- shapiro.results.full.4$p.value}
+  
+else{
+ df.sum$shapiro_wilk_test_p_value_using_T30_to_T50_data[i]<-NA}
+}
+
+for(i in 1:length(fish_list)){
+    df.fish<- filter(df, fishname == fish_list[i])
+  if(is.na(df.sum$shapiro_wilk_test_p_value_using_T30_to_T50_data[i]) == TRUE){
+      df.sum$was_average_performance_significantly_different_from_0.5_T30_to_T50_p_value_of_either_t_test_or_wilcox[i]<-NA}
+    
+  else if(df.sum$shapiro_wilk_test_p_value_using_T30_to_T50_data[i] >0.05){
+      t.test.results.full.4 <-t.test(df.fish$performancescreen_T30_to_T50, mu=0.5)
+      df.sum$was_average_performance_significantly_different_from_0.5_T30_to_T50_p_value_of_either_t_test_or_wilcox[i]<-t.test.results.full.4$p.value}
+    
+  else{
+      wilcox.results.full.4 <-wilcox.test(df.fish$performancescreen_T30_to_T50, mu=0.5)
+      df.sum$was_average_performance_significantly_different_from_0.5_T30_to_T50_p_value_of_either_t_test_or_wilcox[i]<-wilcox.results.full.4$p.value}
+} 
+
+
+```
+
+```{r}
+#take the "number of medians above 60%" and the t test/wilcox test results and determine etheredege et al learning category (high, low, or non)
+
+for(i in 1:length(fish_list)){
+  
+  if(is.na(df.sum$number_of_medians_above_60_using_T30_to_T50_data[i]) == TRUE){
+    df.sum$learning_category_according_to_etheredge_T30_to_T50[i] <- NA}
+  else if(df.sum$number_of_medians_above_60_using_T30_to_T50_data[i] <1){
+    df.sum$learning_category_according_to_etheredge_T30_to_T50[i] <- "non"} 
+  else if(df.sum$number_of_medians_above_60_using_T30_to_T50_data[i] >0){
+    if(is.na(df.sum$was_average_performance_significantly_different_from_0.5_T30_to_T50_p_value_of_either_t_test_or_wilcox[i]) == TRUE){
+    df.sum$learning_category_according_to_etheredge_T30_to_T50[i] <- NA}
+    else if(df.sum$was_average_performance_significantly_different_from_0.5_T30_to_T50_p_value_of_either_t_test_or_wilcox[i] <0.05){
+      df.sum$learning_category_according_to_etheredge_T30_to_T50[i] <- "high"}
+      else{
+        df.sum$learning_category_according_to_etheredge_T30_to_T50[i] <- "low"}
+  }
+}
+
+for(i in 1:length(fish_list)){
+  
+  if(is.na(df.sum$number_of_medians_above_60_using_full_4_minutes_data[i]) == TRUE){
+    df.sum$learning_category_according_to_etheredge_full_4_minutes[i] <- NA}
+  else if(df.sum$number_of_medians_above_60_using_full_4_minutes_data[i] <1){
+    df.sum$learning_category_according_to_etheredge_full_4_minutes[i] <- "non"} 
+  else if(df.sum$number_of_medians_above_60_using_full_4_minutes_data[i] >0){
+    if(is.na(df.sum$was_average_performance_significantly_different_from_0.5_full_4_minutes_p_value_of_either_t_test_or_wilcox[i]) == TRUE){
+    df.sum$learning_category_according_to_etheredge_full_4_minutes[i] <- NA}
+    else if(df.sum$was_average_performance_significantly_different_from_0.5_full_4_minutes_p_value_of_either_t_test_or_wilcox[i] <0.05){
+      df.sum$learning_category_according_to_etheredge_full_4_minutes[i] <- "high"}
+      else{
+        df.sum$learning_category_according_to_etheredge_full_4_minutes[i] <- "low"}
+  }
+}
+
+
+
+```
+
+
+```{r}
+#average latency to enter the correct and incorrectside
+
+for(i in 1:length(fish_list)){
+df.fish<- filter(df, fishname == fish_list[i])
+df.sum$average_latency_to_enter_correct_side[i]<- mean(df.fish$latency_enter_corr, na.rm =TRUE)
+}
+
+for(i in 1:length(fish_list)){
+df.fish<- filter(df, fishname == fish_list[i])
+df.sum$average_latency_to_enter_incorrect_side[i]<- mean(df.fish$latency_enter_incorr, na.rm =TRUE)
+}
+
+```
+
+
+
+```{r}
+#proportion of trials where the correct side was chosen first (excludes trials where NA)
+
+for(i in 1:length(fish_list)){
+df.fish<- filter(df, fishname == fish_list[i])
+df.fish.correct<-filter(df.fish, df.fish$screen_entered_first == "correct")
+number_correct<-nrow(df.fish.correct)
+df.fish.incorrect<-filter(df.fish, df.fish$screen_entered_first == "incorrect")
+number_incorrect<-nrow(df.fish.incorrect)
+
+df.sum$proportion_of_correct_first_choices[i]<- number_correct/(number_incorrect+ number_correct)
+}
+
+
+
+```
+
+
+
+```{r}
+
+#Get the number of testing trials in a row where a) performance was above 60% useing the full four minutes data, b) performance was above 60% using the T30 to T50 data, or c) if correct or was picked first
+
+for(j in 1:nrow(df.sum)){
+  #print(j)
+df.fish<- filter(df, fishname == fish_list[j])
+df.fish[, c(12, 13)] <- sapply(df.fish[, c(12,13)], as.numeric)
+df.fish<- df.fish[order(df.fish$day, df.fish$trial),]
+
+countlist_full_4_minutes <- vector(length=9)
+countlist_T30_to_T50 <- vector(length=9)
+countlist_correct_choice_first <- vector(length=9)
+
+countlist_full_4_minutes[1] <- 0
+countlist_T30_to_T50[1] <- 0
+countlist_correct_choice_first[1] <- 0
+
+  for(i in 1:nrow(df.fish)){
+    if (is.na(df.fish$perf_greater_than_60_full_4_minutes[i]) == TRUE){
+        if(i == 1){
+        countlist_full_4_minutes[i]<- 0}
+        else{
+        countlist_full_4_minutes[i]<- countlist_full_4_minutes[i-1]}}
+    else if (df.fish$perf_greater_than_60_full_4_minutes[i] == 1){
+        if(i == 1){
+        countlist_full_4_minutes[i]<- 1}
+        else{
+        countlist_full_4_minutes[i]<- countlist_full_4_minutes[i-1] + 1}}  
+    else if (df.fish$perf_greater_than_60_full_4_minutes[i] == 0){
+    countlist_full_4_minutes[i]<- 0}
+  }
+
+  for(i in 1:nrow(df.fish)){
+    if (is.na(df.fish$perf_greater_than_60_T30_to_T50[i]) == TRUE){
+        if(i == 1){
+        countlist_T30_to_T50[i]<- 0}
+        else{
+        countlist_T30_to_T50[i]<- countlist_T30_to_T50[i-1]}}
+    else if (df.fish$perf_greater_than_60_T30_to_T50[i] == 1){
+        if(i == 1){
+        countlist_T30_to_T50[i]<- 1}
+        else{
+        countlist_T30_to_T50[i]<- countlist_T30_to_T50[i-1] + 1}}  
+    else if (df.fish$perf_greater_than_60_T30_to_T50[i] == 0){
+    countlist_T30_to_T50[i]<- 0}
+  }
+
+  for(i in 1:nrow(df.fish)){
+    if (is.na(df.fish$screen_entered_first[i]) == TRUE){
+        if(i == 1){
+        countlist_correct_choice_first[i]<- 0}
+        else{
+        countlist_correct_choice_first[i]<- countlist_correct_choice_first[i-1]}}
+    else if (df.fish$screen_entered_first[i] == 'incorrect'){
+    countlist_correct_choice_first[i]<- 0}
+    else if (df.fish$screen_entered_first[i] == 'correct'){
+        if(i == 1){
+        countlist_correct_choice_first[i]<- 1}
+        else{
+        countlist_correct_choice_first[i]<- countlist_correct_choice_first[i-1] + 1}}  
+  }
+
+streak.full_4_minutes<-max(countlist_full_4_minutes)
+streak.T30_to_T50<-max(countlist_T30_to_T50)
+streak.correct_choice_first<- max(countlist_correct_choice_first)
+
+df.sum$number_of_trials_in_a_row_greater_than_60_percent_full_4_minutes[j] <- streak.full_4_minutes
+df.sum$number_of_trials_in_a_row_greater_than_60_percent_T30_to_T50[j] <- streak.T30_to_T50
+df.sum$number_of_trials_in_a_row_correct_choice_first[j] <- streak.correct_choice_first
+
+#browser()
+
+#print(df.fish$fishname[1])
+#print(countlist_full_4_minutes)
+#print(streak.full_4_minutes)
+#print(countlist_T30_to_T50)
+#print(streak.T30_to_T50)
+#print(countlist_correct_choice_first)
+#print(streak.correct_choice_first)
+}
+
+
+```
+
+
+
+```{r}
+#This is to check for any score sheets where the entries are doubled, don't actually need to rerun this part
+
+for(i in 1:length(file_list)){
+  setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/numerosity cc score sheets")
+  
+  fil <- read_csv(file_list[i], col_names = TRUE, col_types = NULL)
+  filename <- file_list[i]
+  if (fil$code[1] == fil$code[2]){
+    print (filename)
+  }
+}
+```
+
+
+```{r}
+#get mean of medians (i.e. mean of the 3 values: median performance on 50, 67, and 75)
+
+for(i in 1:nrow(df.sum)){
+  df.sum$mean_of_median_performance_on_each_ratio_full_four_minutes_data[i] <- mean(c(df.sum$median_performance_on_0.50_ratio_using_full_4_minutes_data[i],df.sum$median_performance_on_0.67_ratio_using_full_4_minutes_data[i], df.sum$median_performance_on_0.75_ratio_using_full_4_minutes_data[i]))
+   
+  df.sum$mean_of_median_performance_on_each_ratio_T30_to_T50_data[i] <- mean(c(df.sum$median_performance_on_0.50_ratio_using_T30_to_T50_data[i],df.sum$median_performance_on_0.67_ratio_using_T30_to_T50_data[i], df.sum$median_performance_on_0.75_ratio_using_T30_to_T50_data[i]))  
+}
+
+```
+
+
+
+```{r}
+#Export as a csv file
+
+write_csv(df.sum, "Numerosity Comparative Cognition Full Dataset March_19_2018.csv")
+
+
+```
+
+```{r}
+
+
+```
+
+```{r}
+#6b. How many 1:2 trials were analyzed?
+
+```
+
+
+```{r}
+#6c. How many 2:3 trials were analyzed?
+
+```
+
+
+```{r}
+#6d. How many 3:4 trials were analyzed?
+
+```
+
+
+```{r}
+#6e. How many total testing trials were analyzed?
+
+```
+
+
+```{r}
+#7a. Determine median performance on 1:2 ratio
+
+```
+
+
+```{r}
+#7b. Determine median performance on 2:3 ratio
+
+```
+
+
+```{r}
+#7c. Determine median performance on 3:4 ratio
+
+```
+
+
+```{r}
+#7d. Determine average performance
+
+```
+
+
+```{r}
+#7e. Determine how many median scores (of 3) are above 60%
+
+```
+
+
+```{r}
+#7f. Determine if average perofrmance is significantly different from 50%
+
+```
+
+
+```{r}
+#7g. Determine learning status (high, low, non)
+
+```
+
+
+```{r}
+#8a. Sort the import df (earlier spreadsheet) by trial ID
+
+```
+
+
+```{r}
+#8b. filter by fishname
+
+```
+
+
+```{r}
+#8c. find longest row of consecutive 'yes' and add that as "longest streak" 
+
+```
+
+
+```{r}
+#8d. Is longest streak 7 or greater?
+
+```
+
+```{r}
+#Step 9: Export as a csv file
+
+```
+
+

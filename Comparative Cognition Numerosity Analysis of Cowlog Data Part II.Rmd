@@ -1,0 +1,986 @@
+---
+title: "Comparative Cognition Numerosity Analysis of Cowlog data Part II"
+author: "Kelly Wallace"
+date: "March 16, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This document takes the output from "Comparative Cognition Numerosity Cowlog Analysis.Rmd" and graphs relevant data. 
+Note: Comparative Cognition Numerosity Cowlog Analysis.Rmd takes all the individual cowlog score sheets for numerosity and summarized them into one datasheet, df.sum
+
+Individuals in the data output from the first rmd: 
+wahida, wheatley,winnifred, wisteria,wayne, gabi,wile, wyatt,wedelia, gavin,gretchen, wade,willis, gloria,waldhurga, garrison,george, waverly,wilbur, wildflower,gemma, gertrude,grayson, watson,gary, winter,georgiafixed, wendy,gladys, gibson,gina, griffin,gabriel, winona,gideon,gordon, 
+
+ORDER OF ANALYSIS:
+1. Pairwise comparisons of the following (one value per individual) performance metrics:
+Average performance over full 4 minutes
+Average performance over T30 to T50
+Proportion of correct first choices
+Average latency to approach correct side
+Mean of median perofomance on each ratio
+number of medians above 0.60 using full 4 minutes data
+number of medians above 0.60 using full 4 minutes data
+
+
+2. Pairwise comparison of the performance metrics (one value per individual) to the following behavior metrics:
+Average number of entries
+Average reaction time
+
+3. Investigating other factors (compare performance to):
+sex, 
+size, 
+order,
+
+4. See how consistent individuals are across trials within the same individuals (so will have an average repeatibility score?)
+Performance over the full 4 minutes
+Performance over T30 to T50
+Which side was chosen first
+
+
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(rmarkdown)
+library(knitr)
+library(readr)
+library(utils)
+
+
+df<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Numerosity Comparative Cognition Full Dataset March_19_2018.csv", col_names = TRUE, col_types = NULL)
+
+View(df)
+
+
+#TEMPLATE---------
+
+p <- ggplot(df, aes(XXX, XXX))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.3, y=0.5, label= "p = 0.007277, R-squared:  0.1987
+        ", size = 6, color = "black") + 
+  labs(x= "XXX",y="XXX") +
+  ggtitle ("Note:XXX") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$XXX ~ df$XXX, na.rm = TRUE)
+summary(mod)
+
+
+
+```
+
+
+```{r}
+#Does average performance over just T30 to T50 predict average performance over the full 4 minutes?
+
+p <- ggplot(df, aes(average_performance_across_all_9_testing_trials_using_T30_to_T50_data, average_performance_across_all_9_testing_trials_using_full_4_minutes_data))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.3, y=0.5, label= "p = 0.007277, R-squared:  0.1987
+        ", size = 6, color = "black") + 
+  labs(x= "average_performance_across_all_9_testing_trials_using_T30_to_T50_data",y="average_performance_across_all_9_testing_trials_
+       using_full_4_minutes_data") +
+  ggtitle ("Note:Does average performance over just T30 to T50 predict 
+           average performance over the full 4 minutes?") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_full_4_minutes_data ~df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data, na.rm = TRUE)
+summary(mod)
+
+```
+
+
+
+```{r}
+
+#Does proportion of correct first choices predict average performance (T30 to T50 data)?
+p <- ggplot(df, aes(proportion_of_correct_first_choices, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.3, y=0.63, label= "p = 0.01904, R-squared: 0.1556
+        ", size = 6, color = "black") + 
+  labs(x= "proportion_of_correct_first_choices",y="average_performance_across_all_9_testing_trials_
+       using_T30_to_T50_data") +
+  ggtitle ("Note:Does proportion of correct first 
+           choices predict average performance (T30 to T50 data)?") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df$proportion_of_correct_first_choices, na.rm = TRUE)
+summary(mod)
+
+
+```
+
+```{r}
+#Does proportion of correct first choices predict average performance (full four minutes data)?
+p <- ggplot(df, aes(proportion_of_correct_first_choices, average_performance_across_all_9_testing_trials_using_full_4_minutes_data))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.3, y=0.5, label= "p = 0.8697, R-squared:  0.0008276
+        ", size = 6, color = "black") + 
+  labs(x= "proportion_of_correct_first_choices",y="average_performance_across_all_9_testing_trials_
+       using_full_4_minutes_data") +
+  ggtitle ("Note:Does proportion of correct first choices 
+           predict average performance (full four minutes data)?") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_full_4_minutes_data ~ df$proportion_of_correct_first_choices, na.rm = TRUE)
+summary(mod)
+```
+
+```{r}
+
+#Does average latency to enter the correct side predict proportion of first choices (speed accuracy tradeoff)?
+p <- ggplot(df, aes(average_latency_to_enter_correct_side, proportion_of_correct_first_choices))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=30, y=0.8, label= "p = 0.08298, R-squared:  0.08831
+        ", size = 6, color = "black") + 
+  labs(x= "average_latency_to_enter_correct_side",y="proportion_of_correct_first_choices") +
+  ggtitle ("Note:Does average latency to enter the correct side predict 
+           proportion of first choices (speed accuracy tradeoff)?") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$proportion_of_correct_first_choices ~ df$average_latency_to_enter_correct_side, na.rm = TRUE)
+summary(mod)
+```
+
+```{r}
+#Does average latency to enter the correct side predict average performance over full 4 minutes data (speed accuracy tradeoff)?
+p <- ggplot(df, aes(average_latency_to_enter_correct_side, average_performance_across_all_9_testing_trials_using_full_4_minutes_data))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=50, y=0.5, label= "p = 0.01221, R-squared:  0.1757
+        ", size = 6, color = "black") + 
+  labs(x= "average_latency_to_enter_correct_side",y="average_performance_across_all_9_testing_trials_
+       using_full_4_minutes_data") +
+  ggtitle ("Note:Does average latency to enter the correct side predict 
+           average performance over full 4 minutes data (speed accuracy tradeoff)?") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_full_4_minutes_data ~ df$average_latency_to_enter_correct_side, na.rm = TRUE)
+summary(mod)
+```
+
+```{r}
+#Does average latency to enter correct side predict average performance (T30 to T50 data)?
+p <- ggplot(df, aes(average_latency_to_enter_correct_side, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=50, y=0.5, label= "p = 0.0003672, R-squared:  0.3231
+        ", size = 6, color = "black") + 
+  labs(x= "average_latency_to_enter_correct_side",y="average_performance_across_all_9_testing_trials_
+       using_T30_to_T50_data") +
+  ggtitle ("Note:Does average latency to enter correct side predict 
+           average performance (T30 to T50 data)?") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df$average_latency_to_enter_correct_side, na.rm = TRUE)
+summary(mod)
+```
+
+
+```{r}
+#Does Mean of median performance on each ratio (T30 to T50 data) predict proportion of correct first choices?
+p <- ggplot(df, aes(mean_of_median_performance_on_each_ratio_T30_to_T50_data, proportion_of_correct_first_choices))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.3, y=0.5, label= "p = 0.09966, R-squared: 0.08778
+        ", size = 6, color = "black") + 
+  labs(x= "mean_of_median_performance_on_each_ratio_T30_to_T50_data",y="proportion_of_correct_first_choices") +
+  ggtitle ("Note:Does Mean of median performance on each ratio 
+           (T30 to T50 data) predict proportion of correct first choices?") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$proportion_of_correct_first_choices ~ df$mean_of_median_performance_on_each_ratio_T30_to_T50_data, na.rm = TRUE)
+summary(mod)
+```
+
+
+
+```{r}
+#Does Mean of median performance on each ratio (full 4 minutes) predict proportion of correct first choices?
+p <- ggplot(df, aes(mean_of_median_performance_on_each_ratio_full_four_minutes_data, proportion_of_correct_first_choices))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.3, y=0.5, label= "p = 0.5818, R-squared: 0.009582
+        ", size = 6, color = "black") + 
+  labs(x= "mean_of_median_performance_on_each_ratio_full_four_minutes_data",y="proportion_of_correct_first_choices") +
+  ggtitle ("Note:Does Mean of median performance on each ratio 
+           (full 4 minutes) predict proportion of correct first choices?") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$proportion_of_correct_first_choices ~ df$mean_of_median_performance_on_each_ratio_full_four_minutes_data, na.rm = TRUE)
+summary(mod)
+```
+
+
+
+```{r}
+#Does average latency to enter correct side predict mean of median performance on each ratio (mean of median measured in full 4 minutes)?
+p <- ggplot(df, aes(average_latency_to_enter_correct_side, mean_of_median_performance_on_each_ratio_full_four_minutes_data))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=30, y=0.5, label= "p = 0.0556, R-squared: 0.1098
+        ", size = 6, color = "black") + 
+  labs(x= "average_latency_to_enter_correct_side",y="mean_of_median_performance_on_each_ratio_
+       full_four_minutes_data") +
+  ggtitle ("Note:Does average latency to enter correct side predict 
+           mean of median performance on each ratio (mean of median measured in full 4 minutes)?") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$mean_of_median_performance_on_each_ratio_full_four_minutes_data ~ df$average_latency_to_enter_correct_side, na.rm = TRUE)
+summary(mod)
+```
+
+```{r}
+#Does average latency to enter correct side predict mean of median performance on each ratio (mean of median measured in T30 to T50)?
+p <- ggplot(df, aes(average_latency_to_enter_correct_side, mean_of_median_performance_on_each_ratio_T30_to_T50_data))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=50, y=0.5, label= "p = 0.04215, R-squared: 0.1306
+        ", size = 6, color = "black") + 
+  labs(x= "average_latency_to_enter_correct_side",y="mean_of_median_performance_on_each_ratio_T30_to_T50_data") +
+  ggtitle ("Note:Does average latency to enter correct side predict
+           mean of median performance on each ratio (mean of median measured in T30 to T50)?") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$mean_of_median_performance_on_each_ratio_T30_to_T50_data ~ df$average_latency_to_enter_correct_side, na.rm = TRUE)
+summary(mod)
+```
+
+
+```{r}
+#Does Mean of median performance on each ratio (full 4 minutes) predict average performance (full 4 minutes data)?
+p <- ggplot(df, aes(mean_of_median_performance_on_each_ratio_full_four_minutes_data, average_performance_across_all_9_testing_trials_using_full_4_minutes_data))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.3, y=0.5, label= "p = 2.695e-16, R-squared: 0.8801
+        ", size = 6, color = "black") + 
+  labs(x= "mean_of_median_performance_on_each_ratio
+_full_four_minutes_data",y="average_performance_across_all_9_testing_trials
+       _using_full_4_minutes_data") +
+  ggtitle ("Note:Does Mean of median performance on each ratio 
+           (full 4 minutes) predict average performance (full 4 minutes data)?") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_full_4_minutes_data ~ df$mean_of_median_performance_on_each_ratio_full_four_minutes_data, na.rm = TRUE)
+summary(mod)
+```
+
+```{r}
+#Does Mean of median performance on each ratio (T30 to T50 data) predict average performance (T30 to T50 data)?
+p <- ggplot(df, aes(mean_of_median_performance_on_each_ratio_T30_to_T50_data, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.3, y=0.6, label= "p = 8.579e-15, R-squared: 0.8693
+        ", size = 6, color = "black") + 
+  labs(x= "mean_of_median_performance_on_each_ratio_T30_to_T50_data",y="average_performance_across_all_9_testing_trials
+       _using_T30_to_T50_data") +
+  ggtitle ("Note:Does Mean of median performance on each ratio 
+           (T30 to T50 data) predict average performance (T30 to T50 data)?") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df$mean_of_median_performance_on_each_ratio_T30_to_T50_data, na.rm = TRUE)
+summary(mod)
+
+```
+
+
+
+```{r}
+
+#Does number of medians above 60% (full 4 minutes) predict latency to enter correct side?
+df$number_of_medians_above_60_using_full_4_minutes_data <-as.character(df$number_of_medians_above_60_using_full_4_minutes_data)
+p <- ggplot(df, aes(x=number_of_medians_above_60_using_full_4_minutes_data, y=average_latency_to_enter_correct_side)) + 
+  geom_boxplot()
+p
+
+```
+
+```{r}
+
+#Does number of medians above 60% (T30 to T50) predict latency to enter correct side?
+df$number_of_medians_above_60_using_T30_to_T50_data <-as.character(df$number_of_medians_above_60_using_T30_to_T50_data)
+p <- ggplot(df, aes(x=number_of_medians_above_60_using_T30_to_T50_data, y=average_latency_to_enter_correct_side)) + 
+  geom_boxplot()
+p
+
+```
+
+```{r}
+
+#Does number of medians above 60% (full four minutes) predict proportion of correct first choices?
+p <- ggplot(df, aes(x=number_of_medians_above_60_using_full_4_minutes_data, y=proportion_of_correct_first_choices)) + 
+  geom_boxplot()
+p+  ggtitle ("Note:Does number of medians above 60% (full four minutes) 
+             predict proportion of correct first choices?")
+
+```
+
+
+```{r}
+
+#Does number of medians above 60% (T30 to T50) predict proportion of correct first choices?
+p <- ggplot(df, aes(x=number_of_medians_above_60_using_T30_to_T50_data, y=proportion_of_correct_first_choices)) + 
+  geom_boxplot()
+p +  ggtitle ("Note:Does number of medians above 60% (T30 to T50)
+              predict proportion of correct first choices?")
+
+```
+
+
+```{r}
+#Does average number of entries predict average performance (full 4 minutes)?
+p <- ggplot(df, aes(average_number_of_entries, average_performance_across_all_9_testing_trials_using_full_4_minutes_data))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=50, y=0.2, label= "p = 0.08643, R-squared: 0.09798
+        ", size = 6, color = "black") + 
+  labs(x= "average_number_of_entries",y="average_performance_across_all_9_testing_trials
+       _using_full_4_minutes_data") +
+  ggtitle ("Note:Does average number of entries predict average performance (full 4 minutes)?") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_full_4_minutes_data ~ df$average_number_of_entries, na.rm = TRUE)
+summary(mod)
+
+```
+
+```{r}
+#Does average number of entries predict average performance (T30 to T50)?
+p <- ggplot(df, aes(average_number_of_entries, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=50, y=0.2, label= "p = 0.02089, R-squared: 0.1707
+        ", size = 6, color = "black") + 
+  labs(x= "average_number_of_entries",y="average_performance_across_all_9_testing_trials
+       _using_T30_to_T50_data") +
+  ggtitle ("Note:Does average number of entries predict average performance (T30 to T50)?") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df$average_number_of_entries, na.rm = TRUE)
+summary(mod)
+
+```
+
+
+```{r}
+#Does average number of entries predict proportion of correct choices?
+p <- ggplot(df, aes(average_number_of_entries, proportion_of_correct_first_choices))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=50, y=0.2, label= "p = 0.5512, R-squared: 0.01238
+        ", size = 6, color = "black") + 
+  labs(x= "average_number_of_entries",y="proportion_of_correct_first_choices") +
+  ggtitle ("Note:Does average number of entries predict proportion of correct choices?") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$proportion_of_correct_first_choices ~ df$average_number_of_entries, na.rm = TRUE)
+summary(mod)
+
+```
+
+
+```{r}
+#Does average reaction time predict average performance (full 4 minutes)?
+p <- ggplot(df, aes(average_reaction_time, average_performance_across_all_9_testing_trials_using_full_4_minutes_data))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=20, y=0.1, label= "p = 0.1233, R-squared: 0.07992
+        ", size = 6, color = "black") + 
+  labs(x= "average_reaction_time",y="average_performance_across_all_9_testing_trials
+       _using_full_4_minutes_data") +
+  ggtitle ("Note:Does average reaction time predict 
+           average performance (full 4 minutes)?") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_full_4_minutes_data ~ df$average_reaction_time, na.rm = TRUE)
+summary(mod)
+
+```
+
+
+```{r}
+#Does average reaction time predict average performance (T30 to T50)?
+p <- ggplot(df, aes(average_reaction_time, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=25, y=0.5, label= "p = 0.04334, R-squared: 0.1334
+        ", size = 6, color = "black") + 
+  labs(x= "average_reaction_time",y="average_performance_across_all_9_testing_trials_
+       using_T30_to_T50_data") +
+  ggtitle ("Note:Does average reaction time predict average performance (T30 to T50)?") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df$average_reaction_time, na.rm = TRUE)
+summary(mod)
+
+```
+
+```{r}
+#Does average reaction time predict proportion of correct choices?
+p <- ggplot(df, aes(average_reaction_time, proportion_of_correct_first_choices))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=10, y=0.2, label= "p = 0.08333, R-squared: 0.09985
+        ", size = 6, color = "black") + 
+  labs(x= "average_reaction_time",y="proportion_of_correct_first_choices") +
+  ggtitle ("Note:Does average reaction time predict proportion of correct choices?") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$proportion_of_correct_first_choices ~ df$average_reaction_time, na.rm = TRUE)
+summary(mod)
+
+```
+
+```{r}
+
+#Does sex predict average performance over the full 4 minutes?
+p <- ggplot(df, aes(x=sex, y=average_performance_across_all_9_testing_trials_using_full_4_minutes_data)) + 
+  geom_boxplot()
+p +  ggtitle ("Note:Does sex predict average performance over the full 4 minutes?")
+
+```
+
+
+```{r}
+
+#Does sex predict average performance over T30 to T50?
+p <- ggplot(df, aes(x=sex, y=average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) + 
+  geom_boxplot()
+p +  ggtitle ("Note:Does sex predict average performance over T30 to T50?")
+
+```
+
+
+```{r}
+
+#Does sex predict average latency to enter correct zone?
+p <- ggplot(df, aes(x=sex, y=average_latency_to_enter_correct_side)) + 
+  geom_boxplot()
+p +  ggtitle ("Note:Does sex predict average latency to enter correct zone?")
+
+```
+
+
+```{r}
+
+#Does sex predict proportion of correct choices?
+p <- ggplot(df, aes(x=sex, y=proportion_of_correct_first_choices)) + 
+  geom_boxplot()
+p +  ggtitle ("Note:Does sex predict proportion of correct choices?")
+
+```
+
+
+```{r}
+
+#Does sex predict average number of entries?
+p <- ggplot(df, aes(x=sex, y=average_number_of_entries)) + 
+  geom_boxplot()
+p +  ggtitle ("Note:Does sex predict average number of entries?")
+
+```
+
+
+```{r}
+
+#Does sex predict average reaction time?
+p <- ggplot(df, aes(x=sex, y=average_reaction_time)) + 
+  geom_boxplot()
+p +  ggtitle ("Note:Does sex predict average reaction time?")
+
+```
+
+
+
+```{r}
+#Does size/age predict average perofmrance (full 4 minutes)?
+p <- ggplot(df, aes(standard_length, average_performance_across_all_9_testing_trials_using_full_4_minutes_data))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=1600, y=0.2, label= "p = 0.1531, R-squared: 0.06086
+        ", size = 6, color = "black") + 
+  labs(x= "standard_length",y="average_performance_across_all_9_testing_trials_
+       using_full_4_minutes_data") +
+  ggtitle ("Note:Does size/age predict average performance (full 4 minutes)? SEXES COMBINED") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_full_4_minutes_data ~ df$standard_length, na.rm = TRUE)
+summary(mod)
+```
+```{r}
+#Does size/age predict average perofmrance (full 4 minutes)?
+p <- ggplot(df, aes(standard_length, average_performance_across_all_9_testing_trials_using_full_4_minutes_data, color = sex))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  #annotate("text", x=1600, y=0.2, label= "p = 0.1531, R-squared: 0.06086
+  #      ", size = 6, color = "black") + 
+  labs(x= "standard_length",y="average_performance_across_all_9_testing_trials_
+       using_full_4_minutes_data") +
+  ggtitle ("Note:Does size/age predict average performance (full 4 minutes)?") +
+  geom_smooth(method = "lm")
+
+```
+
+
+```{r}
+#Does size/age predict average performance(T30 to T50)?
+p <- ggplot(df, aes(standard_length, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=1700, y=0.3, label= "p = 0.6725, R-squared: 0.005484
+        ", size = 6, color = "black") + 
+  labs(x= "standard_length",y="average_performance_across_all_9_testing_trials_
+       using_T30_to_T50_data") +
+  ggtitle ("Note:Does size/age predict average performance(T30 to T50)?SEXES COMBINED") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df$standard_length, na.rm = TRUE)
+summary(mod)
+```
+
+
+
+
+```{r}
+#Does size/age predict average performance(T30 to T50)?
+p <- ggplot(df, aes(standard_length, average_performance_across_all_9_testing_trials_using_T30_to_T50_data, color = sex))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  #annotate("text", x=1700, y=0.3, label= "p = 0.6725, R-squared: 0.005484
+   #     ", size = 6, color = "black") + 
+  labs(x= "standard_length",y="average_performance_across_all_9_testing_trials_
+       using_T30_to_T50_data") +
+  ggtitle ("Note:Does size/age predict average performance(T30 to T50)?") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df$standard_length, na.rm = TRUE)
+summary(mod)
+```
+
+
+
+```{r}
+#Does size/age predict proportion of correct choices?
+p <- ggplot(df, aes(standard_length, proportion_of_correct_first_choices))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=1700, y=0.1, label= "p = 0.3021, R-squared: 0.03223
+        ", size = 6, color = "black") + 
+  labs(x= "standard_length",y="proportion_of_correct_first_choices") +
+  ggtitle ("Note:Does size/age predict proportion of correct choices?SEXES COMBINED") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$proportion_of_correct_first_choices ~ df$standard_length, na.rm = TRUE)
+summary(mod)
+
+```
+
+```{r}
+#Does size/age predict proportion of correct choices?
+p <- ggplot(df, aes(standard_length, proportion_of_correct_first_choices, color = sex))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+ # annotate("text", x=1700, y=0.1, label= "p = 0.3021, R-squared: 0.03223
+  #      ", size = 6, color = "black") + 
+  labs(x= "standard_length",y="proportion_of_correct_first_choices") +
+  ggtitle ("Note:Does size/age predict proportion of correct choices?") +
+  geom_smooth(method = "lm")
+
+
+```
+
+
+
+```{r}
+#Does size/age predict average latency to enter correct side?
+p <- ggplot(df, aes(standard_length, average_latency_to_enter_correct_side))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=1800, y=75, label= "p = 0.03616, R-squared: 0.1263
+        ", size = 6, color = "black") + 
+  labs(x= "standard_length",y="average_latency_to_enter_correct_side") +
+  ggtitle ("Note:Does size/age predict average latency to enter correct side? SEXES COMBINED") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$average_latency_to_enter_correct_side ~ df$standard_length, na.rm = TRUE)
+summary(mod)
+
+```
+
+
+```{r}
+#Does size/age predict average latency to enter correct side?
+p <- ggplot(df, aes(standard_length, average_latency_to_enter_correct_side, color = sex))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  #annotate("text", x=1800, y=75, label= "p = 0.03616, R-squared: 0.1263
+  #      ", size = 6, color = "black") + 
+  labs(x= "standard_length",y="average_latency_to_enter_correct_side") +
+  ggtitle ("Note:Does size/age predict average latency to enter correct side?") +
+  geom_smooth(method = "lm")
+
+
+```
+
+
+```{r}
+#Does size/age predict average number of entries?
+p <- ggplot(df, aes(standard_length, average_number_of_entries))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", 1800, y=100, label= "p = 0.001527, R-squared: 0.2885
+        ", size = 6, color = "black") + 
+  labs(x= "standard_length",y="average_number_of_entries") +
+  ggtitle ("Note:Does size/age predict average number of entries?SEXES COMBINED") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$average_number_of_entries ~ df$standard_length, na.rm = TRUE)
+summary(mod)
+```
+
+```{r}
+#Does size/age predict average number of entries?
+p <- ggplot(df, aes(standard_length, average_number_of_entries, color = sex))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  #annotate("text", 1800, y=100, label= "p = 0.001527, R-squared: 0.2885
+  #      ", size = 6, color = "black") + 
+  labs(x= "standard_length",y="average_number_of_entries") +
+  ggtitle ("Note:Does size/age predict average number of entries?") +
+  geom_smooth(method = "lm")
+
+
+```
+
+
+
+```{r}
+#Does size/age predict reaction time?
+p <- ggplot(df, aes(standard_length, average_reaction_time))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=1800, y=30, label= "p = 0.02407, R-squared: 0.1584
+        ", size = 6, color = "black") + 
+  labs(x= "standard_length",y="average_reaction_time") +
+  ggtitle ("Note:Does size/age predict reaction time? SEXES COMBINED") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$average_reaction_time ~ df$standard_length, na.rm = TRUE)
+summary(mod)
+
+```
+
+```{r}
+#Does size/age predict reaction time?
+p <- ggplot(df, aes(standard_length, average_reaction_time, color = sex))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  #annotate("text", x=1800, y=30, label= "p = 0.02407, R-squared: 0.1584
+  #      ", size = 6, color = "black") + 
+  labs(x= "standard_length",y="average_reaction_time") +
+  ggtitle ("Note:Does size/age predict reaction time?") +
+  geom_smooth(method = "lm")
+
+
+```
+
+
+
+
+
+
+
+
+```{r}
+
+#Does order predict average performance over the full 4 minutes?
+p <- ggplot(df, aes(x=order, y=average_performance_across_all_9_testing_trials_using_full_4_minutes_data)) + 
+  geom_boxplot()
+p +  ggtitle ("Note:Does order predict average performance over the full 4 minutes?")
+
+```
+
+
+```{r}
+
+#Does order predict performance over T30 to T50?
+p <- ggplot(df, aes(x=order, y=average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) + 
+  geom_boxplot()
+p +  ggtitle ("Note:Does order predict performance over T30 to T50?")
+
+```
+
+
+```{r}
+
+#Does order predict average latency to enter correct side?
+p <- ggplot(df, aes(x=order, y=average_latency_to_enter_correct_side)) + 
+  geom_boxplot()
+p +  ggtitle ("Note:Does order predict average latency to enter correct side?")
+
+```
+
+
+```{r}
+
+#Does order predict proportion of correct choices?
+p <- ggplot(df, aes(x=order, y=proportion_of_correct_first_choices)) + 
+  geom_boxplot()
+p +  ggtitle ("Note:Does order predict proportion of correct choices?")
+
+```
+
+
+```{r}
+
+#Does order predict average number of entries?
+p <- ggplot(df, aes(x=order, y=average_number_of_entries)) + 
+  geom_boxplot()
+p +  ggtitle ("Note:Does order predict average number of entries?")
+
+```
+
+
+
+```{r}
+
+#Does order predict average reaction time?
+p <- ggplot(df, aes(x=order, y=average_reaction_time)) + 
+  geom_boxplot()
+p +  ggtitle ("Note:Does order predict average reaction time?")
+
+```
+
+
+
+
+```{r}
+
+p <- ggplot(df, aes(XXX, XXX))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.3, y=0.5, label= "p = x0.007277, R-squared:  x0.1987
+        ", size = 6, color = "black") + 
+  labs(x= "XXX",y="XXX") +
+  ggtitle ("Note:XXX") +
+  geom_smooth(method = "lm")
+
+mod<- lm(df$XXX ~ df$XXX, na.rm = TRUE)
+summary(mod)
+```
+
+
+
+4. See how consistent individuals are across trials within the same individuals (so will have an average repeatibility score?)
+Performance over the full 4 minutes
+Performance over T30 to T50
+Which side was chosen first
+
+
+NOTE: Here's the column names coming from df.sum:
+
+"fish_name"                                                                                                        
+  [2] "sex"                                                                                                              
+  [3] "standard_length"                                                                                                  
+  [4] "order"   
+  
+------------------------------------------------------------------------
+  
+[149] "average_number_of_entries"                                                                                        
+[150] "average_reaction_time"                                                                                            
+[151] "average_performance_across_all_9_testing_trials_using_full_4_minutes_data"                                        
+[152] "average_performance_across_all_9_testing_trials_using_T30_to_T50_data"                                            
+[153] "total_number_of_testing_trials_using_full_4_minutes_data"                                                         
+[154] "total_number_of_testing_trials_using_T30_to_T50_data"                                                             
+[155] "number_of_trials_on_0.50_ratio_using_full_4_minutes_data"                                                         
+[156] "number_of_trials_on_0.67_ratio_using_full_4_minutes_data"                                                         
+[157] "number_of_trials_on_0.75_ratio_using_full_4_minutes_data"                                                         
+[158] "number_of_trials_on_0.50_ratio_using_T30_to_T50_data"                                                             
+[159] "number_of_trials_on_0.67_ratio_using_T30_to_T50_data"                                                             
+[160] "number_of_trials_on_0.75_ratio_using_T30_to_T50_data"                                                             
+[161] "median_performance_on_0.50_ratio_using_full_4_minutes_data"                                                       
+[162] "median_performance_on_0.67_ratio_using_full_4_minutes_data"                                                       
+[163] "median_performance_on_0.75_ratio_using_full_4_minutes_data"                                                       
+[164] "median_performance_on_0.50_ratio_using_T30_to_T50_data"                                                           
+[165] "median_performance_on_0.67_ratio_using_T30_to_T50_data"                                                           
+[166] "median_performance_on_0.75_ratio_using_T30_to_T50_data"                                                           
+[167] "number_of_medians_above_60_using_full_4_minutes_data"                                                             
+[168] "number_of_medians_above_60_using_T30_to_T50_data"                                                                 
+[169] "shapiro_wilk_test_p_value_using_full_4_minutes_data"                                                              
+[170] "was_average_performance_significantly_different_from_0.5_full_4_minutes_p_value_of_either_t_test_or_wilcox"       
+[171] "shapiro_wilk_test_p_value_using_T30_to_T50_data"                                                                  
+[172] "was_average_performance_significantly_different_from_0.5_T30_to_T50_p_value_of_either_t_test_or_wilcox"           
+[173] "learning_category_according_to_etheredge_T30_to_T50"                                                              
+[174] "learning_category_according_to_etheredge_full_4_minutes"                                                          
+[175] "average_latency_to_enter_correct_side"                                                                            
+[176] "average_latency_to_enter_incorrect_side"                                                                          
+[177] "proportion_of_correct_first_choices"                                                                              
+[178] "number_of_trials_in_a_row_greater_than_60_percent_full_4_minutes"                                                 
+[179] "number_of_trials_in_a_row_greater_than_60_percent_T30_to_T50"                                                     
+[180] "number_of_trials_in_a_row_correct_choice_first"                                                                   
+[181] "mean_of_median_performance_on_each_ratio_full_four_minutes_data"                                                  
+[182] "mean_of_median_performance_on_each_ratio_T30_to_T50_data" 
+
+------------------------------------------------------------------------
+
+ [5] "Trial_9_1_correctside"                                                                                            
+  [6] "Trial_9_1_ratio"                                                                                                  
+  [7] "Trial_9_1_total_entries"                                                                                          
+  [8] "Trial_9_1_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens" 
+  [9] "Trial_9_1_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens"     
+ [10] "Trial_9_1_was_performance_over_full_4_minutes_greater_than_60_percent"                                            
+ [11] "Trial_9_1_was_performance_T30_to_T50_greater_than_60_percent"                                                     
+ [12] "Trial_9_1_reaction_time"                                                                                          
+ [13] "Trial_9_1_latency_to_enter_correct_side"                                                                          
+ [14] "Trial_9_1_latency_to_enter_incorrect_side"                                                                        
+ [15] "Trial_9_1_screen_entered_first"                                                                                   
+ [16] "Trial_9_1_time_spent_in_correct_screen_full_4_minutes_absolute_seconds"                                           
+ [17] "Trial_9_1_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds"                                         
+ [18] "Trial_9_1_time_spent_in_correct_screen_T30_to_T50_absolute_seconds"                                               
+ [19] "Trial_9_1_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds"                                             
+ [20] "Trial_9_3_correctside"                                                                                            
+ [21] "Trial_9_3_ratio"                                                                                                  
+ [22] "Trial_9_3_total_entries"                                                                                          
+ [23] "Trial_9_3_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens" 
+ [24] "Trial_9_3_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens"     
+ [25] "Trial_9_3_was_performance_over_full_4_minutes_greater_than_60_percent"                                            
+ [26] "Trial_9_3_was_performance_T30_to_T50_greater_than_60_percent"                                                     
+ [27] "Trial_9_3_reaction_time"                                                                                          
+ [28] "Trial_9_3_latency_to_enter_correct_side"                                                                          
+ [29] "Trial_9_3_latency_to_enter_incorrect_side"                                                                        
+ [30] "Trial_9_3_screen_entered_first"                                                                                   
+ [31] "Trial_9_3_time_spent_in_correct_screen_full_4_minutes_absolute_seconds"                                           
+ [32] "Trial_9_3_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds"                                         
+ [33] "Trial_9_3_time_spent_in_correct_screen_T30_to_T50_absolute_seconds"                                               
+ [34] "Trial_9_3_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds"                                             
+ [35] "Trial_9_5_correctside"                                                                                            
+ [36] "Trial_9_5_ratio"                                                                                                  
+ [37] "Trial_9_5_total_entries"                                                                                          
+ [38] "Trial_9_5_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens" 
+ [39] "Trial_9_5_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens"     
+ [40] "Trial_9_5_was_performance_over_full_4_minutes_greater_than_60_percent"                                            
+ [41] "Trial_9_5_was_performance_T30_to_T50_greater_than_60_percent"                                                     
+ [42] "Trial_9_5_reaction_time"                                                                                          
+ [43] "Trial_9_5_latency_to_enter_correct_side"                                                                          
+ [44] "Trial_9_5_latency_to_enter_incorrect_side"                                                                        
+ [45] "Trial_9_5_screen_entered_first"                                                                                   
+ [46] "Trial_9_5_time_spent_in_correct_screen_full_4_minutes_absolute_seconds"                                           
+ [47] "Trial_9_5_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds"                                         
+ [48] "Trial_9_5_time_spent_in_correct_screen_T30_to_T50_absolute_seconds"                                               
+ [49] "Trial_9_5_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds"                                             
+ [50] "Trial_10_1_correctside"                                                                                           
+ [51] "Trial_10_1_ratio"                                                                                                 
+ [52] "Trial_10_1_total_entries"                                                                                         
+ [53] "Trial_10_1_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens"
+ [54] "Trial_10_1_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens"    
+ [55] "Trial_10_1_was_performance_over_full_4_minutes_greater_than_60_percent"                                           
+ [56] "Trial_10_1_was_performance_T30_to_T50_greater_than_60_percent"                                                    
+ [57] "Trial_10_1_reaction_time"                                                                                         
+ [58] "Trial_10_1_latency_to_enter_correct_side"                                                                         
+ [59] "Trial_10_1_latency_to_enter_incorrect_side"                                                                       
+ [60] "Trial_10_1_screen_entered_first"                                                                                  
+ [61] "Trial_10_1_time_spent_in_correct_screen_full_4_minutes_absolute_seconds"                                          
+ [62] "Trial_10_1_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds"                                        
+ [63] "Trial_10_1_time_spent_in_correct_screen_T30_to_T50_absolute_seconds"                                              
+ [64] "Trial_10_1_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds"                                            
+ [65] "Trial_10_3_correctside"                                                                                           
+ [66] "Trial_10_3_ratio"                                                                                                 
+ [67] "Trial_10_3_total_entries"                                                                                         
+ [68] "Trial_10_3_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens"
+ [69] "Trial_10_3_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens"    
+ [70] "Trial_10_3_was_performance_over_full_4_minutes_greater_than_60_percent"                                           
+ [71] "Trial_10_3_was_performance_T30_to_T50_greater_than_60_percent"                                                    
+ [72] "Trial_10_3_reaction_time"                                                                                         
+ [73] "Trial_10_3_latency_to_enter_correct_side"                                                                         
+ [74] "Trial_10_3_latency_to_enter_incorrect_side"                                                                       
+ [75] "Trial_10_3_screen_entered_first"                                                                                  
+ [76] "Trial_10_3_time_spent_in_correct_screen_full_4_minutes_absolute_seconds"                                          
+ [77] "Trial_10_3_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds"                                        
+ [78] "Trial_10_3_time_spent_in_correct_screen_T30_to_T50_absolute_seconds"                                              
+ [79] "Trial_10_3_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds"                                            
+ [80] "Trial_10_5_correctside"                                                                                           
+ [81] "Trial_10_5_ratio"                                                                                                 
+ [82] "Trial_10_5_total_entries"                                                                                         
+ [83] "Trial_10_5_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens"
+ [84] "Trial_10_5_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens"    
+ [85] "Trial_10_5_was_performance_over_full_4_minutes_greater_than_60_percent"                                           
+ [86] "Trial_10_5_was_performance_T30_to_T50_greater_than_60_percent"                                                    
+ [87] "Trial_10_5_reaction_time"                                                                                         
+ [88] "Trial_10_5_latency_to_enter_correct_side"                                                                         
+ [89] "Trial_10_5_latency_to_enter_incorrect_side"                                                                       
+ [90] "Trial_10_5_screen_entered_first"                                                                                  
+ [91] "Trial_10_5_time_spent_in_correct_screen_full_4_minutes_absolute_seconds"                                          
+ [92] "Trial_10_5_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds"                                        
+ [93] "Trial_10_5_time_spent_in_correct_screen_T30_to_T50_absolute_seconds"                                              
+ [94] "Trial_10_5_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds"                                            
+ [95] "Trial_11_1_correctside"                                                                                           
+ [96] "Trial_11_1_ratio"                                                                                                 
+ [97] "Trial_11_1_total_entries"                                                                                         
+ [98] "Trial_11_1_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens"
+ [99] "Trial_11_1_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens"    
+[100] "Trial_11_1_was_performance_over_full_4_minutes_greater_than_60_percent"                                           
+[101] "Trial_11_1_was_performance_T30_to_T50_greater_than_60_percent"                                                    
+[102] "Trial_11_1_reaction_time"                                                                                         
+[103] "Trial_11_1_latency_to_enter_correct_side"                                                                         
+[104] "Trial_11_1_latency_to_enter_incorrect_side"                                                                       
+[105] "Trial_11_1_screen_entered_first"                                                                                  
+[106] "Trial_11_1_time_spent_in_correct_screen_full_4_minutes_absolute_seconds"                                          
+[107] "Trial_11_1_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds"                                        
+[108] "Trial_11_1_time_spent_in_correct_screen_T30_to_T50_absolute_seconds"                                              
+[109] "Trial_11_1_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds"                                            
+[110] "Trial_11_3_correctside"                                                                                           
+[111] "Trial_11_3_ratio"                                                                                                 
+[112] "Trial_11_3_total_entries"                                                                                         
+[113] "Trial_11_3_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens"
+[114] "Trial_11_3_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens"    
+[115] "Trial_11_3_was_performance_over_full_4_minutes_greater_than_60_percent"                                           
+[116] "Trial_11_3_was_performance_T30_to_T50_greater_than_60_percent"                                                    
+[117] "Trial_11_3_reaction_time"                                                                                         
+[118] "Trial_11_3_latency_to_enter_correct_side"                                                                         
+[119] "Trial_11_3_latency_to_enter_incorrect_side"                                                                       
+[120] "Trial_11_3_screen_entered_first"                                                                                  
+[121] "Trial_11_3_time_spent_in_correct_screen_full_4_minutes_absolute_seconds"                                          
+[122] "Trial_11_3_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds"                                        
+[123] "Trial_11_3_time_spent_in_correct_screen_T30_to_T50_absolute_seconds"                                              
+[124] "Trial_11_3_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds"                                            
+[125] "Trial_11_5_correctside"                                                                                           
+[126] "Trial_11_5_ratio"                                                                                                 
+[127] "Trial_11_5_total_entries"                                                                                         
+[128] "Trial_11_5_performance_over_full_4_minutes_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens"
+[129] "Trial_11_5_performance_over_T30_to_T50_ie_correct_screen_proportion_divided_by_sum_proportion_at_both_screens"    
+[130] "Trial_11_5_was_performance_over_full_4_minutes_greater_than_60_percent"                                           
+[131] "Trial_11_5_was_performance_T30_to_T50_greater_than_60_percent"                                                    
+[132] "Trial_11_5_reaction_time"                                                                                         
+[133] "Trial_11_5_latency_to_enter_correct_side"                                                                         
+[134] "Trial_11_5_latency_to_enter_incorrect_side"                                                                       
+[135] "Trial_11_5_screen_entered_first"                                                                                  
+[136] "Trial_11_5_time_spent_in_correct_screen_full_4_minutes_absolute_seconds"                                          
+[137] "Trial_11_5_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds"                                        
+[138] "Trial_11_5_time_spent_in_correct_screen_T30_to_T50_absolute_seconds"                                              
+[139] "Trial_11_5_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds"                                            
+[140] "Trial_9_1_was_fish_in_correct_screen_at_start"                                                                    
+[141] "Trial_9_3_was_fish_in_correct_screen_at_start"                                                                    
+[142] "Trial_9_5_was_fish_in_correct_screen_at_start"                                                                    
+[143] "Trial_10_1_was_fish_in_correct_screen_at_start"                                                                   
+[144] "Trial_10_3_was_fish_in_correct_screen_at_start"                                                                   
+[145] "Trial_10_5_was_fish_in_correct_screen_at_start"                                                                   
+[146] "Trial_11_1_was_fish_in_correct_screen_at_start"                                                                   
+[147] "Trial_11_3_was_fish_in_correct_screen_at_start"                                                                   
+[148] "Trial_11_5_was_fish_in_correct_screen_at_start"                             
+
+```{r}
+
+```
+
+
+
+
+
