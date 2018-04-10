@@ -933,8 +933,8 @@ for(i in 1:length(fish_list)){
 #Average number of entries per fish across all trials and average reaction time
 
 for(i in 1:nrow(df.sum)){ 
-  df.sum$average_number_of_entries[i]<- mean(c(df.sum$Trial_9_1_total_entries[i],df.sum$Trial_9_3_total_entries[i],df.sum$Trial_9_5_total_entries[i],df.sum$Trial_10_1_total_entries[i],df.sum$Trial_10_3_total_entries[i],df.sum$Trial_10_5_total_entries[i],df.sum$Trial_11_1_total_entries[i],df.sum$Trial_11_3_total_entries[i],df.sum$Trial_11_5_total_entries[i]))
-  df.sum$average_reaction_time[i]<-mean(c(df.sum$Trial_9_1_reaction_time[i],df.sum$Trial_9_3_reaction_time[i],df.sum$Trial_9_5_reaction_time[i],df.sum$Trial_10_1_reaction_time[i],df.sum$Trial_10_3_reaction_time[i],df.sum$Trial_10_5_reaction_time[i],df.sum$Trial_11_1_reaction_time[i],df.sum$Trial_11_3_reaction_time[i],df.sum$Trial_11_5_reaction_time[i]))
+  df.sum$average_number_of_entries[i]<- mean(c(df.sum$Trial_9_1_total_entries[i],df.sum$Trial_9_3_total_entries[i],df.sum$Trial_9_5_total_entries[i],df.sum$Trial_10_1_total_entries[i],df.sum$Trial_10_3_total_entries[i],df.sum$Trial_10_5_total_entries[i],df.sum$Trial_11_1_total_entries[i],df.sum$Trial_11_3_total_entries[i],df.sum$Trial_11_5_total_entries[i]), na.rm = TRUE)
+  df.sum$average_reaction_time[i]<-mean(c(df.sum$Trial_9_1_reaction_time[i],df.sum$Trial_9_3_reaction_time[i],df.sum$Trial_9_5_reaction_time[i],df.sum$Trial_10_1_reaction_time[i],df.sum$Trial_10_3_reaction_time[i],df.sum$Trial_10_5_reaction_time[i],df.sum$Trial_11_1_reaction_time[i],df.sum$Trial_11_3_reaction_time[i],df.sum$Trial_11_5_reaction_time[i]), na.rm = TRUE)
 }
 
 ```
@@ -1328,9 +1328,9 @@ for(i in 1:length(file_list)){
 #get mean of medians (i.e. mean of the 3 values: median performance on 50, 67, and 75)
 
 for(i in 1:nrow(df.sum)){
-  df.sum$mean_of_median_performance_on_each_ratio_full_four_minutes_data[i] <- mean(c(df.sum$median_performance_on_0.50_ratio_using_full_4_minutes_data[i],df.sum$median_performance_on_0.67_ratio_using_full_4_minutes_data[i], df.sum$median_performance_on_0.75_ratio_using_full_4_minutes_data[i]))
+  df.sum$mean_of_median_performance_on_each_ratio_full_four_minutes_data[i] <- mean(c(df.sum$median_performance_on_0.50_ratio_using_full_4_minutes_data[i],df.sum$median_performance_on_0.67_ratio_using_full_4_minutes_data[i], df.sum$median_performance_on_0.75_ratio_using_full_4_minutes_data[i]), na.rm = TRUE)
    
-  df.sum$mean_of_median_performance_on_each_ratio_T30_to_T50_data[i] <- mean(c(df.sum$median_performance_on_0.50_ratio_using_T30_to_T50_data[i],df.sum$median_performance_on_0.67_ratio_using_T30_to_T50_data[i], df.sum$median_performance_on_0.75_ratio_using_T30_to_T50_data[i]))  
+  df.sum$mean_of_median_performance_on_each_ratio_T30_to_T50_data[i] <- mean(c(df.sum$median_performance_on_0.50_ratio_using_T30_to_T50_data[i],df.sum$median_performance_on_0.67_ratio_using_T30_to_T50_data[i], df.sum$median_performance_on_0.75_ratio_using_T30_to_T50_data[i]), na.rm = TRUE)  
 }
 
 ```
@@ -1340,7 +1340,7 @@ for(i in 1:nrow(df.sum)){
 ```{r}
 #Export as a csv file
 
-write_csv(df.sum, "Numerosity Comparative Cognition Full Dataset March_19_2018.csv")
+write_csv(df.sum, "Numerosity Comparative Cognition Full Dataset April_9_2018.csv")
 
 
 ```
