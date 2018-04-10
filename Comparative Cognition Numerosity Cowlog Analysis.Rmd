@@ -483,24 +483,18 @@ for(i in 1:length(file_list)){
 ```
 
 
-```{r}
-#4c. remove latency value if latency to enter correct or incorrect side = 0 i.e. fish was already there
-#df <- filter(df, df$latency_enter_corr != 0)
-#df <- filter(df, df$latency_enter_incorr != 0)
-#NEED TO FIX THIS ONE MORE    
-  
-```
-
 
 ```{r}
-#4d. Determine which side was entered first (correct or incorrect)
+#4c/d. Determine which side was entered first (correct or incorrect) and remove latency value if latency to enter correct or incorrect side = 0 i.e. fish was already there
 
 for(i in 1:length(file_list)){
 if(is.na(df$latency_enter_corr[i] < df$latency_enter_incorr[i]) == TRUE){
      df$screen_entered_first[i]<- NA}
 else if(df$latency_enter_corr[i] == 0){
+      df$latency_enter_corr[i] <- NA
       df$screen_entered_first[i]<- NA}
 else if(df$latency_enter_incorr[i] == 0){
+      df$latency_enter_incorr[i] <- NA
       df$screen_entered_first[i]<- NA}  
 else if((df$latency_enter_corr[i] < df$latency_enter_incorr[i]) == TRUE){
      df$screen_entered_first[i]<- "correct"}
@@ -1293,15 +1287,7 @@ df.sum$number_of_trials_in_a_row_greater_than_60_percent_full_4_minutes[j] <- st
 df.sum$number_of_trials_in_a_row_greater_than_60_percent_T30_to_T50[j] <- streak.T30_to_T50
 df.sum$number_of_trials_in_a_row_correct_choice_first[j] <- streak.correct_choice_first
 
-#browser()
 
-#print(df.fish$fishname[1])
-#print(countlist_full_4_minutes)
-#print(streak.full_4_minutes)
-#print(countlist_T30_to_T50)
-#print(streak.T30_to_T50)
-#print(countlist_correct_choice_first)
-#print(streak.correct_choice_first)
 }
 
 
@@ -1340,7 +1326,7 @@ for(i in 1:nrow(df.sum)){
 ```{r}
 #Export as a csv file
 
-write_csv(df.sum, "Numerosity Comparative Cognition Full Dataset April_9_2018.csv")
+write_csv(df.sum, "Numerosity Comparative Cognition Full Dataset April_10_2018.csv")
 
 
 ```
