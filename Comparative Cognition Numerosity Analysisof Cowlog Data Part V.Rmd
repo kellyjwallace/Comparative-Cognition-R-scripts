@@ -92,7 +92,8 @@ p_value<- test %>% broom::tidy() %>% select(p.value) %>% unlist
 
 p <- ggplot(df.full, aes(x=sex.x, y=shuttlebox_average_distance_from_correct_stimulus_during_gaps)) + 
   geom_boxplot()+ stat_n_text() +
-  ggtitle('#Does sex predict shuttlebox average distance from the correct side? p = 0.209') #+
+  ggtitle('#Does sex predict shuttlebox average 
+          distance from the correct side? p = 0.209') #+
   #geom_text(label= glue::glue("p (t.test) = {round(p_value,4)}"), size = 6, color = "black")
 p
 
