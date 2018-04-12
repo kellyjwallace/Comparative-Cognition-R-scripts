@@ -1,0 +1,251 @@
+---
+title: "Comparative Cognition Numerosity Analysisof Cowlog Data Part V"
+author: "Kelly Wallace"
+date: "April 12, 2018"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+This is the last script! This makes the actual full data frame with numerosity, shuttlebox, and detour information combined. For now I've got the shuttlebox data analysis in here. 
+
+Note for later on- the boxplots with sex I was having trouble putting hte labels on so I hardcoded them into the title, need to fix it. 
+
+```{r, echo=FALSE, message=FALSE}
+library(ggplot2)
+library(dplyr)
+library(rmarkdown)
+library(knitr)
+library(readr)
+library(utils)
+library(EnvStats)
+
+shuttle<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/shuttlebox_data_april_11_2018.csv")
+
+det<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Detour/detour_data_for_R_April_5_2018.csv")
+
+num<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Comparative Cognition R Scripts/Numerosity Comparative Cognition Full Dataset April_10_2018.csv")
+
+df.full<- left_join(det,shuttle, by = 'fish_name')
+df.full<- left_join(df.full,num, by = 'fish_name')
+df.full$detour_trial_1_did_fish_solve_barrier_problem <-as.character(df.full$detour_trial_1_did_fish_solve_barrier_problem)
+
+
+#WRITE IT OUT IF NEEDED
+#write_csv(df.full, 'Full_Comparative_Cognition_Data_Detour_Shuttlebox_Numerosity_April_12_2018.csv')
+
+```
+
+Shuttlebox Measures:
+
+shuttlebox_average_distance_from_correct_stimulus_during_gaps
+shuttlebox_slope
+
+Detour Measures:
+detour_trial_1_did_fish_solve_barrier_problem
+detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier
+
+Numerosity Measures:
+average_performance_across_all_9_testing_trials_using_T30_to_T50_data
+average_latency_to_enter_correct_side
+
+
+```{r, echo=FALSE, message=FALSE}
+#Do fish that solve the detour barrier problem have lower average distances from the correct side in shuttlebox?
+
+test<-t.test(df.full$shuttlebox_average_distance_from_correct_stimulus_during_gaps~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+
+p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=shuttlebox_average_distance_from_correct_stimulus_during_gaps)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do fish that solve the detour barrier problem have 
+          lower average distances from the correct side in shuttlebox?') +
+  geom_text(x=1, y=590, label= glue::glue("p (t.test) = {round(p_value,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE}
+#Do fish that solve the detour barrier problem have more negative shuttlebox slopes of learning?
+test<-t.test(df.full$shuttlebox_slope~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+
+p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=shuttlebox_slope)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do fish that solve the detour barrier problem have 
+          more negative shuttlebox slopes of learning?') +
+  geom_text(x=1, y=5, label= glue::glue("p (t.test) = {round(p_value,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+```{r, echo=FALSE, message=FALSE}
+#Does sex predict shuttlebox average distance from the correct side?
+test<-t.test(df.full$shuttlebox_average_distance_from_correct_stimulus_during_gaps~df.full$sex.x)
+p_value<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+
+p <- ggplot(df.full, aes(x=sex.x, y=shuttlebox_average_distance_from_correct_stimulus_during_gaps)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('#Does sex predict shuttlebox average distance from the correct side? p = 0.209') #+
+  #geom_text(label= glue::glue("p (t.test) = {round(p_value,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE}
+#Does sex predict shuttlebox slope of learning?
+test<-t.test(df.full$shuttlebox_slope~df.full$sex.x)
+p_value<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+
+p <- ggplot(df.full, aes(x=sex.x, y=shuttlebox_slope)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('#Does sex predict shuttlebox slope of learning?') +
+  geom_text(x=1, y=3, label= glue::glue("p (t.test) = {round(p_value,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE}
+#Does latency to solve the detour barrier problem predict average distance from the correct side in shuttlebox?
+
+mod<- lm(df.full$shuttlebox_average_distance_from_correct_stimulus_during_gaps ~ df.full$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier)
+summary(mod)
+
+number <- df.full %>% filter(!is.na(detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier)) %>% filter(!is.na(shuttlebox_average_distance_from_correct_stimulus_during_gaps)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.full, aes(detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier, shuttlebox_average_distance_from_correct_stimulus_during_gaps))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=150, y=600,label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  ggtitle ("Does latency to solve the detour barrier problem predict 
+           average distance from the correct side in shuttlebox?") +
+  geom_smooth(method = "lm")
+
+```
+
+
+```{r, echo=FALSE, message=FALSE}
+#Does latency to solve the detour barrier problem predict shuttlebox slope of learning?
+mod<- lm(df.full$shuttlebox_slope ~ df.full$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier)
+summary(mod)
+
+number <- df.full %>% filter(!is.na(detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier)) %>% filter(!is.na(shuttlebox_slope)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.full, aes(detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier, shuttlebox_slope))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=150, y=0.3,label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  ggtitle ("Does latency to solve the detour barrier problem 
+           predict shuttlebox slope of learning?") +
+  geom_smooth(method = "lm")
+
+```
+
+
+```{r, echo=FALSE, message=FALSE}
+#Does numerosity average performance (T30 to T50) predict average distance from the correct side in shuttlebox?
+mod<- lm(df.full$shuttlebox_average_distance_from_correct_stimulus_during_gaps ~ df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data)
+summary(mod)
+
+number <- df.full %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(shuttlebox_average_distance_from_correct_stimulus_during_gaps)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.full, aes(average_performance_across_all_9_testing_trials_using_T30_to_T50_data, shuttlebox_average_distance_from_correct_stimulus_during_gaps))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.5, y=600,label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  ggtitle ("Does numerosity average performance (T30 to T50) predict
+           average distance from the correct side in shuttlebox?") +
+  geom_smooth(method = "lm")
+
+```
+
+
+```{r, echo=FALSE, message=FALSE}
+#Does numerosity average performance (T30 to T50) shuttlebox slope of learning?
+mod<- lm(df.full$shuttlebox_slope ~ df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data)
+summary(mod)
+
+number <- df.full %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(shuttlebox_slope)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.full, aes(average_performance_across_all_9_testing_trials_using_T30_to_T50_data, shuttlebox_slope))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.5, y=0.3,label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  ggtitle ("Does numerosity average performance (T30 to T50) shuttlebox slope of learning?") +
+  geom_smooth(method = "lm")
+
+```
+
+
+```{r, echo=FALSE, message=FALSE}
+#Does numerosity latency to enter the correct side predict average distance from the correct side in shuttlebox?
+mod<- lm(df.full$shuttlebox_average_distance_from_correct_stimulus_during_gaps ~ df.full$average_latency_to_enter_correct_side)
+summary(mod)
+
+number <- df.full %>% filter(!is.na(average_latency_to_enter_correct_side)) %>% filter(!is.na(shuttlebox_average_distance_from_correct_stimulus_during_gaps)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.full, aes(average_latency_to_enter_correct_side, shuttlebox_average_distance_from_correct_stimulus_during_gaps))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=25, y=600,label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  ggtitle ("Does numerosity latency to enter the correct side 
+           predict average distance from the correct side in shuttlebox?") +
+  geom_smooth(method = "lm")
+
+```
+
+
+
+```{r, echo=FALSE, message=FALSE}
+#Does numerosity latency to enter the correct side predict shuttlebox slope of learning?
+mod<- lm(df.full$shuttlebox_slope ~ df.full$average_latency_to_enter_correct_side)
+summary(mod)
+
+number <- df.full %>% filter(!is.na(average_latency_to_enter_correct_side)) %>% filter(!is.na(shuttlebox_slope)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.full, aes(average_latency_to_enter_correct_side, shuttlebox_slope))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=25, y=0.3,label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  ggtitle ("Note:Does numerosity latency to enter the correct side 
+           predict shuttlebox slope of learning?") +
+  geom_smooth(method = "lm")
+
+```
+
+
+
+
+
+
+
+
+

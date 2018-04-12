@@ -1,0 +1,234 @@
+---
+title: "Comparative Cognition Numerosity Analysis of Cowlog Data Part IV"
+author: "Kelly Wallace"
+date: "April 11, 2018"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## This is the fouth part of the the analysis of the comparative cognition data. 
+
+This starts by just looking at the shuttlebox data. The output from the "where's the fish" program Luke developed (shuttlebox_hand_track.py) is combined with a spreadsheet that lists what the correct side is for a given frame
+
+The first thing we'll do is for each shuttlebox video, we'll get a graph of "distance form the correct stimuli" during each "gap"
+
+
+```{r, echo=FALSE, message=FALSE}
+library(ggplot2)
+library(dplyr)
+library(rmarkdown)
+library(knitr)
+library(readr)
+library(utils)
+library(EnvStats)
+
+setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets/")
+
+file_list_left<- list.files("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets/left")
+file_list_left
+
+file_list_right<- list.files("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets/right")
+file_list_right
+
+shuttleleft<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Shuttlebox_Tracking_L_framesofinterest.csv", col_names = TRUE, col_types = NULL)
+View(shuttleleft)
+
+shuttleright<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Shuttlebox_Tracking_R_framesofinterest.csv", col_names = TRUE, col_types = NULL)
+View(shuttleright)
+
+test_column_left <- vector(length = length(file_list_left))
+df.sum.left <- data.frame(fishname = test_column_left)
+
+test_column_right <- vector(length = length(file_list_right))
+df.sum.right <- data.frame(fishname = test_column_right)
+
+
+for(i in 1:length(file_list_left)){
+  setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets/left")
+  
+  df<- read_csv(file_list_left[i], col_names = TRUE, col_types = NULL)
+
+  df.full<- full_join(df,shuttleleft, by = 'frame_number')
+  df.full
+  df.full<-df.full %>% mutate(distance_from_correct = abs(correct_x_pixel - x))
+  df.full.stim<-df.full %>% filter(type == 'stim')
+  df.full.gap<-df.full %>% filter(type == 'gap')
+
+  filename<-strsplit(file_list_left[i], ".csv")[[1]]
+
+
+  fishname<- filename #need to fix this to get the fishname and not the whole thing
+  mean_distance_from_correct_during_stims <- mean(df.full.stim$distance_from_correct, na.rm = TRUE)
+  mean_distance_from_correct_during_gaps <- mean(df.full.gap$distance_from_correct, na.rm = TRUE)
+  start_side <- "L"
+  mod<- lm(df.full.gap$distance_from_correct ~ df.full.gap$presentation)
+  modsum<-summary(mod)
+  modsum<-modsum$coefficients
+  slope<-modsum[2]
+  wilcox<- wilcox.test(df.full.gap$distance_from_correct, mu = 640)
+  wilcox_p_value<-wilcox$p.value
+  #if wilcox test less than 0.05 then shuttlebox_did_learn = 1, else if >0.05 = 0, else NA
+
+df.sum.left$fish_name[i] <-filename
+df.sum.left$shuttlebox_average_distance_from_correct_stimulus_during_stimulus[i]<-mean_distance_from_correct_during_stims
+df.sum.left$shuttlebox_average_distance_from_correct_stimulus_during_gaps[i]<-mean_distance_from_correct_during_gaps
+df.sum.left$shuttlebox_start_side[i]<-start_side
+df.sum.left$shuttlebox_slope[i]<- slope
+df.sum.left$shuttlebox_wilcox_test[i]<-wilcox_p_value
+}
+
+
+for(i in 1:length(file_list_right)){
+  setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets/right")
+  
+  df<- read_csv(file_list_right[i], col_names = TRUE, col_types = NULL)
+
+  df.full<- full_join(df,shuttleright, by = 'frame_number')
+  df.full
+  df.full<-df.full %>% mutate(distance_from_correct = abs(correct_x_pixel - x))
+  df.full.stim<-df.full %>% filter(type == 'stim')
+  df.full.gap<-df.full %>% filter(type == 'gap')
+
+  filename<-strsplit(file_list_right[i], ".csv")[[1]]
+
+
+  fishname<- filename #need to fix this to get the fishname and not the whole thing
+  mean_distance_from_correct_during_stims <- mean(df.full.stim$distance_from_correct, na.rm = TRUE)
+  mean_distance_from_correct_during_gaps <- mean(df.full.gap$distance_from_correct, na.rm = TRUE)
+  start_side <- "R"
+  mod<- lm(df.full.gap$distance_from_correct ~ df.full.gap$presentation)
+  modsum<-summary(mod)
+  modsum<-modsum$coefficients
+  slope<-modsum[2]
+  wilcox<- wilcox.test(df.full.gap$distance_from_correct, mu = 640)
+  wilcox_p_value<-wilcox$p.value
+  #if wilcox test less than 0.05 then shuttlebox_did_learn = 1, else if >0.05 = 0, else NA
+
+df.sum.right$fishname[i] <-filename
+df.sum.right$shuttlebox_average_distance_from_correct_stimulus_during_stimulus[i]<-mean_distance_from_correct_during_stims
+df.sum.right$shuttlebox_average_distance_from_correct_stimulus_during_gaps[i]<-mean_distance_from_correct_during_gaps
+df.sum.right$shuttlebox_start_side[i]<-start_side
+df.sum.right$shuttlebox_slope[i]<- slope
+df.sum.right$shuttlebox_wilcox_test[i]<-wilcox_p_value
+}
+
+df.sum.full<-rbind(df.sum.left, df.sum.right)
+
+for(i in 1:length(df.sum.full)){
+  if(df.sum.full$shuttlebox_wilcox_test[i] <0.05){
+    df.sum.full$did_fish_solve_shuttlebox[i]<- 1
+  }
+  
+  else if(df.sum.full$shuttlebox_wilcox_test[i] >=0.05){
+    df.sum.full$did_fish_solve_shuttlebox[i]<- 0
+  }
+  else{
+    df.sum.full$did_fish_solve_shuttlebox[i]<- NA
+  }
+}
+
+View(df.sum.full)
+
+setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/")
+write_csv(df.sum.full, "shuttlebox_data_april_11_2018.csv")
+
+```
+
+
+
+
+
+All the stuff after this was me playing around with one score sheet to try and visualize what is going on in the trial, we should not run these parts. 
+
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+
+
+
+#################IMPORTANT! PICK LEFT OR RIGHT< DO NOT JOIN BY BOTH!
+
+
+df.full<- full_join(df,shuttleright, by = 'frame_number')
+df.full
+
+#####################
+#####################
+#####################
+#####################
+#####################
+
+df.full<- full_join(df,shuttleleft, by = 'frame_number')
+df.full
+
+#OPTIONAL WRITE OUT FULL CSV
+#write_csv(df.full, filename = "Comparative Cognition Shuttlebox dataframe NAME.csv")
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Get distance from correct for each frame
+df.full<-df.full %>% mutate(distance_from_correct = abs(correct_x_pixel - x))
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#make summary dataframe with average distance from screen during stim times over presentations
+df.full.habit<-df.full %>% filter(type == 'habit')
+df.full.stim<-df.full %>% filter(type == 'stim')
+df.full.gap<-df.full %>% filter(type == 'gap')
+
+mean(df.full.stim$distance_from_correct, na.rm = TRUE)
+mean(df.full.gap$distance_from_correct, na.rm = TRUE)
+
+#This is taking an average distance_from_correct for each gap/presentation
+df.full.gap.sum<-group_by(df.full.gap, presentation)%>% summarize(avg_dist_from_correct_by_pres = mean(distance_from_correct, na.rm = TRUE))
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#graph distance from screen during habituation and during stim  (sum across all presentations)
+
+p <- ggplot(df.full.gap, aes(presentation, distance_from_correct))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  geom_smooth(method = "lm")
+
+mod<- lm(df.full.gap$distance_from_correct ~ df.full.gap$presentation)
+summary(mod)
+
+
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+
+
+mean(df.full.gap$distance_from_correct)
+wilcox.test(df.full.gap$distance_from_correct, mu = 640)
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#graph distance from correct (mean of each gap) over all gaps
+p <- ggplot(df.full.gap.sum, aes(presentation, avg_dist_from_correct_by_pres))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  geom_smooth(method = "lm")
+
+mod<- lm(df.full.gap.sum$avg_dist_from_correct_by_pres ~ df.full.gap.sum$presentation)
+summary(mod)
+
+
+```
+
+
+
+
+
+

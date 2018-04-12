@@ -268,6 +268,29 @@ p + geom_point(size = 3) +
 
 ```
 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does prop time in social reward following full social problem solution predict latenty to solve full social problem?
+mod<- lm(df.full$detour_trial_1_full_problem_time_to_social_reward_minus_time_to_contact_barrier ~ df.full$detour_trial_1_prop_time_in_social_reward_following_solution, na.rm = TRUE)
+summary(mod)
+
+number <- df.full %>% filter(!is.na(detour_trial_1_prop_time_in_social_reward_following_solution)) %>% filter(!is.na(detour_trial_1_full_problem_time_to_social_reward_minus_time_to_contact_barrier)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.full, aes(detour_trial_1_prop_time_in_social_reward_following_solution, detour_trial_1_full_problem_time_to_social_reward_minus_time_to_contact_barrier))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.7, y=100, label= glue::glue("p = {round(p_value,8)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") +
+  ggtitle ("Does latency to solve barrier problem predict 
+           latency to enter reward zone following barrier solution?") +
+  geom_smooth(method = "lm")
+
+```
+
+
+
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #How frequently do individuals only solve barrier problem but not full social problem(histogram)?
 
@@ -324,7 +347,7 @@ p_value<- test %>% broom::tidy() %>% select(p.value) %>% unlist
 
 p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_full_social_problem, y=time_to_barrier_contact_minus_start_time)) + 
   geom_boxplot()+ stat_n_text() +
-  ggtitle('Do individual who solev the full social problem have lower latencies 
+  ggtitle('Do individual who solve the full social problem have lower latencies 
           to approach the barrier (higher motivation?)') +
   geom_text(x=1, y=0.1, label= glue::glue("p (t.test) = {round(p_value,4)}"), size = 6, color = "black")
 p
