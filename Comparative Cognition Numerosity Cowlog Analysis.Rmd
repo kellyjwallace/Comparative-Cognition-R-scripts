@@ -504,6 +504,23 @@ else if((df$latency_enter_corr[i] < df$latency_enter_incorr[i]) == FALSE){
 
 ```
 
+```{r}
+#If fish entered the incorrect side first on a given trial, then make a new column which is latency to enter the correct side but if fish picked incorrect first the latency to enter first then latency to enter correct is NA has either latency or NA
+
+df<-mutate(df, latency_enter_corr_filtered_just_correct_choice = latency_enter_corr)
+for(i in 1:length(df)){
+  if (is.na(df$screen_entered_first[i]) == TRUE){
+      df$latency_enter_corr_filtered_just_correct_choice[i]<- df$latency_enter_corr_filtered_just_correct_choice[i]}
+  
+  else if(df$screen_entered_first[i] == "incorrect"){
+      df$latency_enter_corr_filtered_just_correct_choice[i]<- NA}
+  
+  else if(df$screen_entered_first[i] == "correct"){
+      df$latency_enter_corr_filtered_just_correct_choice[i]<- df$latency_enter_corr_filtered_just_correct_choice[i]}
+}
+
+```
+
 
 ```{r}
 #Make a summary master data frame (df.sum), where there will be one row per form and within that row I will have both summary data and data about performance on each trial. This chunk pulls out relevant information about each trial (i.e. correct side, performance, latency to enter correct) and adds it into this summary master data frame.
@@ -542,12 +559,14 @@ for(i in 1:length(fish_list)){
     df.sum$Trial_9_1_was_performance_T30_to_T50_greater_than_60_percent[i]<-NA 
     df.sum$Trial_9_1_reaction_time[i]<-NA
     df.sum$Trial_9_1_latency_to_enter_correct_side[i]<-NA
+    df.sum$Trial_9_1_latency_to_enter_correct_side_filtered_just_correct_choice[i]<-NA
     df.sum$Trial_9_1_latency_to_enter_incorrect_side[i]<-NA
     df.sum$Trial_9_1_screen_entered_first[i]<-NA  
     df.sum$Trial_9_1_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<-NA
     df.sum$Trial_9_1_time_spent_in_incorrect_screen_full_4_minutes_absolute_seconds[i]<-NA
     df.sum$Trial_9_1_time_spent_in_correct_screen_T30_to_T50_absolute_seconds[i]<-NA
     df.sum$Trial_9_1_time_spent_in_incorrect_screen_T30_to_T50_absolute_seconds[i]<-NA
+    
     }
   else{
     df.sum$Trial_9_1_correctside[i] <- df.fish.91$correctside
@@ -559,6 +578,7 @@ for(i in 1:length(fish_list)){
     df.sum$Trial_9_1_was_performance_T30_to_T50_greater_than_60_percent[i]<-df.fish.91$perf_greater_than_60_T30_to_T50
     df.sum$Trial_9_1_reaction_time[i]<-df.fish.91$reaction_time
     df.sum$Trial_9_1_latency_to_enter_correct_side[i]<-df.fish.91$latency_enter_corr
+    df.sum$Trial_9_1_latency_to_enter_correct_side_filtered_just_correct_choice[i]<-df.fish.91$latency_enter_corr_filtered_just_correct_choice
     df.sum$Trial_9_1_latency_to_enter_incorrect_side[i]<-df.fish.91$latency_enter_incorr
     df.sum$Trial_9_1_screen_entered_first[i]<-df.fish.91$screen_entered_first
     df.sum$Trial_9_1_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<- df.fish.91$correctscreen_full_4_minutes_absolute_seconds
@@ -577,6 +597,7 @@ for(i in 1:length(fish_list)){
     df.sum$Trial_9_3_was_performance_T30_to_T50_greater_than_60_percent[i]<-NA 
     df.sum$Trial_9_3_reaction_time[i]<-NA
     df.sum$Trial_9_3_latency_to_enter_correct_side[i]<-NA
+    df.sum$Trial_9_3_latency_to_enter_correct_side_filtered_just_correct_choice[i]<-NA
     df.sum$Trial_9_3_latency_to_enter_incorrect_side[i]<-NA
     df.sum$Trial_9_3_screen_entered_first[i]<-NA
     df.sum$Trial_9_3_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<-NA
@@ -594,6 +615,7 @@ for(i in 1:length(fish_list)){
     df.sum$Trial_9_3_was_performance_T30_to_T50_greater_than_60_percent[i]<-df.fish.93$perf_greater_than_60_T30_to_T50
     df.sum$Trial_9_3_reaction_time[i]<-df.fish.93$reaction_time
     df.sum$Trial_9_3_latency_to_enter_correct_side[i]<-df.fish.93$latency_enter_corr
+    df.sum$Trial_9_3_latency_to_enter_correct_side_filtered_just_correct_choice[i]<-df.fish.93$latency_enter_corr_filtered_just_correct_choice
     df.sum$Trial_9_3_latency_to_enter_incorrect_side[i]<-df.fish.93$latency_enter_incorr
     df.sum$Trial_9_3_screen_entered_first[i]<-df.fish.93$screen_entered_first
     df.sum$Trial_9_3_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<- df.fish.93$correctscreen_full_4_minutes_absolute_seconds
@@ -612,6 +634,7 @@ for(i in 1:length(fish_list)){
     df.sum$Trial_9_5_was_performance_T30_to_T50_greater_than_60_percent[i]<-NA 
     df.sum$Trial_9_5_reaction_time[i]<-NA
     df.sum$Trial_9_5_latency_to_enter_correct_side[i]<-NA
+    df.sum$Trial_9_5_latency_to_enter_correct_side_filtered_just_correct_choice[i]<-NA
     df.sum$Trial_9_5_latency_to_enter_incorrect_side[i]<-NA
     df.sum$Trial_9_5_screen_entered_first[i]<-NA  
     df.sum$Trial_9_5_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<-NA
@@ -629,6 +652,7 @@ for(i in 1:length(fish_list)){
     df.sum$Trial_9_5_was_performance_T30_to_T50_greater_than_60_percent[i]<-df.fish.95$perf_greater_than_60_T30_to_T50
     df.sum$Trial_9_5_reaction_time[i]<-df.fish.95$reaction_time
     df.sum$Trial_9_5_latency_to_enter_correct_side[i]<-df.fish.95$latency_enter_corr
+    df.sum$Trial_9_5_latency_to_enter_correct_side_filtered_just_correct_choice[i]<-df.fish.95$latency_enter_corr_filtered_just_correct_choice
     df.sum$Trial_9_5_latency_to_enter_incorrect_side[i]<-df.fish.95$latency_enter_incorr
     df.sum$Trial_9_5_screen_entered_first[i]<-df.fish.95$screen_entered_first
     df.sum$Trial_9_5_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<- df.fish.95$correctscreen_full_4_minutes_absolute_seconds
@@ -647,6 +671,7 @@ for(i in 1:length(fish_list)){
     df.sum$Trial_10_1_was_performance_T30_to_T50_greater_than_60_percent[i]<-NA 
     df.sum$Trial_10_1_reaction_time[i]<-NA
     df.sum$Trial_10_1_latency_to_enter_correct_side[i]<-NA
+    df.sum$Trial_10_1_latency_to_enter_correct_side_filtered_just_correct_choice[i]<-NA
     df.sum$Trial_10_1_latency_to_enter_incorrect_side[i]<-NA
     df.sum$Trial_10_1_screen_entered_first[i]<-NA 
     df.sum$Trial_10_1_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<-NA
@@ -664,6 +689,7 @@ for(i in 1:length(fish_list)){
     df.sum$Trial_10_1_was_performance_T30_to_T50_greater_than_60_percent[i]<-df.fish.101$perf_greater_than_60_T30_to_T50
     df.sum$Trial_10_1_reaction_time[i]<-df.fish.101$reaction_time
     df.sum$Trial_10_1_latency_to_enter_correct_side[i]<-df.fish.101$latency_enter_corr
+    df.sum$Trial_10_1_latency_to_enter_correct_side_filtered_just_correct_choice[i]<-df.fish.101$latency_enter_corr_filtered_just_correct_choice
     df.sum$Trial_10_1_latency_to_enter_incorrect_side[i]<-df.fish.101$latency_enter_incorr
     df.sum$Trial_10_1_screen_entered_first[i]<-df.fish.101$screen_entered_first
     df.sum$Trial_10_1_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<- df.fish.101$correctscreen_full_4_minutes_absolute_seconds
@@ -682,6 +708,7 @@ for(i in 1:length(fish_list)){
     df.sum$Trial_10_3_was_performance_T30_to_T50_greater_than_60_percent[i]<-NA 
     df.sum$Trial_10_3_reaction_time[i]<-NA
     df.sum$Trial_10_3_latency_to_enter_correct_side[i]<-NA
+    df.sum$Trial_10_3_latency_to_enter_correct_side_filtered_just_correct_choice[i]<-NA
     df.sum$Trial_10_3_latency_to_enter_incorrect_side[i]<-NA
     df.sum$Trial_10_3_screen_entered_first[i]<-NA 
     df.sum$Trial_10_3_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<-NA
@@ -699,6 +726,7 @@ for(i in 1:length(fish_list)){
     df.sum$Trial_10_3_was_performance_T30_to_T50_greater_than_60_percent[i]<-df.fish.103$perf_greater_than_60_T30_to_T50
     df.sum$Trial_10_3_reaction_time[i]<-df.fish.103$reaction_time
     df.sum$Trial_10_3_latency_to_enter_correct_side[i]<-df.fish.103$latency_enter_corr
+    df.sum$Trial_10_3_latency_to_enter_correct_side_filtered_just_correct_choice[i]<-df.fish.103$latency_enter_corr_filtered_just_correct_choice
     df.sum$Trial_10_3_latency_to_enter_incorrect_side[i]<-df.fish.103$latency_enter_incorr
     df.sum$Trial_10_3_screen_entered_first[i]<-df.fish.103$screen_entered_first
     df.sum$Trial_10_3_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<- df.fish.103$correctscreen_full_4_minutes_absolute_seconds
@@ -717,6 +745,7 @@ for(i in 1:length(fish_list)){
     df.sum$Trial_10_5_was_performance_T30_to_T50_greater_than_60_percent[i]<-NA 
     df.sum$Trial_10_5_reaction_time[i]<-NA
     df.sum$Trial_10_5_latency_to_enter_correct_side[i]<-NA
+    df.sum$Trial_10_5_latency_to_enter_correct_side_filtered_just_correct_choice[i]<-NA
     df.sum$Trial_10_5_latency_to_enter_incorrect_side[i]<-NA
     df.sum$Trial_10_5_screen_entered_first[i]<-NA
     df.sum$Trial_10_5_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<-NA
@@ -734,6 +763,7 @@ for(i in 1:length(fish_list)){
     df.sum$Trial_10_5_was_performance_T30_to_T50_greater_than_60_percent[i]<-df.fish.105$perf_greater_than_60_T30_to_T50
     df.sum$Trial_10_5_reaction_time[i]<-df.fish.105$reaction_time
     df.sum$Trial_10_5_latency_to_enter_correct_side[i]<-df.fish.105$latency_enter_corr
+    df.sum$Trial_10_5_latency_to_enter_correct_side_filtered_just_correct_choice[i]<-df.fish.105$latency_enter_corr_filtered_just_correct_choice
     df.sum$Trial_10_5_latency_to_enter_incorrect_side[i]<-df.fish.105$latency_enter_incorr
     df.sum$Trial_10_5_screen_entered_first[i]<-df.fish.105$screen_entered_first
     df.sum$Trial_10_5_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<- df.fish.105$correctscreen_full_4_minutes_absolute_seconds
@@ -752,6 +782,7 @@ for(i in 1:length(fish_list)){
     df.sum$Trial_11_1_was_performance_T30_to_T50_greater_than_60_percent[i]<-NA 
     df.sum$Trial_11_1_reaction_time[i]<-NA
     df.sum$Trial_11_1_latency_to_enter_correct_side[i]<-NA
+    df.sum$Trial_11_1_latency_to_enter_correct_side_filtered_just_correct_choice[i]<-NA
     df.sum$Trial_11_1_latency_to_enter_incorrect_side[i]<-NA
     df.sum$Trial_11_1_screen_entered_first[i]<-NA  
     df.sum$Trial_11_1_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<-NA
@@ -769,6 +800,7 @@ for(i in 1:length(fish_list)){
     df.sum$Trial_11_1_was_performance_T30_to_T50_greater_than_60_percent[i]<-df.fish.111$perf_greater_than_60_T30_to_T50
     df.sum$Trial_11_1_reaction_time[i]<-df.fish.111$reaction_time
     df.sum$Trial_11_1_latency_to_enter_correct_side[i]<-df.fish.111$latency_enter_corr
+    df.sum$Trial_11_1_latency_to_enter_correct_side_filtered_just_correct_choice[i]<-df.fish.111$latency_enter_corr_filtered_just_correct_choice
     df.sum$Trial_11_1_latency_to_enter_incorrect_side[i]<-df.fish.111$latency_enter_incorr
     df.sum$Trial_11_1_screen_entered_first[i]<-df.fish.111$screen_entered_first
     df.sum$Trial_11_1_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<- df.fish.111$correctscreen_full_4_minutes_absolute_seconds
@@ -787,6 +819,7 @@ for(i in 1:length(fish_list)){
     df.sum$Trial_11_3_was_performance_T30_to_T50_greater_than_60_percent[i]<-NA 
     df.sum$Trial_11_3_reaction_time[i]<-NA
     df.sum$Trial_11_3_latency_to_enter_correct_side[i]<-NA
+    df.sum$Trial_11_3_latency_to_enter_correct_side_filtered_just_correct_choice[i]<-NA
     df.sum$Trial_11_3_latency_to_enter_incorrect_side[i]<-NA
     df.sum$Trial_11_3_screen_entered_first[i]<-NA 
     df.sum$Trial_11_3_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<-NA
@@ -804,6 +837,7 @@ for(i in 1:length(fish_list)){
     df.sum$Trial_11_3_was_performance_T30_to_T50_greater_than_60_percent[i]<-df.fish.113$perf_greater_than_60_T30_to_T50
     df.sum$Trial_11_3_reaction_time[i]<-df.fish.113$reaction_time
     df.sum$Trial_11_3_latency_to_enter_correct_side[i]<-df.fish.113$latency_enter_corr
+    df.sum$Trial_11_3_latency_to_enter_correct_side_filtered_just_correct_choice[i]<-df.fish.113$latency_enter_corr_filtered_just_correct_choice
     df.sum$Trial_11_3_latency_to_enter_incorrect_side[i]<-df.fish.113$latency_enter_incorr
     df.sum$Trial_11_3_screen_entered_first[i]<-df.fish.113$screen_entered_first
     df.sum$Trial_11_3_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<- df.fish.113$correctscreen_full_4_minutes_absolute_seconds
@@ -822,6 +856,7 @@ for(i in 1:length(fish_list)){
     df.sum$Trial_11_5_was_performance_T30_to_T50_greater_than_60_percent[i]<-NA 
     df.sum$Trial_11_5_reaction_time[i]<-NA
     df.sum$Trial_11_5_latency_to_enter_correct_side[i]<-NA
+    df.sum$Trial_11_5_latency_to_enter_correct_side_filtered_just_correct_choice[i]<-NA
     df.sum$Trial_11_5_latency_to_enter_incorrect_side[i]<-NA
     df.sum$Trial_11_5_screen_entered_first[i]<-NA 
     df.sum$Trial_11_5_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<-NA
@@ -839,6 +874,7 @@ for(i in 1:length(fish_list)){
     df.sum$Trial_11_5_was_performance_T30_to_T50_greater_than_60_percent[i]<-df.fish.115$perf_greater_than_60_T30_to_T50
     df.sum$Trial_11_5_reaction_time[i]<-df.fish.115$reaction_time
     df.sum$Trial_11_5_latency_to_enter_correct_side[i]<-df.fish.115$latency_enter_corr
+    df.sum$Trial_11_5_latency_to_enter_correct_side_filtered_just_correct_choice[i]<-df.fish.115$latency_enter_corr_filtered_just_correct_choice
     df.sum$Trial_11_5_latency_to_enter_incorrect_side[i]<-df.fish.115$latency_enter_incorr
     df.sum$Trial_11_5_screen_entered_first[i]<-df.fish.115$screen_entered_first
     df.sum$Trial_11_5_time_spent_in_correct_screen_full_4_minutes_absolute_seconds[i]<- df.fish.115$correctscreen_full_4_minutes_absolute_seconds
@@ -850,6 +886,9 @@ for(i in 1:length(fish_list)){
 
   
 ```
+
+
+
 
 ```{r}
 #flag trials where fish was already in the correct side when the trial started at T30 (1 means it started in the correct zone)  
@@ -920,6 +959,8 @@ for(i in 1:length(fish_list)){
     }
   
 ```
+
+
 
 
 
@@ -1196,6 +1237,16 @@ df.sum$average_latency_to_enter_incorrect_side[i]<- mean(df.fish$latency_enter_i
 ```
 
 
+```{r}
+#average latency to enter the correct filtered where only correct side was picked first
+
+for(i in 1:length(fish_list)){
+df.fish<- filter(df, fishname == fish_list[i])
+df.sum$average_latency_to_enter_correct_side_filtered_just_correct_choice[i]<- mean(df.fish$latency_enter_corr_filtered_just_correct_choice, na.rm =TRUE)
+}
+
+```
+
 
 ```{r}
 #proportion of trials where the correct side was chosen first (excludes trials where NA)
@@ -1326,108 +1377,8 @@ for(i in 1:nrow(df.sum)){
 ```{r}
 #Export as a csv file
 
-write_csv(df.sum, "Numerosity Comparative Cognition Full Dataset April_10_2018.csv")
+write_csv(df.sum, "Numerosity Comparative Cognition Full Dataset April_17_2018.csv")
 
 
 ```
-
-```{r}
-
-
-```
-
-```{r}
-#6b. How many 1:2 trials were analyzed?
-
-```
-
-
-```{r}
-#6c. How many 2:3 trials were analyzed?
-
-```
-
-
-```{r}
-#6d. How many 3:4 trials were analyzed?
-
-```
-
-
-```{r}
-#6e. How many total testing trials were analyzed?
-
-```
-
-
-```{r}
-#7a. Determine median performance on 1:2 ratio
-
-```
-
-
-```{r}
-#7b. Determine median performance on 2:3 ratio
-
-```
-
-
-```{r}
-#7c. Determine median performance on 3:4 ratio
-
-```
-
-
-```{r}
-#7d. Determine average performance
-
-```
-
-
-```{r}
-#7e. Determine how many median scores (of 3) are above 60%
-
-```
-
-
-```{r}
-#7f. Determine if average perofrmance is significantly different from 50%
-
-```
-
-
-```{r}
-#7g. Determine learning status (high, low, non)
-
-```
-
-
-```{r}
-#8a. Sort the import df (earlier spreadsheet) by trial ID
-
-```
-
-
-```{r}
-#8b. filter by fishname
-
-```
-
-
-```{r}
-#8c. find longest row of consecutive 'yes' and add that as "longest streak" 
-
-```
-
-
-```{r}
-#8d. Is longest streak 7 or greater?
-
-```
-
-```{r}
-#Step 9: Export as a csv file
-
-```
-
 
