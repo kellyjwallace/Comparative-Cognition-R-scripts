@@ -65,13 +65,16 @@ library(knitr)
 library(readr)
 library(utils)
 
+
+#NOTE: make sure to either comment or leave in the "filter out before T30" so the hand and track match. 
+
 ```
 
 
 
 ```{r, message=FALSE, warning=FALSE}
 hand_file_list <- list.files("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/numerosity cc score sheets", pattern = "*.csv")
-track_file_list <-list.files("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/april_1_richie_cowlogs_from_tracker/use_for_comparison", pattern = "*.csv")
+track_file_list <-list.files("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/richie_cowlogs_from_tracker/use_for_comparison", pattern = "*.csv")
 
 hand_test_column <- vector(length = length(hand_file_list))
 df.hand<- data.frame(fishname = hand_test_column)
@@ -119,6 +122,11 @@ for(i in 1:length(hand_file_list)){
   change_index <- which(fil$time > 240.04)[1]-1
   fil$time[change_index]<- 240.04
   fil<-filter(fil, time <= 240.04)
+  
+  #COMMENT OUT if you are looking at T0-30!!!!!
+  change_index <- which(fil$time > 30)[1]-1
+  fil$time[change_index]<- 30
+  fil<-filter(fil, time >= 30)
   
   fil<-mutate(fil, time.difference = -(time -lead(time)))
   fil$time.difference <- replace(fil$time.difference, c(1), (fil$time[2])) #use only if you're starting at time = 0 seconds
@@ -178,7 +186,7 @@ View(df.hand)
 ```{r, message=FALSE, warning=FALSE}
 
 for(i in 1:length(track_file_list)){
-  setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/april_1_richie_cowlogs_from_tracker/use_for_comparison")
+  setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/richie_cowlogs_from_tracker/use_for_comparison")
   
   fil <- read_csv(track_file_list[i], col_names = TRUE, col_types = NULL)
   filename <- track_file_list[i]
@@ -420,7 +428,7 @@ median(abs(df.both.male$diff_seconds_total_mirror), na.rm = TRUE)
 
 
 #WRITING CSV
-write_csv(df.both, "Tracker comparison to hand scores april 4 2018.csv")
+#write_csv(df.both, "Tracker comparison to hand scores april 4 2018.csv")
 ```
 
 

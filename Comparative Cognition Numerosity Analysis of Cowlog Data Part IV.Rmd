@@ -149,31 +149,64 @@ All the stuff after this was me playing around with one score sheet to try and v
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 
 
+#All the stuff after this was me playing around with one score sheet to try and visualize what is going on in the trial, we should not run these parts. 
+shuttleleft<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Shuttlebox_Tracking_L_framesofinterest.csv", col_names = TRUE, col_types = NULL)
+shuttleright<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Shuttlebox_Tracking_R_framesofinterest.csv", col_names = TRUE, col_types = NULL)
+file_list_left<- list.files("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets/left")
+file_list_right<- list.files("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets/right")
+file_list<- append(file_list_left, file_list_right)
 
+
+
+
+file_list[33]
 
 #################IMPORTANT! PICK LEFT OR RIGHT< DO NOT JOIN BY BOTH!
+#####################
+#####################
 
-
-df.full<- full_join(df,shuttleright, by = 'frame_number')
-df.full
+setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets/left")
+df<- read_csv(file_list[22], col_names = TRUE, col_types = NULL)
+df<- full_join(df,shuttleleft, by = 'frame_number')
 
 #####################
 #####################
 #####################
+
+
+setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets/right")
+df<- read_csv(file_list[33], col_names = TRUE, col_types = NULL)
+df<- full_join(df,shuttleright, by = 'frame_number')
+
+#####################
 #####################
 #####################
 
-df.full<- full_join(df,shuttleleft, by = 'frame_number')
-df.full
 
+df<-df %>% mutate(distance_from_correct = abs(correct_x_pixel - x))
 #OPTIONAL WRITE OUT FULL CSV
-#write_csv(df.full, filename = "Comparative Cognition Shuttlebox dataframe NAME.csv")
-```
+#write_csv(df, filename = "Comparative Cognition Shuttlebox dataframe NAME.csv")
+#make summary dataframe with average distance from screen during stim times over presentations
+df.habit<-df %>% filter(type == 'habit')
+df.stim<-df %>% filter(type == 'stim')
+df.gap<-df %>% filter(type == 'gap')
+
+#This is taking an average distance_from_correct for each gap/presentation
+df.gap.sum<-group_by(df.gap, presentation)%>% summarize(avg_dist_from_correct_by_pres = mean(distance_from_correct, na.rm = TRUE))
+#graph distance from screen during habituation and during stim  (sum across all presentations)
+
+p <- ggplot(df.gap.sum, aes(presentation, avg_dist_from_correct_by_pres))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  geom_smooth(method = "lm") +
+  geom_vline(xintercept =5)+
+  geom_vline(xintercept =10)+
+  geom_vline(xintercept =15)+
+  geom_vline(xintercept =20)+
+  geom_vline(xintercept =25)+
+  geom_vline(xintercept =30)
 
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-#Get distance from correct for each frame
-df.full<-df.full %>% mutate(distance_from_correct = abs(correct_x_pixel - x))
 ```
 
 
@@ -186,8 +219,12 @@ df.full.gap<-df.full %>% filter(type == 'gap')
 mean(df.full.stim$distance_from_correct, na.rm = TRUE)
 mean(df.full.gap$distance_from_correct, na.rm = TRUE)
 
-#This is taking an average distance_from_correct for each gap/presentation
-df.full.gap.sum<-group_by(df.full.gap, presentation)%>% summarize(avg_dist_from_correct_by_pres = mean(distance_from_correct, na.rm = TRUE))
+
+
+
+
+
+
 
 ```
 
@@ -195,7 +232,7 @@ df.full.gap.sum<-group_by(df.full.gap, presentation)%>% summarize(avg_dist_from_
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #graph distance from screen during habituation and during stim  (sum across all presentations)
 
-p <- ggplot(df.full.gap, aes(presentation, distance_from_correct))
+p <- ggplot(df.gap, aes(presentation, distance_from_correct))
 p + geom_point(size = 3) + 
   theme(text = element_text(size=10)) + 
   geom_smooth(method = "lm")
