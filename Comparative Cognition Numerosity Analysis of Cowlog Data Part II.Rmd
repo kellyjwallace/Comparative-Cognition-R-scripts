@@ -80,6 +80,10 @@ library(EnvStats)
 
 df<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Comparative Cognition R Scripts/Numerosity Comparative Cognition Full Dataset April_17_2018.csv", col_names = TRUE, col_types = NULL)
 
+df$number_of_medians_above_60_using_full_4_minutes_data<-as.factor(df$number_of_medians_above_60_using_full_4_minutes_data)
+df$number_of_medians_above_60_using_T30_to_T50_data<-as.factor(df$number_of_medians_above_60_using_T30_to_T50_data)
+
+
 View(df)
 
 
@@ -98,7 +102,7 @@ r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 
 p <- ggplot(df, aes(XXX, XXX))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") + 
@@ -118,7 +122,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(average_performance_across_all_9_testing_trials_using_T30_to_T50_data, average_performance_across_all_9_testing_trials_using_full_4_minutes_data))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=0.3, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") + 
@@ -126,7 +130,13 @@ p + geom_point(size = 3) +
        using_full_4_minutes_data") +
   ggtitle ("Does average performance over just T30 to T50 predict 
            average performance over the full 4 minutes?") +
-  geom_smooth(method = "lm")
+  geom_smooth(method = "lm", size = 2, fill = "light gray", color = "deepskyblue4")+
+         theme(axis.text=element_text(size=12),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank())+ 
+         theme(plot.title = element_text(size=14))
 
 
 ```
@@ -143,7 +153,7 @@ r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 #Does proportion of correct first choices predict average performance (T30 to T50 data)?
 p <- ggplot(df, aes(proportion_of_correct_first_choices, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=0.3, y=0.63, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") + 
@@ -167,7 +177,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(proportion_of_correct_first_choices, average_performance_across_all_9_testing_trials_using_full_4_minutes_data))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=0.3, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
@@ -191,7 +201,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(average_latency_to_enter_correct_side, proportion_of_correct_first_choices))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=30, y=0.8, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") + 
@@ -215,7 +225,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(average_latency_to_enter_correct_side_filtered_just_correct_choice, proportion_of_correct_first_choices))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=30, y=0.8, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") + 
@@ -237,7 +247,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(average_latency_to_enter_correct_side, average_performance_across_all_9_testing_trials_using_full_4_minutes_data))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
@@ -261,7 +271,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(average_latency_to_enter_correct_side_filtered_just_correct_choice, average_performance_across_all_9_testing_trials_using_full_4_minutes_data))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
@@ -288,7 +298,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(average_latency_to_enter_correct_side, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") + 
@@ -313,7 +323,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(average_latency_to_enter_correct_side_filtered_just_correct_choice, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") + 
@@ -338,7 +348,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(mean_of_median_performance_on_each_ratio_T30_to_T50_data, proportion_of_correct_first_choices))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=0.3, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") + 
@@ -361,7 +371,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(mean_of_median_performance_on_each_ratio_full_four_minutes_data, proportion_of_correct_first_choices))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=0.3, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
@@ -385,7 +395,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(average_latency_to_enter_correct_side, mean_of_median_performance_on_each_ratio_full_four_minutes_data))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=30, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
@@ -409,7 +419,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(average_latency_to_enter_correct_side_filtered_just_correct_choice, mean_of_median_performance_on_each_ratio_full_four_minutes_data))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=30, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
@@ -437,7 +447,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(average_latency_to_enter_correct_side, mean_of_median_performance_on_each_ratio_T30_to_T50_data))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
@@ -461,7 +471,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(average_latency_to_enter_correct_side_filtered_just_correct_choice, mean_of_median_performance_on_each_ratio_T30_to_T50_data))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
@@ -485,7 +495,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(mean_of_median_performance_on_each_ratio_full_four_minutes_data, average_performance_across_all_9_testing_trials_using_full_4_minutes_data))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=0.3, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
@@ -510,7 +520,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(mean_of_median_performance_on_each_ratio_T30_to_T50_data, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=0.3, y=0.6, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") + 
@@ -526,15 +536,23 @@ p + geom_point(size = 3) +
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+df$number_of_medians_above_60_using_full_4_minutes_data<-as.factor(df$number_of_medians_above_60_using_full_4_minutes_data)
+df$number_of_medians_above_60_using_T30_to_T50_data<-as.factor(df$number_of_medians_above_60_using_T30_to_T50_data)
+
 fit <- aov(average_latency_to_enter_correct_side ~ number_of_medians_above_60_using_full_4_minutes_data, data=df) 
-p_value<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+p_value_ANOVA<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+kruskalfit<-kruskal.test(average_latency_to_enter_correct_side ~ number_of_medians_above_60_using_full_4_minutes_data, data=df)
+p_value_kruskal<- kruskalfit$p.value
+
 
 #Does number of medians above 60% (full 4 minutes) predict latency to enter correct side?
 df$number_of_medians_above_60_using_full_4_minutes_data <-as.character(df$number_of_medians_above_60_using_full_4_minutes_data)
 p <- ggplot(df, aes(x=number_of_medians_above_60_using_full_4_minutes_data, y=average_latency_to_enter_correct_side)) + 
   geom_boxplot()+ stat_n_text() +
   ggtitle ('Does number of medians above 60% (full 4 minutes) predict latency to enter correct side?') +
-  geom_text(x=1, y=80, label= glue::glue("p (ANOVA) = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=2, y=10, label= glue::glue("p (ANOVA) = {round(p_value_ANOVA,4)}, 
+                                         p(Kruskal) = {round(p_value_kruskal,4)}"), size = 6, color = "black")
 p
 
 
@@ -543,16 +561,24 @@ p
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+df$number_of_medians_above_60_using_full_4_minutes_data<-as.factor(df$number_of_medians_above_60_using_full_4_minutes_data)
+df$number_of_medians_above_60_using_T30_to_T50_data<-as.factor(df$number_of_medians_above_60_using_T30_to_T50_data)
+
 fit <- aov(average_latency_to_enter_correct_side_filtered_just_correct_choice ~ number_of_medians_above_60_using_full_4_minutes_data, data=df) 
-p_value<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+p_value_ANOVA<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+
+
+kruskalfit<-kruskal.test(average_latency_to_enter_correct_side_filtered_just_correct_choice ~ number_of_medians_above_60_using_full_4_minutes_data, data=df)
+p_value_kruskal<- kruskalfit$p.value
 
 #Does number of medians above 60% (full 4 minutes) predict latency to enter correct side(filted)?
-df$number_of_medians_above_60_using_full_4_minutes_data <-as.character(df$number_of_medians_above_60_using_full_4_minutes_data)
 p <- ggplot(df, aes(x=number_of_medians_above_60_using_full_4_minutes_data, y=average_latency_to_enter_correct_side_filtered_just_correct_choice)) + 
   geom_boxplot()+ stat_n_text() +
   ggtitle ('Does number of medians above 60% (full 4 minutes) 
            predict latency to enter correct side (filtered)?') +
-  geom_text(x=1, y=80, label= glue::glue("p (ANOVA) = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=1, y=80, label= glue::glue("p (ANOVA) = {round(p_value_ANOVA,4)}, 
+                                         p(Kruskal) = {round(p_value_kruskal,4)}"), size = 6, color = "black")
 p
 
 
@@ -561,16 +587,22 @@ p
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
+df$number_of_medians_above_60_using_full_4_minutes_data<-as.factor(df$number_of_medians_above_60_using_full_4_minutes_data)
+df$number_of_medians_above_60_using_T30_to_T50_data<-as.factor(df$number_of_medians_above_60_using_T30_to_T50_data)
 
 fit <- aov(average_latency_to_enter_correct_side ~ number_of_medians_above_60_using_T30_to_T50_data, data=df) 
-p_value<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+p_value_ANOVA<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+
+
+kruskalfit<-kruskal.test(average_latency_to_enter_correct_side ~ number_of_medians_above_60_using_T30_to_T50_data, data=df)
+p_value_kruskal<- kruskalfit$p.value
 
 #Does number of medians above 60% (T30 to T50) predict latency to enter correct side?
-df$number_of_medians_above_60_using_T30_to_T50_data <-as.character(df$number_of_medians_above_60_using_T30_to_T50_data)
 p <- ggplot(df, aes(x=number_of_medians_above_60_using_T30_to_T50_data, y=average_latency_to_enter_correct_side)) + 
   geom_boxplot()+ stat_n_text() +
   ggtitle('Does number of medians above 60% (T30 to T50) predict latency to enter correct side?') +
-  geom_text(x=2, y=80, label= glue::glue("p (ANOVA) = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=2, y=80, label= glue::glue("p (ANOVA) = {round(p_value_ANOVA,4)}, 
+                                         p(Kruskal) = {round(p_value_kruskal,4)}"), size = 6, color = "black")
 p
 
 ```
@@ -578,17 +610,23 @@ p
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
+df$number_of_medians_above_60_using_full_4_minutes_data<-as.factor(df$number_of_medians_above_60_using_full_4_minutes_data)
+df$number_of_medians_above_60_using_T30_to_T50_data<-as.factor(df$number_of_medians_above_60_using_T30_to_T50_data)
 
 fit <- aov(average_latency_to_enter_correct_side_filtered_just_correct_choice ~ number_of_medians_above_60_using_T30_to_T50_data, data=df) 
-p_value<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+p_value_ANOVA<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+
+
+kruskalfit<-kruskal.test(average_latency_to_enter_correct_side_filtered_just_correct_choice ~ number_of_medians_above_60_using_T30_to_T50_data, data=df)
+p_value_kruskal<- kruskalfit$p.value
 
 #Does number of medians above 60% (T30 to T50) predict latency to enter correct side (filtered)?
-df$number_of_medians_above_60_using_T30_to_T50_data <-as.character(df$number_of_medians_above_60_using_T30_to_T50_data)
 p <- ggplot(df, aes(x=number_of_medians_above_60_using_T30_to_T50_data, y=average_latency_to_enter_correct_side_filtered_just_correct_choice)) + 
   geom_boxplot()+ stat_n_text() +
   ggtitle('Does number of medians above 60% (T30 to T50) predict 
           latency to enter correct side? (filtered)') +
-  geom_text(x=2, y=80, label= glue::glue("p (ANOVA) = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=2, y=80, label= glue::glue("p (ANOVA) = {round(p_value_ANOVA,4)}, 
+                                         p(Kruskal) = {round(p_value_kruskal,4)}"), size = 6, color = "black")
 p
 
 ```
@@ -597,29 +635,44 @@ p
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
+df$number_of_medians_above_60_using_full_4_minutes_data<-as.factor(df$number_of_medians_above_60_using_full_4_minutes_data)
+df$number_of_medians_above_60_using_T30_to_T50_data<-as.factor(df$number_of_medians_above_60_using_T30_to_T50_data)
+
 fit <- aov(proportion_of_correct_first_choices ~ number_of_medians_above_60_using_full_4_minutes_data, data=df) 
-p_value<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+p_value_ANOVA<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+
+
+kruskalfit<-kruskal.test(proportion_of_correct_first_choices ~ number_of_medians_above_60_using_full_4_minutes_data, data=df)
+p_value_kruskal<- kruskalfit$p.value
 
 #Does number of medians above 60% (full four minutes) predict proportion of correct first choices?
 p <- ggplot(df, aes(x=number_of_medians_above_60_using_full_4_minutes_data, y=proportion_of_correct_first_choices)) + 
   geom_boxplot()+ stat_n_text()
 p +  ggtitle ("Does number of medians above 60% (full four minutes) 
              predict proportion of correct first choices?") +
-  geom_text(x=1, y=0.8, label= glue::glue("p (ANOVA) = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=1, y=0.8, label= glue::glue("p (ANOVA) = {round(p_value_ANOVA,4)},
+                                          p(Kruskal) = {round(p_value_kruskal,4)}"), size = 6, color = "black")
 
 ```
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
+df$number_of_medians_above_60_using_full_4_minutes_data<-as.factor(df$number_of_medians_above_60_using_full_4_minutes_data)
+df$number_of_medians_above_60_using_T30_to_T50_data<-as.factor(df$number_of_medians_above_60_using_T30_to_T50_data)
 fit <- aov(proportion_of_correct_first_choices ~ number_of_medians_above_60_using_T30_to_T50_data, data=df) 
-p_value<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+p_value_ANOVA<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+
+
+kruskalfit<-kruskal.test(proportion_of_correct_first_choices ~ number_of_medians_above_60_using_T30_to_T50_data, data=df)
+p_value_kruskal<- kruskalfit$p.value
 
 #Does number of medians above 60% (T30 to T50) predict proportion of correct first choices?
 p <- ggplot(df, aes(x=number_of_medians_above_60_using_T30_to_T50_data, y=proportion_of_correct_first_choices)) + 
   geom_boxplot()+ stat_n_text() 
 p +  ggtitle ("Does number of medians above 60% (T30 to T50)
               predict proportion of correct first choices?") +
-  geom_text(x=2, y=0.8, label= glue::glue("p (ANOVA) = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=2, y=0.8, label= glue::glue("p (ANOVA) = {round(p_value_ANOVA,4)},
+                                          p(Kruskal) = {round(p_value_kruskal,4)}"), size = 6, color = "black")
 
 ```
 
@@ -636,7 +689,7 @@ r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 
 p <- ggplot(df, aes(average_number_of_entries, average_performance_across_all_9_testing_trials_using_full_4_minutes_data))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
@@ -661,7 +714,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(average_number_of_entries, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") + 
@@ -685,7 +738,7 @@ p_value<-p_value[[16]]
 
 
 p <- ggplot(df, aes(average_number_of_entries, average_performance_across_all_9_testing_trials_using_T30_to_T50_data, color = sex))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.2, label= glue::glue("p (interaction)= {round(p_value,4)} 
   n = {number}"), size = 6, color = "black") + 
@@ -711,7 +764,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(average_number_of_entries, proportion_of_correct_first_choices))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") + 
@@ -735,7 +788,7 @@ p_value<-p_value[[16]]
 
 
 p <- ggplot(df, aes(average_number_of_entries, proportion_of_correct_first_choices, color = sex))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.2, label= glue::glue("p (interaction)= {round(p_value,4)}
         n = {number}"), size = 6, color = "black") + 
@@ -757,7 +810,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(average_number_of_entries, average_latency_to_enter_correct_side))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
@@ -777,7 +830,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(average_number_of_entries, average_latency_to_enter_correct_side_filtered_just_correct_choice))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
@@ -798,7 +851,7 @@ p_value<- coef(summary(mod))%>%as.list()
 p_value<-p_value[[16]]
 
 p <- ggplot(df, aes(average_number_of_entries, average_latency_to_enter_correct_side, color = sex))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.2, label= glue::glue("p (interaction)= {round(p_value,4)}
         n = {number}"), size = 6, color = "black") +
@@ -819,7 +872,7 @@ p_value<- coef(summary(mod))%>%as.list()
 p_value<-p_value[[16]]
 
 p <- ggplot(df, aes(average_number_of_entries, average_latency_to_enter_correct_side_filtered_just_correct_choice, color = sex))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.2, label= glue::glue("p (interaction)= {round(p_value,4)}
         n = {number}"), size = 6, color = "black") +
@@ -843,7 +896,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(average_reaction_time, average_performance_across_all_9_testing_trials_using_full_4_minutes_data))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=20, y=0.1, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
@@ -869,7 +922,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(average_reaction_time, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=25, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
@@ -892,7 +945,7 @@ p_value<- coef(summary(mod))%>%as.list()
 p_value<-p_value[[16]]
 
 p <- ggplot(df, aes(average_reaction_time, average_performance_across_all_9_testing_trials_using_T30_to_T50_data, color = sex))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=25, y=0.5, label= glue::glue("p (interaction)= {round(p_value,4)},
         n = {number}"), size = 6, color = "black") +
@@ -916,7 +969,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(average_reaction_time, proportion_of_correct_first_choices))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=10, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
@@ -939,7 +992,7 @@ p_value<-p_value[[16]]
 
 
 p <- ggplot(df, aes(average_reaction_time, proportion_of_correct_first_choices, color = sex))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=10, y=0.2, label= glue::glue("p (interaction)= {round(p_value,4)}
         n = {number}"), size = 6, color = "black") +
@@ -962,7 +1015,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(average_reaction_time, average_latency_to_enter_correct_side))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=10, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
@@ -985,7 +1038,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(average_reaction_time, average_latency_to_enter_correct_side_filtered_just_correct_choice))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=10, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
@@ -1008,7 +1061,7 @@ p_value<- coef(summary(mod))%>%as.list()
 p_value<-p_value[[16]]
 
 p <- ggplot(df, aes(average_reaction_time, average_latency_to_enter_correct_side, color = sex))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=10, y=10, label= glue::glue("p (interaction)= {round(p_value,4)}
        n = {number}"), size = 6, color = "black") +
@@ -1028,7 +1081,7 @@ p_value<- coef(summary(mod))%>%as.list()
 p_value<-p_value[[16]]
 
 p <- ggplot(df, aes(average_reaction_time, average_latency_to_enter_correct_side_filtered_just_correct_choice, color = sex))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=10, y=10, label= glue::glue("p (interaction)= {round(p_value,4)}
        n = {number}"), size = 6, color = "black") +
@@ -1043,11 +1096,14 @@ p + geom_point(size = 3) +
 #Does sex predict average performance over the full 4 minutes?
 
 test<-t.test(df$average_performance_across_all_9_testing_trials_using_full_4_minutes_data~df$sex)
-p_value<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df$average_performance_across_all_9_testing_trials_using_full_4_minutes_data~ df$sex)
+p_value_wilcox<-wilcox_test$p.value
 
 p <- ggplot(df, aes(x=sex, y=average_performance_across_all_9_testing_trials_using_full_4_minutes_data)) + 
   geom_boxplot()+ stat_n_text() +
-  geom_text(x=1, y=0.2, label= glue::glue("p = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=1, y=0.2, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
 p +  ggtitle ("Does sex predict average performance over the full 4 minutes?")
 
 ```
@@ -1057,11 +1113,14 @@ p +  ggtitle ("Does sex predict average performance over the full 4 minutes?")
 
 #Does sex predict average performance over T30 to T50?
 test<-t.test(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data~df$sex)
-p_value<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data~df$sex)
+p_value_wilcox<-wilcox_test$p.value
 
 p <- ggplot(df, aes(x=sex, y=average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) + 
   geom_boxplot()+ stat_n_text() +
-  geom_text(x=1, y=0, label= glue::glue("p = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=1, y=0, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
 p +  ggtitle ("Does sex predict average performance over T30 to T50?")
 
 ```
@@ -1071,11 +1130,15 @@ p +  ggtitle ("Does sex predict average performance over T30 to T50?")
 
 #Does sex predict average latency to enter correct zone?
 test<-t.test(df$average_latency_to_enter_correct_side~df$sex)
-p_value<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+
+wilcox_test<-wilcox.test(df$average_latency_to_enter_correct_side~df$sex)
+p_value_wilcox<-wilcox_test$p.value
 
 p <- ggplot(df, aes(x=sex, y=average_latency_to_enter_correct_side)) + 
   geom_boxplot()+ stat_n_text() +
-  geom_text(x=1, y=0, label= glue::glue("p = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=1, y=0, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
 p +  ggtitle ("Does sex predict average latency to enter correct zone?")
 
 ```
@@ -1085,11 +1148,15 @@ p +  ggtitle ("Does sex predict average latency to enter correct zone?")
 
 #Does sex predict average latency to enter correct zone?(filtered)
 test<-t.test(df$average_latency_to_enter_correct_side_filtered_just_correct_choice~df$sex)
-p_value<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+
+wilcox_test<-wilcox.test(df$average_latency_to_enter_correct_side_filtered_just_correct_choice~df$sex)
+p_value_wilcox<-wilcox_test$p.value
 
 p <- ggplot(df, aes(x=sex, y=average_latency_to_enter_correct_side_filtered_just_correct_choice)) + 
   geom_boxplot()+ stat_n_text() +
-  geom_text(x=1, y=0, label= glue::glue("p = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=1, y=0, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
 p +  ggtitle ("Does sex predict average latency to enter correct zone?(filtered)")
 
 ```
@@ -1098,11 +1165,15 @@ p +  ggtitle ("Does sex predict average latency to enter correct zone?(filtered)
 
 #Does sex predict proportion of correct choices?
 test<-t.test(df$proportion_of_correct_first_choices~df$sex)
-p_value<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+
+wilcox_test<-wilcox.test(df$proportion_of_correct_first_choices~df$sex)
+p_value_wilcox<-wilcox_test$p.value
 
 p <- ggplot(df, aes(x=sex, y=proportion_of_correct_first_choices)) + 
   geom_boxplot()+ stat_n_text() +
-  geom_text(x=1, y=0, label= glue::glue("p = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=1, y=0, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
 p +  ggtitle ("Does sex predict proportion of correct choices?")
 
 ```
@@ -1112,11 +1183,15 @@ p +  ggtitle ("Does sex predict proportion of correct choices?")
 
 #Does sex predict average number of entries?
 test<-t.test(df$average_number_of_entries~df$sex)
-p_value<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+
+wilcox_test<-wilcox.test(df$average_number_of_entries~df$sex)
+p_value_wilcox<-wilcox_test$p.value
 
 p <- ggplot(df, aes(x=sex, y=average_number_of_entries)) + 
   geom_boxplot()+ stat_n_text() +
-  geom_text(x=1, y=110, label= glue::glue("p = {round(p_value,4)}"), size = 6, color = "black") 
+  geom_text(x=1, y=110, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black") 
 p +  ggtitle ("Does sex predict average number of entries?")
 
 ```
@@ -1126,11 +1201,15 @@ p +  ggtitle ("Does sex predict average number of entries?")
 
 #Does sex predict average reaction time?
 test<-t.test(df$average_reaction_time~df$sex)
-p_value<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+
+wilcox_test<-wilcox.test(df$average_reaction_time~df$sex)
+p_value_wilcox<-wilcox_test$p.value
 
 p <- ggplot(df, aes(x=sex, y=average_reaction_time)) + 
   geom_boxplot()+ stat_n_text() +
-  geom_text(x=1, y=0, label= glue::glue("p = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=1, y=0, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
 p +  ggtitle ("Does sex predict average reaction time?")
 
 ```
@@ -1147,7 +1226,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(standard_length, average_performance_across_all_9_testing_trials_using_full_4_minutes_data))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=1600, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
@@ -1171,7 +1250,7 @@ p_value<- coef(summary(mod))%>%as.list()
 p_value<-p_value[[16]]
 
 p <- ggplot(df, aes(standard_length, average_performance_across_all_9_testing_trials_using_full_4_minutes_data, color = sex))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=1600, y=0.2, label= glue::glue("p (interaction) = {round(p_value,4)}
        n = {number}"), size = 6, color = "black") +
@@ -1194,7 +1273,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(standard_length, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=1700, y=0.3, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
@@ -1219,7 +1298,7 @@ p_value<-p_value[[16]]
 
 
 p <- ggplot(df, aes(standard_length, average_performance_across_all_9_testing_trials_using_T30_to_T50_data, color = sex))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=1600, y=0.2, label= glue::glue("p (interaction) = {round(p_value,4)}
        n = {number}"), size = 6, color = "black") +
@@ -1242,7 +1321,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(standard_length, proportion_of_correct_first_choices))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=1700, y=0.1, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
@@ -1264,7 +1343,7 @@ p_value<- coef(summary(mod))%>%as.list()
 p_value<-p_value[[16]]
 
 p <- ggplot(df, aes(standard_length, proportion_of_correct_first_choices, color = sex))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=1600, y=0.2, label= glue::glue("p (interaction) = {round(p_value,4)}
        n = {number}"), size = 6, color = "black") + 
@@ -1287,7 +1366,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(standard_length, average_latency_to_enter_correct_side))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=1800, y=75, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") + 
@@ -1310,7 +1389,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(standard_length, average_latency_to_enter_correct_side_filtered_just_correct_choice))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=1800, y=75, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") + 
@@ -1331,7 +1410,7 @@ p_value<- coef(summary(mod))%>%as.list()
 p_value<-p_value[[16]]
 
 p <- ggplot(df, aes(standard_length, average_latency_to_enter_correct_side, color = sex))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=1600, y=20, label= glue::glue("p (interaction) = {round(p_value,4)}
        n = {number}"), size = 6, color = "black") +
@@ -1352,7 +1431,7 @@ p_value<- coef(summary(mod))%>%as.list()
 p_value<-p_value[[16]]
 
 p <- ggplot(df, aes(standard_length, average_latency_to_enter_correct_side_filtered_just_correct_choice, color = sex))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=1600, y=20, label= glue::glue("p (interaction) = {round(p_value,4)}
        n = {number}"), size = 6, color = "black") +
@@ -1372,7 +1451,7 @@ p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 p <- ggplot(df, aes(standard_length, average_number_of_entries))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", 1800, y=100, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
@@ -1392,7 +1471,7 @@ p_value<- coef(summary(mod))%>%as.list()
 p_value<-p_value[[16]]
 
 p <- ggplot(df, aes(standard_length, average_number_of_entries, color = sex))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=1600, y=0.2, label= glue::glue("p (interaction) = {round(p_value,4)}
        n = {number}"), size = 6, color = "black") +
@@ -1416,7 +1495,7 @@ r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 
 p <- ggplot(df, aes(standard_length, average_reaction_time))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=1800, y=30, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") + 
@@ -1436,7 +1515,7 @@ p_value<- coef(summary(mod))%>%as.list()
 p_value<-p_value[[16]]
 
 p <- ggplot(df, aes(standard_length, average_reaction_time, color = sex))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=1600, y=0.2, label= glue::glue("p (interaction) = {round(p_value,4)}
        n = {number}"), size = 6, color = "black") +
@@ -1454,37 +1533,54 @@ p + geom_point(size = 3) +
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 fit <- aov(average_performance_across_all_9_testing_trials_using_full_4_minutes_data ~ order, data=df) 
-p_value<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+p_value_ANOVA<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+df$order<-as.factor(df$order)
+
+kruskalfit<-kruskal.test(average_performance_across_all_9_testing_trials_using_full_4_minutes_data ~ order, data=df)
+p_value_kruskal<- kruskalfit$p.value
 
 #Does order predict average performance over the full 4 minutes?
 p <- ggplot(df, aes(x=order, y=average_performance_across_all_9_testing_trials_using_full_4_minutes_data)) + 
   geom_boxplot()+ stat_n_text() 
 p +  ggtitle ("Does order predict average performance over the full 4 minutes?")+
-  geom_text(x=3, y=0.2, label= glue::glue("p (ANOVA) = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=3, y=0.2, label= glue::glue("p (ANOVA) = {round(p_value_ANOVA,4)},
+                                          p(Kruskal) = {round(p_value_kruskal,4)}"), size = 6, color = "black")
 
 ```
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 fit <- aov(average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ order, data=df) 
-p_value<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+p_value_ANOVA<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+df$order<-as.factor(df$order)
+
+kruskalfit<-kruskal.test(average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ order, data=df)
+p_value_kruskal<- kruskalfit$p.value
+
 #Does order predict performance over T30 to T50?
 p <- ggplot(df, aes(x=order, y=average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) + 
   geom_boxplot()+ stat_n_text() 
 p +  ggtitle ("Does order predict performance over T30 to T50?")+
-  geom_text(x=3, y=0.2, label= glue::glue("p (ANOVA) = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=3, y=0.2, label= glue::glue("p (ANOVA) = {round(p_value_ANOVA,4)},
+                                          p(Kruskal) = {round(p_value_kruskal,4)}"), size = 6, color = "black")
 
 ```
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 fit <- aov(average_latency_to_enter_correct_side ~ order, data=df) 
-p_value<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+p_value_ANOVA<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+df$order<-as.factor(df$order)
+
+kruskalfit<-kruskal.test(average_latency_to_enter_correct_side ~ order, data=df)
+p_value_kruskal<- kruskalfit$p.value
+
 #Does order predict average latency to enter correct side?
 p <- ggplot(df, aes(x=order, y=average_latency_to_enter_correct_side)) + 
   geom_boxplot()+ stat_n_text() 
 p +  ggtitle ("Does order predict average latency to enter correct side?")+
-  geom_text(x=3, y=0.2, label= glue::glue("p (ANOVA) = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=3, y=0.2, label= glue::glue("p (ANOVA) = {round(p_value_ANOVA,4)},
+                                          p(Kruskal) = {round(p_value_kruskal,4)}"), size = 6, color = "black")
 
 ```
 
@@ -1492,12 +1588,18 @@ p +  ggtitle ("Does order predict average latency to enter correct side?")+
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 fit <- aov(average_latency_to_enter_correct_side_filtered_just_correct_choice ~ order, data=df) 
-p_value<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+p_value_ANOVA<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+df$order<-as.factor(df$order)
+
+kruskalfit<-kruskal.test(average_latency_to_enter_correct_side_filtered_just_correct_choice ~ order, data=df)
+p_value_kruskal<- kruskalfit$p.value
+
 #Does order predict average latency to enter correct side(filtered)?
 p <- ggplot(df, aes(x=order, y=average_latency_to_enter_correct_side_filtered_just_correct_choice)) + 
   geom_boxplot()+ stat_n_text() 
 p +  ggtitle ("Does order predict average latency to enter correct side?(filtered)")+
-  geom_text(x=3, y=0.2, label= glue::glue("p (ANOVA) = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=3, y=0.2, label= glue::glue("p (ANOVA) = {round(p_value_ANOVA,4)},
+                                          p(Kruskal) = {round(p_value_kruskal,4)}"), size = 6, color = "black")
 
 ```
 
@@ -1505,25 +1607,36 @@ p +  ggtitle ("Does order predict average latency to enter correct side?(filtere
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 fit <- aov(proportion_of_correct_first_choices ~ order, data=df) 
-p_value<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+p_value_ANOVA<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+df$order<-as.factor(df$order)
+
+kruskalfit<-kruskal.test(proportion_of_correct_first_choices ~ order, data=df)
+p_value_kruskal<- kruskalfit$p.value
 
 #Does order predict proportion of correct choices?
 p <- ggplot(df, aes(x=order, y=proportion_of_correct_first_choices)) + 
   geom_boxplot()+ stat_n_text() 
 p +  ggtitle ("Does order predict proportion of correct choices?")+
-  geom_text(x=3, y=0.2, label= glue::glue("p (ANOVA) = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=3, y=0.2, label= glue::glue("p (ANOVA) = {round(p_value_ANOVA,4)},
+                                          p(Kruskal) = {round(p_value_kruskal,4)}"), size = 6, color = "black")
 
 ```
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 fit <- aov(average_number_of_entries ~ order, data=df) 
-p_value<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+p_value_ANOVA<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+df$order<-as.factor(df$order)
+
+kruskalfit<-kruskal.test(average_number_of_entries ~ order, data=df)
+p_value_kruskal<- kruskalfit$p.value
+
 #Does order predict average number of entries?
 p <- ggplot(df, aes(x=order, y=average_number_of_entries)) + 
   geom_boxplot()+ stat_n_text() 
 p +  ggtitle ("Does order predict average number of entries?")+
-  geom_text(x=3, y=120, label= glue::glue("p (ANOVA) = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=3, y=120, label= glue::glue("p (ANOVA) = {round(p_value_ANOVA,4)},
+                                          p(Kruskal) = {round(p_value_kruskal,4)}"), size = 6, color = "black")
 
 ```
 
@@ -1531,12 +1644,18 @@ p +  ggtitle ("Does order predict average number of entries?")+
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 fit <- aov(average_reaction_time ~ order, data=df) 
-p_value<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+p_value_ANOVA<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+df$order<-as.factor(df$order)
+
+kruskalfit<-kruskal.test(average_reaction_time ~ order, data=df)
+p_value_kruskal<- kruskalfit$p.value
+
 #Does order predict average reaction time?
 p <- ggplot(df, aes(x=order, y=average_reaction_time)) + 
   geom_boxplot()+ stat_n_text() 
 p +  ggtitle ("Does order predict average reaction time?") +
-  geom_text(x=3, y=30, label= glue::glue("p (ANOVA) = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=3, y=30, label= glue::glue("p (ANOVA) = {round(p_value_ANOVA,4)},
+                                         p(Kruskal) = {round(p_value_kruskal,4)}"), size = 6, color = "black")
 
 ```
 
@@ -1552,7 +1671,7 @@ r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 
 p <- ggplot(df, aes(XXX, XXX))
-p + geom_point(size = 3) + 
+p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") + 
