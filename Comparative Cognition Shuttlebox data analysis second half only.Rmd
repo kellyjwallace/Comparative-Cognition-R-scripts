@@ -1,9 +1,10 @@
 ---
-title: "Comparative Cognition Numerosity Analysisof Cowlog Data Part V"
+title: "Comparative Cognition Shuttlebox data analysis second half only"
 author: "Kelly Wallace"
-date: "April 12, 2018"
+date: "April 26, 2018"
 output: word_document
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -1906,7 +1907,5 @@ p + geom_point(size = 3) +
   geom_smooth(method = "lm")
 
 ```
-
-
 
 

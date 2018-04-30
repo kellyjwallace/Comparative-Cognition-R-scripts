@@ -308,13 +308,16 @@ ggplot(df.full, aes(detour_trial_1_solved_code, fill = sex.y))+
 #Do individuals who solve the full social problem have shorter latencies to solving the barrier problem?
 
 test<-t.test(df.full$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier~df.full$detour_trial_1_did_fish_solve_full_social_problem)
-p_value<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier~df.full$detour_trial_1_did_fish_solve_full_social_problem)
+p_value_wilcox<-wilcox_test$p.value
 
 p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_full_social_problem, y=detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier)) + 
   geom_boxplot()+ stat_n_text() +
   ggtitle('Do individuals who solve the full social problem have 
           shorter latencies to solving the barrier problem?') +
-  geom_text(x=1, y=0.1, label= glue::glue("p (t.test) = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
 p
 
 
@@ -323,16 +326,19 @@ p
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-#Do individual who solev the barrier problem have lower latencies to approach the barrier (higher motivation?)
+#Do individual who solve the barrier problem have lower latencies to approach the barrier (higher motivation?)
 
 test<-t.test(df.full$time_to_barrier_contact_minus_start_time~df.full$detour_trial_1_did_fish_solve_barrier_problem)
-p_value<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$time_to_barrier_contact_minus_start_time~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
 
 p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=time_to_barrier_contact_minus_start_time)) + 
   geom_boxplot()+ stat_n_text() +
   ggtitle('Do individual who solve the barrier problem have lower latencies 
           to approach the barrier (higher motivation?)') +
-  geom_text(x=1, y=0.1, label= glue::glue("p (t.test) = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
 p
 
 
@@ -343,13 +349,16 @@ p
 #Do individual who solev the full social problem have lower latencies to approach the barrier (higher motivation?)
 
 test<-t.test(df.full$time_to_barrier_contact_minus_start_time~df.full$detour_trial_1_did_fish_solve_full_social_problem)
-p_value<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$time_to_barrier_contact_minus_start_time~df.full$detour_trial_1_did_fish_solve_full_social_problem)
+p_value_wilcox<-wilcox_test$p.value
 
 p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_full_social_problem, y=time_to_barrier_contact_minus_start_time)) + 
   geom_boxplot()+ stat_n_text() +
   ggtitle('Do individual who solve the full social problem have lower latencies 
           to approach the barrier (higher motivation?)') +
-  geom_text(x=1, y=0.1, label= glue::glue("p (t.test) = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
 p
 
 
@@ -362,13 +371,16 @@ p
 #Does Detour category (solved barrier problem versus did not solve barrier problem) predict numerosity performance over T30 to T50?
 
 test<-t.test(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data~df.full$detour_trial_1_did_fish_solve_barrier_problem)
-p_value<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
 
 p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) + 
   geom_boxplot()+ stat_n_text() +
   ggtitle('Does Detour category (solved barrier problem versus did not solve 
           barrier problem) predict numerosity performance over T30 to T50?') +
-  geom_text(x=1, y=0.1, label= glue::glue("p (t.test) = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
 p
 
 ```
@@ -376,27 +388,54 @@ p
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Does Detour category (solved barrier problem versus did not solve barrier problem) predict numerosity average latency to enter correct side?
 test<-t.test(df.full$average_latency_to_enter_correct_side~df.full$detour_trial_1_did_fish_solve_barrier_problem)
-p_value<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$average_latency_to_enter_correct_side~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
 
 p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_latency_to_enter_correct_side)) + 
   geom_boxplot()+ stat_n_text() +
   ggtitle('Does Detour category (solved barrier problem versus 
           did not solve barrier problem) predict numerosity average latency to enter correct side?') +
-  geom_text(x=1, y=0.1, label= glue::glue("p (t.test) = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
 p
 
 ```
 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does Detour category (solved barrier problem versus did not solve barrier problem) predict numerosity average latency to enter correct side? filtered
+test<-t.test(df.full$average_latency_to_enter_correct_side_filtered_just_correct_choice ~ df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$average_latency_to_enter_correct_side_filtered_just_correct_choice~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_latency_to_enter_correct_side_filtered_just_correct_choice)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Does Detour category (solved barrier problem versus 
+          did not solve barrier problem) predict numerosity average 
+          latency to enter correct side? (filtered latency)') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+```
+
+
+
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Does Detour category (solved barrier problem versus did not solve barrier problem) predict numerosity performance (mean of medians)?
 test<-t.test(df.full$mean_of_median_performance_on_each_ratio_T30_to_T50_data ~ df.full$detour_trial_1_did_fish_solve_barrier_problem)
-p_value<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$mean_of_median_performance_on_each_ratio_T30_to_T50_data ~ df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
 
 p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=mean_of_median_performance_on_each_ratio_T30_to_T50_data)) + 
   geom_boxplot()+ stat_n_text() +
   ggtitle('Does Detour category (solved barrier problem versus did not solve barrier problem)
           predict numerosity performance (mean of medians)?') +
-  geom_text(x=1, y=0.1, label= glue::glue("p (t.test) = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
 p
 
 
@@ -406,13 +445,16 @@ p
 #Does Detour category (solved full social problem versus did not solve barrier problem) predict numerosity performance over T30 to T50?
 
 test<-t.test(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data~df.full$detour_trial_1_did_fish_solve_full_social_problem)
-p_value<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data~df.full$detour_trial_1_did_fish_solve_full_social_problem)
+p_value_wilcox<-wilcox_test$p.value
 
 p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_full_social_problem, y=average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) + 
   geom_boxplot()+ stat_n_text() +
   ggtitle('Does Detour category (solved barrier problem versus did not solve 
           barrier problem) predict numerosity performance over T30 to T50?') +
-  geom_text(x=1, y=0.1, label= glue::glue("p (t.test) = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
 p
 
 ```
@@ -420,13 +462,16 @@ p
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Does Detour category (solved full social problem versus did not solve barrier problem) predict numerosity average latency to enter correct side?
 test<-t.test(df.full$average_latency_to_enter_correct_side~df.full$detour_trial_1_did_fish_solve_full_social_problem)
-p_value<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$average_latency_to_enter_correct_side~df.full$detour_trial_1_did_fish_solve_full_social_problem)
+p_value_wilcox<-wilcox_test$p.value
 
 p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_full_social_problem, y=average_latency_to_enter_correct_side)) + 
   geom_boxplot()+ stat_n_text() +
   ggtitle('Does Detour category (solved barrier problem versus 
           did not solve barrier problem) predict numerosity average latency to enter correct side?') +
-  geom_text(x=1, y=0.1, label= glue::glue("p (t.test) = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
 p
 
 ```
@@ -434,13 +479,16 @@ p
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Does Detour category (solved full social problem versus did not solve barrier problem) predict numerosity performance (mean of medians)?
 test<-t.test(df.full$mean_of_median_performance_on_each_ratio_T30_to_T50_data ~ df.full$detour_trial_1_did_fish_solve_full_social_problem)
-p_value<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$mean_of_median_performance_on_each_ratio_T30_to_T50_data ~ df.full$detour_trial_1_did_fish_solve_full_social_problem)
+p_value_wilcox<-wilcox_test$p.value
 
 p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_full_social_problem, y=mean_of_median_performance_on_each_ratio_T30_to_T50_data)) + 
   geom_boxplot()+ stat_n_text() +
   ggtitle('Does Detour category (solved barrier problem versus did not solve barrier problem)
           predict numerosity performance (mean of medians)?') +
-  geom_text(x=1, y=0.1, label= glue::glue("p (t.test) = {round(p_value,4)}"), size = 6, color = "black")
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
 p
 
 

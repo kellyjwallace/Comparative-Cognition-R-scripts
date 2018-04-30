@@ -76,6 +76,7 @@ library(knitr)
 library(readr)
 library(utils)
 library(EnvStats)
+library(coin)
 
 
 df<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Comparative Cognition R Scripts/Numerosity Comparative Cognition Full Dataset April_17_2018.csv", col_names = TRUE, col_types = NULL)
@@ -83,6 +84,13 @@ df<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cogni
 df$number_of_medians_above_60_using_full_4_minutes_data<-as.factor(df$number_of_medians_above_60_using_full_4_minutes_data)
 df$number_of_medians_above_60_using_T30_to_T50_data<-as.factor(df$number_of_medians_above_60_using_T30_to_T50_data)
 
+df.males<-filter(df, df$sex == "M")
+df.males$sex_code<-0
+
+df.females<-filter(df, df$sex == "F")
+df.females$sex_code<-1
+
+df<-full_join(df.males,df.females)
 
 View(df)
 
@@ -1094,10 +1102,12 @@ p + geom_point(size = 4) +
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 
 #Does sex predict average performance over the full 4 minutes?
+#This is a wilcoxon rank sum test
 
 test<-t.test(df$average_performance_across_all_9_testing_trials_using_full_4_minutes_data~df$sex)
 p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
 wilcox_test<-wilcox.test(df$average_performance_across_all_9_testing_trials_using_full_4_minutes_data~ df$sex)
+wilcox_test$estimate
 p_value_wilcox<-wilcox_test$p.value
 
 p <- ggplot(df, aes(x=sex, y=average_performance_across_all_9_testing_trials_using_full_4_minutes_data)) + 
