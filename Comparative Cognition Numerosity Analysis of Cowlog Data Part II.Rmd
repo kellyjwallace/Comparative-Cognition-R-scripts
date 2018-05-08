@@ -79,7 +79,7 @@ library(EnvStats)
 library(coin)
 
 
-df<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Comparative Cognition R Scripts/Numerosity Comparative Cognition Full Dataset April_17_2018.csv", col_names = TRUE, col_types = NULL)
+df<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Comparative Cognition R Scripts/Numerosity Comparative Cognition Full Dataset May_7_2018.csv", col_names = TRUE, col_types = NULL)
 
 df$number_of_medians_above_60_using_full_4_minutes_data<-as.factor(df$number_of_medians_above_60_using_full_4_minutes_data)
 df$number_of_medians_above_60_using_T30_to_T50_data<-as.factor(df$number_of_medians_above_60_using_T30_to_T50_data)
@@ -321,7 +321,7 @@ p + geom_point(size = 4) +
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-#Does average latency to enter correct side predict average performance (T30 to T50 data)?
+#Does average latency to enter correct side predict average performance (T30 to T50 data)? filtered just correct choice
 
 mod<- lm(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df$average_latency_to_enter_correct_side_filtered_just_correct_choice, na.rm = TRUE)
 summary(mod)
@@ -688,20 +688,20 @@ p +  ggtitle ("Does number of medians above 60% (T30 to T50)
 ```{r, echo=FALSE, message=FALSE}
 #Does average number of entries predict average performance (full 4 minutes)?
 
-mod<- lm(df$average_performance_across_all_9_testing_trials_using_full_4_minutes_data ~ df$average_number_of_entries, na.rm = TRUE)
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_full_4_minutes_data ~ df$average_number_of_entries_full_4_minutes, na.rm = TRUE)
 summary(mod)
 
-number <- df %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_full_4_minutes_data)) %>% filter(!is.na(average_number_of_entries)) %>% nrow
+number <- df %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_full_4_minutes_data)) %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% nrow
 p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
 
-p <- ggplot(df, aes(average_number_of_entries, average_performance_across_all_9_testing_trials_using_full_4_minutes_data))
+p <- ggplot(df, aes(average_number_of_entries_full_4_minutes, average_performance_across_all_9_testing_trials_using_full_4_minutes_data))
 p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
-  labs(x= "average_number_of_entries",y="average_performance_across_all_9_testing_trials
+  labs(x= "average_number_of_entries_full_4_minutes",y="average_performance_across_all_9_testing_trials
        _using_full_4_minutes_data") +
   ggtitle ("Does average number of entries predict average performance (full 4 minutes)?") +
   geom_smooth(method = "lm")
@@ -711,22 +711,24 @@ p + geom_point(size = 4) +
 
 ```
 
+
+
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Does average number of entries predict average performance (T30 to T50)?
 
-mod<- lm(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df$average_number_of_entries, na.rm = TRUE)
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df$average_number_of_entries_full_4_minutes, na.rm = TRUE)
 summary(mod)
 
-number <- df %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(average_number_of_entries)) %>% nrow
+number <- df %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% nrow
 p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
-p <- ggplot(df, aes(average_number_of_entries, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p <- ggplot(df, aes(average_number_of_entries_full_4_minutes, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
 p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") + 
-  labs(x= "average_number_of_entries",y="average_performance_across_all_9_testing_trials
+  labs(x= "average_number_of_entries_full_4_minutes",y="average_performance_across_all_9_testing_trials
        _using_T30_to_T50_data") +
   ggtitle ("Does average number of entries predict average performance (T30 to T50)?") +
   geom_smooth(method = "lm")
@@ -736,21 +738,345 @@ p + geom_point(size = 4) +
 ```
 
 
+```{r, echo=FALSE, message=FALSE}
+#Does average number of entries T0-29 predit full 4 minutes?
+
+mod<- lm(df$average_number_of_entries_full_4_minutes ~ df$average_number_of_entries_T0_to_T29, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% filter(!is.na(average_number_of_entries_T0_to_T29)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+
+p <- ggplot(df, aes(average_number_of_entries_T0_to_T29, average_number_of_entries_full_4_minutes))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=10, y=20, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") +
+  labs(x= "average_number_of_entries_T0_to_T29",y="average_number_of_entries_full_4_minutes") +
+  ggtitle ("Does average number of entries T0-T20 predict average entries (full 4 minutes)?") +
+  geom_smooth(method = "lm")
+
+
+```
+
+```{r, echo=FALSE, message=FALSE}
+#Does average number of entries T0-29 predit T30-T50?
+
+mod<- lm(df$average_number_of_entries_T30_to_T50 ~ df$average_number_of_entries_T0_to_T29, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(average_number_of_entries_T30_to_T50)) %>% filter(!is.na(average_number_of_entries_T0_to_T29)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+
+p <- ggplot(df, aes(average_number_of_entries_T0_to_T29, average_number_of_entries_T30_to_T50))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=10, y=10, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") +
+  labs(x= "average_number_of_entries_T0_to_T29",y="average_number_of_entries_full_4_minutes") +
+  ggtitle ("Does average number of entries T0-T20 predict average entries (T30_to_T50)?") +
+  geom_smooth(method = "lm")
+
+```
+
+
+```{r, echo=FALSE, message=FALSE}
+#Does average number of entries T0-29 predit average_performance_across_all_9_testing_trials_using_full_4_minutes_data?
+
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_full_4_minutes_data ~ df$average_number_of_entries_T0_to_T29, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_full_4_minutes_data)) %>% filter(!is.na(average_number_of_entries_T0_to_T29)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+
+p <- ggplot(df, aes(average_number_of_entries_T0_to_T29, average_performance_across_all_9_testing_trials_using_full_4_minutes_data))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=10, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") +
+  labs(x= "average_number_of_entries_T0_to_T29",y="average_performance_across_all_9_testing_trials_using_full_4_minutes_data") +
+  ggtitle ("Does average number of entries T0-T29 predict average performance full 4?") +
+  geom_smooth(method = "lm")
+
+```
+
+```{r, echo=FALSE, message=FALSE}
+#Does average number of entries T0-29 predit average_performance_across_all_9_testing_trials_using_T30_to_T50_data?
+
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df$average_number_of_entries_T0_to_T29, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(average_number_of_entries_T0_to_T29)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+
+p <- ggplot(df, aes(average_number_of_entries_T0_to_T29, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=10, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") +
+  labs(x= "average_number_of_entries_T0_to_T29",y="average_performance_across_all_9_testing_trials_using_T30_to_T50_data") +
+  ggtitle ("Does average number of entries T0-T29 predict average performance T30_to_T50?") +
+  geom_smooth(method = "lm")
+
+```
+
+
+
+```{r, echo=FALSE, message=FALSE}
+#Does average number of entries T0-29 predit proportion of ccorrect first choies?
+
+mod<- lm(df$proportion_of_correct_first_choices ~ df$average_number_of_entries_T0_to_T29, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(proportion_of_correct_first_choices)) %>% filter(!is.na(average_number_of_entries_T0_to_T29)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+
+p <- ggplot(df, aes(average_number_of_entries_T0_to_T29, proportion_of_correct_first_choices))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=10, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") +
+  labs(x= "average_number_of_entries_T0_to_T29",y="proportion_of_correct_first_choices") +
+  ggtitle ("Does average number of entries T0-T29 predict proportion of correct first choices") +
+  geom_smooth(method = "lm")
+
+```
+
+
+```{r, echo=FALSE, message=FALSE}
+#Does average number of entries T0-29 predit average latency to enter correct side?
+
+mod<- lm(df$average_latency_to_enter_correct_side ~ df$average_number_of_entries_T0_to_T29, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(average_latency_to_enter_correct_side)) %>% filter(!is.na(average_number_of_entries_T0_to_T29)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+
+p <- ggplot(df, aes(average_number_of_entries_T0_to_T29, average_latency_to_enter_correct_side))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=10, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") +
+  labs(x= "average_number_of_entries_T0_to_T29",y="average_latency_to_enter_correct_side") +
+  ggtitle ("Does average number of entries T0-T29 predict average latency to enter correct side") +
+  geom_smooth(method = "lm")
+
+```
+
+
+
+```{r, echo=FALSE, message=FALSE}
+#Does average number of entries T0-29 predit average_performance_across_all_9_testing_trials_using_full_4_minutes_data?
+
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_full_4_minutes_data ~ df$average_prop_time_thigmo_T0_to_T29, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_full_4_minutes_data)) %>% filter(!is.na(average_prop_time_thigmo_T0_to_T29)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+
+p <- ggplot(df, aes(average_prop_time_thigmo_T0_to_T29, average_performance_across_all_9_testing_trials_using_full_4_minutes_data))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=10, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") +
+  labs(x= "average_prop_time_thigmo_T0_to_T29",y="average_performance_across_all_9_testing_trials_using_full_4_minutes_data") +
+  ggtitle ("Does average number of entries T0-T29 predict average performance full 4?") +
+  geom_smooth(method = "lm")
+
+```
+
+```{r, echo=FALSE, message=FALSE}
+#Does average number of entries T0-29 predit average_performance_across_all_9_testing_trials_using_T30_to_T50_data?
+
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df$average_prop_time_thigmo_T0_to_T29, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(average_prop_time_thigmo_T0_to_T29)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+
+p <- ggplot(df, aes(average_prop_time_thigmo_T0_to_T29, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=10, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") +
+  labs(x= "average_prop_time_thigmo_T0_to_T29",y="average_performance_across_all_9_testing_trials_using_T30_to_T50_data") +
+  ggtitle ("Does average number of entries T0-T29 predict average performance T30_to_T50?") +
+  geom_smooth(method = "lm")
+
+```
+
+
+
+```{r, echo=FALSE, message=FALSE}
+#Does average number of entries T0-29 predit proportion of ccorrect first choies?
+
+mod<- lm(df$proportion_of_correct_first_choices ~ df$average_prop_time_thigmo_T0_to_T29, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(proportion_of_correct_first_choices)) %>% filter(!is.na(average_prop_time_thigmo_T0_to_T29)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+
+p <- ggplot(df, aes(average_prop_time_thigmo_T0_to_T29, proportion_of_correct_first_choices))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=10, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") +
+  labs(x= "average_prop_time_thigmo_T0_to_T29",y="proportion_of_correct_first_choices") +
+  ggtitle ("Does average number of entries T0-T29 predict proportion of correct first choices") +
+  geom_smooth(method = "lm")
+
+```
+
+
+```{r, echo=FALSE, message=FALSE}
+#Does average number of entries T0-29 predit average latency to enter correct side?
+
+mod<- lm(df$average_latency_to_enter_correct_side ~ df$average_prop_time_thigmo_T0_to_T29, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(average_latency_to_enter_correct_side)) %>% filter(!is.na(average_prop_time_thigmo_T0_to_T29)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+
+p <- ggplot(df, aes(average_prop_time_thigmo_T0_to_T29, average_latency_to_enter_correct_side))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=10, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") +
+  labs(x= "average_prop_time_thigmo_T0_to_T29",y="average_latency_to_enter_correct_side") +
+  ggtitle ("Does average number of entries T0-T29 predict average latency to enter correct side") +
+  geom_smooth(method = "lm")
+
+```
+
+
+
+```{r, echo=FALSE, message=FALSE}
+#Does average number of entries T0-29 predit average_performance_across_all_9_testing_trials_using_full_4_minutes_data?
+
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_full_4_minutes_data ~ df$average_prop_time_mirror_T0_to_T29, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_full_4_minutes_data)) %>% filter(!is.na(average_prop_time_mirror_T0_to_T29)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+
+p <- ggplot(df, aes(average_prop_time_mirror_T0_to_T29, average_performance_across_all_9_testing_trials_using_full_4_minutes_data))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=10, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") +
+  labs(x= "average_prop_time_mirror_T0_to_T29",y="average_performance_across_all_9_testing_trials_using_full_4_minutes_data") +
+  ggtitle ("Does average number of entries T0-T29 predict average performance full 4?") +
+  geom_smooth(method = "lm")
+
+```
+
+```{r, echo=FALSE, message=FALSE}
+#Does average number of entries T0-29 predit average_performance_across_all_9_testing_trials_using_T30_to_T50_data?
+
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df$average_prop_time_mirror_T0_to_T29, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(average_prop_time_mirror_T0_to_T29)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+
+p <- ggplot(df, aes(average_prop_time_mirror_T0_to_T29, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=10, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") +
+  labs(x= "average_prop_time_mirror_T0_to_T29",y="average_performance_across_all_9_testing_trials_using_T30_to_T50_data") +
+  ggtitle ("Does average number of entries T0-T29 predict average performance T30_to_T50?") +
+  geom_smooth(method = "lm")
+
+```
+
+
+
+```{r, echo=FALSE, message=FALSE}
+#Does average number of entries T0-29 predit proportion of ccorrect first choies?
+
+mod<- lm(df$proportion_of_correct_first_choices ~ df$average_prop_time_mirror_T0_to_T29, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(proportion_of_correct_first_choices)) %>% filter(!is.na(average_prop_time_mirror_T0_to_T29)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+
+p <- ggplot(df, aes(average_prop_time_mirror_T0_to_T29, proportion_of_correct_first_choices))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=10, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") +
+  labs(x= "average_prop_time_mirror_T0_to_T29",y="proportion_of_correct_first_choices") +
+  ggtitle ("Does average number of entries T0-T29 predict proportion of correct first choices") +
+  geom_smooth(method = "lm")
+
+```
+
+
+```{r, echo=FALSE, message=FALSE}
+#Does average number of entries T0-29 predit average latency to enter correct side?
+
+mod<- lm(df$average_latency_to_enter_correct_side ~ df$average_prop_time_mirror_T0_to_T29, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(average_latency_to_enter_correct_side)) %>% filter(!is.na(average_prop_time_mirror_T0_to_T29)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+
+p <- ggplot(df, aes(average_prop_time_mirror_T0_to_T29, average_latency_to_enter_correct_side))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=10, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") +
+  labs(x= "average_prop_time_mirror_T0_to_T29",y="average_latency_to_enter_correct_side") +
+  ggtitle ("Does average number of entries T0-T29 predict average latency to enter correct side") +
+  geom_smooth(method = "lm")
+
+```
+
+
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Does average number of entries predict average performance (T30 to T50)? separated by sex
-mod<-lm(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df$average_number_of_entries * df$sex)
+mod<-lm(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df$average_number_of_entries_full_4_minutes * df$sex)
 
-number <- df %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(average_number_of_entries)) %>% nrow
+number <- df %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% nrow
 p_value<- coef(summary(mod))%>%as.list()
 p_value<-p_value[[16]]
 
 
-p <- ggplot(df, aes(average_number_of_entries, average_performance_across_all_9_testing_trials_using_T30_to_T50_data, color = sex))
+p <- ggplot(df, aes(average_number_of_entries_full_4_minutes, average_performance_across_all_9_testing_trials_using_T30_to_T50_data, color = sex))
 p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.2, label= glue::glue("p (interaction)= {round(p_value,4)} 
   n = {number}"), size = 6, color = "black") + 
-  labs(x= "average_number_of_entries",y="average_performance_across_all_9_testing_trials
+  labs(x= "average_number_of_entries_full_4_minutes",y="average_performance_across_all_9_testing_trials
        _using_T30_to_T50_data") +
   ggtitle ("Does average number of entries predict average performance (T30 to T50)?") +
   geom_smooth(method = "lm")
@@ -764,19 +1090,19 @@ p + geom_point(size = 4) +
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Does average number of entries predict proportion of correct choices?
-mod<- lm(df$proportion_of_correct_first_choices ~ df$average_number_of_entries, na.rm = TRUE)
+mod<- lm(df$proportion_of_correct_first_choices ~ df$average_number_of_entries_full_4_minutes, na.rm = TRUE)
 summary(mod)
 
-number <- df %>% filter(!is.na(proportion_of_correct_first_choices)) %>% filter(!is.na(average_number_of_entries)) %>% nrow
+number <- df %>% filter(!is.na(proportion_of_correct_first_choices)) %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% nrow
 p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
-p <- ggplot(df, aes(average_number_of_entries, proportion_of_correct_first_choices))
+p <- ggplot(df, aes(average_number_of_entries_full_4_minutes, proportion_of_correct_first_choices))
 p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") + 
-  labs(x= "average_number_of_entries",y="proportion_of_correct_first_choices") +
+  labs(x= "average_number_of_entries_full_4_minutes",y="proportion_of_correct_first_choices") +
   ggtitle ("Does average number of entries predict proportion of correct choices?") +
   geom_smooth(method = "lm")
 
@@ -788,19 +1114,19 @@ p + geom_point(size = 4) +
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Does average number of entries predict proportion of correct choices?separated by sex
-mod<-lm(df$proportion_of_correct_first_choices ~ df$average_number_of_entries * df$sex)
+mod<-lm(df$proportion_of_correct_first_choices ~ df$average_number_of_entries_full_4_minutes * df$sex)
 
-number <- df %>% filter(!is.na(proportion_of_correct_first_choices)) %>% filter(!is.na(average_number_of_entries)) %>% nrow
+number <- df %>% filter(!is.na(proportion_of_correct_first_choices)) %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% nrow
 p_value<- coef(summary(mod))%>%as.list()
 p_value<-p_value[[16]]
 
 
-p <- ggplot(df, aes(average_number_of_entries, proportion_of_correct_first_choices, color = sex))
+p <- ggplot(df, aes(average_number_of_entries_full_4_minutes, proportion_of_correct_first_choices, color = sex))
 p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.2, label= glue::glue("p (interaction)= {round(p_value,4)}
         n = {number}"), size = 6, color = "black") + 
-  labs(x= "average_number_of_entries",y="proportion_of_correct_first_choices") +
+  labs(x= "average_number_of_entries_full_4_minutes",y="proportion_of_correct_first_choices") +
   ggtitle ("Does average number of entries predict proportion of correct choices?") +
   geom_smooth(method = "lm")
 
@@ -810,19 +1136,19 @@ p + geom_point(size = 4) +
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Does average number of entries predict average latency to enter correct side?
-mod<- lm(df$average_latency_to_enter_correct_side ~ df$average_number_of_entries, na.rm = TRUE)
+mod<- lm(df$average_latency_to_enter_correct_side ~ df$average_number_of_entries_full_4_minutes, na.rm = TRUE)
 summary(mod)
 
-number <- df %>% filter(!is.na(average_latency_to_enter_correct_side)) %>% filter(!is.na(average_number_of_entries)) %>% nrow
+number <- df %>% filter(!is.na(average_latency_to_enter_correct_side)) %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% nrow
 p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
-p <- ggplot(df, aes(average_number_of_entries, average_latency_to_enter_correct_side))
+p <- ggplot(df, aes(average_number_of_entries_full_4_minutes, average_latency_to_enter_correct_side))
 p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
-  labs(x= "average_number_of_entries",y="average_latency_to_enter_correct_side") +
+  labs(x= "average_number_of_entries_full_4_minutes",y="average_latency_to_enter_correct_side") +
   ggtitle ("Does average number of entries predict average latency to enter correct side?") +
   geom_smooth(method = "lm")
 
@@ -830,19 +1156,19 @@ p + geom_point(size = 4) +
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Does average number of entries predict average latency to enter correct side (filtered)?
-mod<- lm(df$average_latency_to_enter_correct_side_filtered_just_correct_choice ~ df$average_number_of_entries, na.rm = TRUE)
+mod<- lm(df$average_latency_to_enter_correct_side_filtered_just_correct_choice ~ df$average_number_of_entries_full_4_minutes, na.rm = TRUE)
 summary(mod)
 
-number <- df %>% filter(!is.na(average_latency_to_enter_correct_side_filtered_just_correct_choice)) %>% filter(!is.na(average_number_of_entries)) %>% nrow
+number <- df %>% filter(!is.na(average_latency_to_enter_correct_side_filtered_just_correct_choice)) %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% nrow
 p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
-p <- ggplot(df, aes(average_number_of_entries, average_latency_to_enter_correct_side_filtered_just_correct_choice))
+p <- ggplot(df, aes(average_number_of_entries_full_4_minutes, average_latency_to_enter_correct_side_filtered_just_correct_choice))
 p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
-  labs(x= "average_number_of_entries",y="average_latency_to_enter_correct_side_filtered_just_correct_choice") +
+  labs(x= "average_number_of_entries_full_4_minutes",y="average_latency_to_enter_correct_side_filtered_just_correct_choice") +
   ggtitle ("Does average number of entries predict 
            average latency to enter correct side?(filtered)") +
   geom_smooth(method = "lm")
@@ -852,18 +1178,18 @@ p + geom_point(size = 4) +
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Does average number of entries predict average latency to enter correct side?separated by sex
-mod<-lm(df$average_latency_to_enter_correct_side ~ df$average_number_of_entries * df$sex)
+mod<-lm(df$average_latency_to_enter_correct_side ~ df$average_number_of_entries_full_4_minutes * df$sex)
 
-number <- df %>% filter(!is.na(average_latency_to_enter_correct_side)) %>% filter(!is.na(average_number_of_entries)) %>% nrow
+number <- df %>% filter(!is.na(average_latency_to_enter_correct_side)) %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% nrow
 p_value<- coef(summary(mod))%>%as.list()
 p_value<-p_value[[16]]
 
-p <- ggplot(df, aes(average_number_of_entries, average_latency_to_enter_correct_side, color = sex))
+p <- ggplot(df, aes(average_number_of_entries_full_4_minutes, average_latency_to_enter_correct_side, color = sex))
 p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.2, label= glue::glue("p (interaction)= {round(p_value,4)}
         n = {number}"), size = 6, color = "black") +
-  labs(x= "average_number_of_entries",y="average_latency_to_enter_correct_side") +
+  labs(x= "average_number_of_entries_full_4_minutes",y="average_latency_to_enter_correct_side") +
   ggtitle ("Does average number of entries predict average latency to enter correct side?") +
   geom_smooth(method = "lm")
 
@@ -873,18 +1199,18 @@ p + geom_point(size = 4) +
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Does average number of entries predict average latency to enter correct side? (filtered)separated by sex
-mod<-lm(df$average_latency_to_enter_correct_side_filtered_just_correct_choice ~ df$average_number_of_entries * df$sex)
+mod<-lm(df$average_latency_to_enter_correct_side_filtered_just_correct_choice ~ df$average_number_of_entries_full_4_minutes * df$sex)
 
-number <- df %>% filter(!is.na(average_latency_to_enter_correct_side_filtered_just_correct_choice)) %>% filter(!is.na(average_number_of_entries)) %>% nrow
+number <- df %>% filter(!is.na(average_latency_to_enter_correct_side_filtered_just_correct_choice)) %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% nrow
 p_value<- coef(summary(mod))%>%as.list()
 p_value<-p_value[[16]]
 
-p <- ggplot(df, aes(average_number_of_entries, average_latency_to_enter_correct_side_filtered_just_correct_choice, color = sex))
+p <- ggplot(df, aes(average_number_of_entries_full_4_minutes, average_latency_to_enter_correct_side_filtered_just_correct_choice, color = sex))
 p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.2, label= glue::glue("p (interaction)= {round(p_value,4)}
         n = {number}"), size = 6, color = "black") +
-  labs(x= "average_number_of_entries",y="average_latency_to_enter_correct_side_filtered_just_correct_choice") +
+  labs(x= "average_number_of_entries_full_4_minutes",y="average_latency_to_enter_correct_side_filtered_just_correct_choice") +
   ggtitle ("Does average number of entries predict average latency to enter correct side? (filtered)") +
   geom_smooth(method = "lm")
 
@@ -1192,13 +1518,13 @@ p +  ggtitle ("Does sex predict proportion of correct choices?")
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 
 #Does sex predict average number of entries?
-test<-t.test(df$average_number_of_entries~df$sex)
+test<-t.test(df$average_number_of_entries_full_4_minutes~df$sex)
 p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
 
-wilcox_test<-wilcox.test(df$average_number_of_entries~df$sex)
+wilcox_test<-wilcox.test(df$average_number_of_entries_full_4_minutes~df$sex)
 p_value_wilcox<-wilcox_test$p.value
 
-p <- ggplot(df, aes(x=sex, y=average_number_of_entries)) + 
+p <- ggplot(df, aes(x=sex, y=average_number_of_entries_full_4_minutes)) + 
   geom_boxplot()+ stat_n_text() +
   geom_text(x=1, y=110, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
                                           p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black") 
@@ -1453,19 +1779,19 @@ p + geom_point(size = 4) +
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Does size/age predict average number of entries?
-mod<- lm(df$average_number_of_entries ~ df$standard_length, na.rm = TRUE)
+mod<- lm(df$average_number_of_entries_full_4_minutes ~ df$standard_length, na.rm = TRUE)
 summary(mod)
 
-number <- df %>% filter(!is.na(average_number_of_entries)) %>% filter(!is.na(standard_length)) %>% nrow
+number <- df %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% filter(!is.na(standard_length)) %>% nrow
 p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
 r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 
-p <- ggplot(df, aes(standard_length, average_number_of_entries))
+p <- ggplot(df, aes(standard_length, average_number_of_entries_full_4_minutes))
 p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", 1800, y=100, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
-  labs(x= "standard_length",y="average_number_of_entries") +
+  labs(x= "standard_length",y="average_number_of_entries_full_4_minutes") +
   ggtitle ("Does size/age predict average number of entries?SEXES COMBINED") +
   geom_smooth(method = "lm")
 
@@ -1474,18 +1800,18 @@ p + geom_point(size = 4) +
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Does size/age predict average number of entries? by sex
-mod<-lm(df$average_number_of_entries ~ df$standard_length * df$sex)
+mod<-lm(df$average_number_of_entries_full_4_minutes ~ df$standard_length * df$sex)
 
-number <- df %>% filter(!is.na(average_number_of_entries)) %>% filter(!is.na(standard_length)) %>% nrow
+number <- df %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% filter(!is.na(standard_length)) %>% nrow
 p_value<- coef(summary(mod))%>%as.list()
 p_value<-p_value[[16]]
 
-p <- ggplot(df, aes(standard_length, average_number_of_entries, color = sex))
+p <- ggplot(df, aes(standard_length, average_number_of_entries_full_4_minutes, color = sex))
 p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
   annotate("text", x=1600, y=0.2, label= glue::glue("p (interaction) = {round(p_value,4)}
        n = {number}"), size = 6, color = "black") +
-  labs(x= "standard_length",y="average_number_of_entries") +
+  labs(x= "standard_length",y="average_number_of_entries_full_4_minutes") +
   ggtitle ("Does size/age predict average number of entries? by sex") +
   geom_smooth(method = "lm")
 
@@ -1634,15 +1960,15 @@ p +  ggtitle ("Does order predict proportion of correct choices?")+
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-fit <- aov(average_number_of_entries ~ order, data=df) 
+fit <- aov(average_number_of_entries_full_4_minutes ~ order, data=df) 
 p_value_ANOVA<- summary(fit)[[1]][["Pr(>F)"]][[1]]
 df$order<-as.factor(df$order)
 
-kruskalfit<-kruskal.test(average_number_of_entries ~ order, data=df)
+kruskalfit<-kruskal.test(average_number_of_entries_full_4_minutes ~ order, data=df)
 p_value_kruskal<- kruskalfit$p.value
 
 #Does order predict average number of entries?
-p <- ggplot(df, aes(x=order, y=average_number_of_entries)) + 
+p <- ggplot(df, aes(x=order, y=average_number_of_entries_full_4_minutes)) + 
   geom_boxplot()+ stat_n_text() 
 p +  ggtitle ("Does order predict average number of entries?")+
   geom_text(x=3, y=120, label= glue::glue("p (ANOVA) = {round(p_value_ANOVA,4)},
@@ -1706,7 +2032,7 @@ Which side was chosen first
   
 ------------------------------------------------------------------------
   
-[149] "average_number_of_entries"                                                                                        
+[149] "average_number_of_entries_full_4_minutes"                                                                                        
 [150] "average_reaction_time"                                                                                            
 [151] "average_performance_across_all_9_testing_trials_using_full_4_minutes_data"                                        
 [152] "average_performance_across_all_9_testing_trials_using_T30_to_T50_data"                                            

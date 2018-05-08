@@ -27,15 +27,15 @@ shuttle<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative C
 
 det<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Detour/detour_data_for_R_April_5_2018.csv")
 
-num<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Comparative Cognition R Scripts/Numerosity Comparative Cognition Full Dataset April_17_2018.csv")
+num<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Comparative Cognition R Scripts/Numerosity Comparative Cognition Full Dataset May_7_2018.csv")
 
 df.full<- left_join(det,shuttle, by = 'fish_name')
-df.full<- left_join(df.full,num, by = 'fish_name')
+df.full<- left_join(df.full,num, by = 'fish_name') #need to not join shuttlebox twice!
 df.full$detour_trial_1_did_fish_solve_barrier_problem <-as.character(df.full$detour_trial_1_did_fish_solve_barrier_problem)
 
 
 #WRITE IT OUT IF NEEDED
-#write_csv(df.full, 'Full_Comparative_Cognition_Data_Detour_Shuttlebox_Numerosity_April_12_2018.csv')
+write_csv(df.full, 'Full_Comparative_Cognition_Data_Detour_Shuttlebox_Numerosity_May_1_2018.csv')
 
 ```
 
