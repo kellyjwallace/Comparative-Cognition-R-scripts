@@ -1285,10 +1285,12 @@ for(i in 1:length(fish_list)){
 
 ```{r}
 #did fish have a median above 60?
+df.sum$number_of_medians_above_60_using_T30_to_T50_data<-as.numeric(df.sum$number_of_medians_above_60_using_T30_to_T50_data)
+
 for(i in 1:length(fish_list)){
-    if(df.sum$number_of_medians_above_60_using_full_4_minutes_data[i] > 0){
+    if(df.sum$number_of_medians_above_60_using_T30_to_T50_data[i] > 0){
     df.sum$did_fish_have_a_median_above_60[i] <- 1}
-  else if(df.sum$number_of_medians_above_60_using_full_4_minutes_data[i] == 0){
+  else if(df.sum$number_of_medians_above_60_using_T30_to_T50_data[i] == 0){
     df.sum$did_fish_have_a_median_above_60[i] <- 0} 
 }
 ```
@@ -1297,9 +1299,9 @@ for(i in 1:length(fish_list)){
 ```{r}
 #did fish have two medians above 60?
 for(i in 1:length(fish_list)){
-    if(df.sum$number_of_medians_above_60_using_full_4_minutes_data[i] > 1){
+    if(df.sum$number_of_medians_above_60_using_T30_to_T50_data[i] > 1){
     df.sum$did_fish_have_at_least_two_medians_above_60[i] <- 1}
-  else if(df.sum$number_of_medians_above_60_using_full_4_minutes_data[i] <= 1){
+  else if(df.sum$number_of_medians_above_60_using_T30_to_T50_data[i] <= 1){
     df.sum$did_fish_have_at_least_two_medians_above_60[i] <- 0} 
 }
 ```

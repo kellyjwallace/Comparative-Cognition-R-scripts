@@ -83,7 +83,8 @@ df<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cogni
 
 df$number_of_medians_above_60_using_full_4_minutes_data<-as.factor(df$number_of_medians_above_60_using_full_4_minutes_data)
 df$number_of_medians_above_60_using_T30_to_T50_data<-as.factor(df$number_of_medians_above_60_using_T30_to_T50_data)
-
+df$did_fish_have_a_median_above_60<-as.factor(df$did_fish_have_a_median_above_60)
+df$did_fish_have_at_least_two_medians_above_60<-as.factor(df$did_fish_have_at_least_two_medians_above_60)
 df.males<-filter(df, df$sex == "M")
 df.males$sex_code<-0
 
@@ -878,7 +879,7 @@ p + geom_point(size = 4) +
 
 
 ```{r, echo=FALSE, message=FALSE}
-#Does average number of entries T0-29 predit average_performance_across_all_9_testing_trials_using_full_4_minutes_data?
+#Does prop time thigmo T0-T29 predit average_performance_across_all_9_testing_trials_using_full_4_minutes_data?
 
 mod<- lm(df$average_performance_across_all_9_testing_trials_using_full_4_minutes_data ~ df$average_prop_time_thigmo_T0_to_T29, na.rm = TRUE)
 summary(mod)
@@ -891,16 +892,16 @@ r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 p <- ggplot(df, aes(average_prop_time_thigmo_T0_to_T29, average_performance_across_all_9_testing_trials_using_full_4_minutes_data))
 p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
-  annotate("text", x=10, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+  annotate("text", x=0.3, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
   labs(x= "average_prop_time_thigmo_T0_to_T29",y="average_performance_across_all_9_testing_trials_using_full_4_minutes_data") +
-  ggtitle ("Does average number of entries T0-T29 predict average performance full 4?") +
+  ggtitle ("Does prop time thigmo T0-T29 predict average performance full 4?") +
   geom_smooth(method = "lm")
 
 ```
 
 ```{r, echo=FALSE, message=FALSE}
-#Does average number of entries T0-29 predit average_performance_across_all_9_testing_trials_using_T30_to_T50_data?
+#Does prop time thigmo T0-T29 predit average_performance_across_all_9_testing_trials_using_T30_to_T50_data?
 
 mod<- lm(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df$average_prop_time_thigmo_T0_to_T29, na.rm = TRUE)
 summary(mod)
@@ -913,10 +914,10 @@ r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 p <- ggplot(df, aes(average_prop_time_thigmo_T0_to_T29, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
 p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
-  annotate("text", x=10, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+  annotate("text", x=0.2, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
   labs(x= "average_prop_time_thigmo_T0_to_T29",y="average_performance_across_all_9_testing_trials_using_T30_to_T50_data") +
-  ggtitle ("Does average number of entries T0-T29 predict average performance T30_to_T50?") +
+  ggtitle ("Does prop time thigmo T0-T29 predict average performance T30_to_T50?") +
   geom_smooth(method = "lm")
 
 ```
@@ -924,7 +925,7 @@ p + geom_point(size = 4) +
 
 
 ```{r, echo=FALSE, message=FALSE}
-#Does average number of entries T0-29 predit proportion of ccorrect first choies?
+#Does prop time thigmo T0-T29 predit proportion of ccorrect first choies?
 
 mod<- lm(df$proportion_of_correct_first_choices ~ df$average_prop_time_thigmo_T0_to_T29, na.rm = TRUE)
 summary(mod)
@@ -937,17 +938,17 @@ r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 p <- ggplot(df, aes(average_prop_time_thigmo_T0_to_T29, proportion_of_correct_first_choices))
 p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
-  annotate("text", x=10, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+  annotate("text", x=0.2, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
   labs(x= "average_prop_time_thigmo_T0_to_T29",y="proportion_of_correct_first_choices") +
-  ggtitle ("Does average number of entries T0-T29 predict proportion of correct first choices") +
+  ggtitle ("Does prop time thigmo T0-T29 predict proportion of correct first choices") +
   geom_smooth(method = "lm")
 
 ```
 
 
 ```{r, echo=FALSE, message=FALSE}
-#Does average number of entries T0-29 predit average latency to enter correct side?
+#Does prop time thigmo T0-T29 predit average latency to enter correct side?
 
 mod<- lm(df$average_latency_to_enter_correct_side ~ df$average_prop_time_thigmo_T0_to_T29, na.rm = TRUE)
 summary(mod)
@@ -960,10 +961,10 @@ r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 p <- ggplot(df, aes(average_prop_time_thigmo_T0_to_T29, average_latency_to_enter_correct_side))
 p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
-  annotate("text", x=10, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+  annotate("text", x=0.2, y=100, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
   labs(x= "average_prop_time_thigmo_T0_to_T29",y="average_latency_to_enter_correct_side") +
-  ggtitle ("Does average number of entries T0-T29 predict average latency to enter correct side") +
+  ggtitle ("Does prop time thigmo T0-T29 predict average latency to enter correct side") +
   geom_smooth(method = "lm")
 
 ```
@@ -971,7 +972,7 @@ p + geom_point(size = 4) +
 
 
 ```{r, echo=FALSE, message=FALSE}
-#Does average number of entries T0-29 predit average_performance_across_all_9_testing_trials_using_full_4_minutes_data?
+#Doesprop_time mirror 0-29 predit average_performance_across_all_9_testing_trials_using_full_4_minutes_data?
 
 mod<- lm(df$average_performance_across_all_9_testing_trials_using_full_4_minutes_data ~ df$average_prop_time_mirror_T0_to_T29, na.rm = TRUE)
 summary(mod)
@@ -984,16 +985,16 @@ r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 p <- ggplot(df, aes(average_prop_time_mirror_T0_to_T29, average_performance_across_all_9_testing_trials_using_full_4_minutes_data))
 p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
-  annotate("text", x=10, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+  annotate("text", x=0.2, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
   labs(x= "average_prop_time_mirror_T0_to_T29",y="average_performance_across_all_9_testing_trials_using_full_4_minutes_data") +
-  ggtitle ("Does average number of entries T0-T29 predict average performance full 4?") +
+  ggtitle ("Does prop_time mirror 0-29 predict average performance full 4?") +
   geom_smooth(method = "lm")
 
 ```
 
 ```{r, echo=FALSE, message=FALSE}
-#Does average number of entries T0-29 predit average_performance_across_all_9_testing_trials_using_T30_to_T50_data?
+#Does prop_time mirror 0-29 predit average_performance_across_all_9_testing_trials_using_T30_to_T50_data?
 
 mod<- lm(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df$average_prop_time_mirror_T0_to_T29, na.rm = TRUE)
 summary(mod)
@@ -1006,10 +1007,10 @@ r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 p <- ggplot(df, aes(average_prop_time_mirror_T0_to_T29, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
 p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
-  annotate("text", x=10, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+  annotate("text", x=0.2, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
   labs(x= "average_prop_time_mirror_T0_to_T29",y="average_performance_across_all_9_testing_trials_using_T30_to_T50_data") +
-  ggtitle ("Does average number of entries T0-T29 predict average performance T30_to_T50?") +
+  ggtitle ("Does prop_time mirror 0-29 predict average performance T30_to_T50?") +
   geom_smooth(method = "lm")
 
 ```
@@ -1017,7 +1018,7 @@ p + geom_point(size = 4) +
 
 
 ```{r, echo=FALSE, message=FALSE}
-#Does average number of entries T0-29 predit proportion of ccorrect first choies?
+#Does prop_time mirror 0-29 predit proportion of ccorrect first choies?
 
 mod<- lm(df$proportion_of_correct_first_choices ~ df$average_prop_time_mirror_T0_to_T29, na.rm = TRUE)
 summary(mod)
@@ -1030,17 +1031,109 @@ r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 p <- ggplot(df, aes(average_prop_time_mirror_T0_to_T29, proportion_of_correct_first_choices))
 p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
-  annotate("text", x=10, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+  annotate("text", x=0.2, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
   labs(x= "average_prop_time_mirror_T0_to_T29",y="proportion_of_correct_first_choices") +
-  ggtitle ("Does average number of entries T0-T29 predict proportion of correct first choices") +
+  ggtitle ("Does prop_time mirror 0-29 predict proportion of correct first choices") +
   geom_smooth(method = "lm")
 
 ```
 
 
 ```{r, echo=FALSE, message=FALSE}
-#Does average number of entries T0-29 predit average latency to enter correct side?
+#Does prop_time mirror 0-29 predit average latency to enter correct side?
+
+mod<- lm(df$average_latency_to_enter_correct_side ~ df$average_prop_time_mirror_T0_to_T29, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(average_latency_to_enter_correct_side)) %>% filter(!is.na(average_prop_time_mirror_T0_to_T29)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+
+p <- ggplot(df, aes(average_prop_time_mirror_T0_to_T29, average_latency_to_enter_correct_side))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.2, y=10, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") +
+  labs(x= "average_prop_time_mirror_T0_to_T29",y="average_latency_to_enter_correct_side") +
+  ggtitle ("Does prop_time mirror T0-T29 predict average latency to enter correct side") +
+  geom_smooth(method = "lm")
+
+```
+
+
+```{r, echo=FALSE, message=FALSE}
+#Does prop time mirror predict entries t0-29?
+
+mod<- lm(df$average_number_of_entries_T0_to_T29 ~ df$average_prop_time_mirror_T0_to_T29, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(average_number_of_entries_T0_to_T29)) %>% filter(!is.na(average_prop_time_mirror_T0_to_T29)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+
+p <- ggplot(df, aes(average_prop_time_mirror_T0_to_T29, average_number_of_entries_T0_to_T29))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.2, y=10, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") +
+  labs(x= "average_prop_time_mirror_T0_to_T29",y="average_number_of_entries_T0_to_T29") +
+  ggtitle ("Does average number of entries T0-T29 predict prop time mirror") +
+  geom_smooth(method = "lm")
+
+```
+
+```{r, echo=FALSE, message=FALSE}
+#Does prop time thigmo predict entries t0-29?
+
+mod<- lm(df$average_number_of_entries_T0_to_T29 ~ df$average_prop_time_thigmo_T0_to_T29, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(average_number_of_entries_T0_to_T29)) %>% filter(!is.na(average_prop_time_thigmo_T0_to_T29)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+
+p <- ggplot(df, aes(average_prop_time_thigmo_T0_to_T29, average_number_of_entries_T0_to_T29))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.4, y=10, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") +
+  labs(x= "average_prop_time_thigmo_T0_to_T29",y="average_number_of_entries_T0_to_T29") +
+  ggtitle ("Does prop time thigmo predict average number of entries T0-T29") +
+  geom_smooth(method = "lm")
+
+```
+
+
+
+```{r, echo=FALSE, message=FALSE}
+#Does prop time thigmo predict prop time mirror?
+
+mod<- lm(df$average_prop_time_mirror_T0_to_T29 ~ df$average_prop_time_thigmo_T0_to_T29, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(average_prop_time_mirror_T0_to_T29)) %>% filter(!is.na(average_prop_time_thigmo_T0_to_T29)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+
+p <- ggplot(df, aes(average_prop_time_thigmo_T0_to_T29, average_prop_time_mirror_T0_to_T29))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.3, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") +
+  labs(x= "average_prop_time_thigmo_T0_to_T29",y="average_prop_time_mirror_T0_to_T29") +
+  ggtitle ("Does prop time thigmo predict prop time mirror") +
+  geom_smooth(method = "lm")
+
+```
+
+
+```{r, echo=FALSE, message=FALSE}
+#Does average number of entries T0-29 predict average latency to enter correct side?
 
 mod<- lm(df$average_latency_to_enter_correct_side ~ df$average_prop_time_mirror_T0_to_T29, na.rm = TRUE)
 summary(mod)
@@ -1994,6 +2087,233 @@ p +  ggtitle ("Does order predict average reaction time?") +
                                          p(Kruskal) = {round(p_value_kruskal,4)}"), size = 6, color = "black")
 
 ```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+#Does learning a median predict average performance over full_4_minutes?
+
+test<-t.test(df$average_performance_across_all_9_testing_trials_using_full_4_minutes_data~df$did_fish_have_a_median_above_60)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df$average_performance_across_all_9_testing_trials_using_full_4_minutes_data~df$did_fish_have_a_median_above_60)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df, aes(x=did_fish_have_a_median_above_60, y=average_performance_across_all_9_testing_trials_using_full_4_minutes_data)) + 
+  geom_boxplot()+ stat_n_text() +
+  geom_text(x=1, y=0.4, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p +  ggtitle ("Does learning 1+ median predict average performance over full_4_minutes?")
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+#Does learning a median predict average performance over T30 to T50?
+
+test<-t.test(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data~df$did_fish_have_a_median_above_60)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data~df$did_fish_have_a_median_above_60)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df, aes(x=did_fish_have_a_median_above_60, y=average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) + 
+  geom_boxplot()+ stat_n_text() +
+  geom_text(x=1, y=0, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p +  ggtitle ("Does learning 1+ median predict average performance over T30 to T50?")
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+#Does learning a median predict proportion_of_correct_first_choice?
+
+test<-t.test(df$proportion_of_correct_first_choices~df$did_fish_have_a_median_above_60)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df$proportion_of_correct_first_choices~df$did_fish_have_a_median_above_60)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df, aes(x=did_fish_have_a_median_above_60, y=proportion_of_correct_first_choices)) + 
+  geom_boxplot()+ stat_n_text() +
+  geom_text(x=1, y=0.4, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p +  ggtitle ("Does learning 1+ median predict proportion_of_correct_first_choices?")
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+#Does learning a median predict average_latency_to_enter_correct_side?
+
+test<-t.test(df$average_latency_to_enter_correct_side~df$did_fish_have_a_median_above_60)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df$average_latency_to_enter_correct_side~df$did_fish_have_a_median_above_60)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df, aes(x=did_fish_have_a_median_above_60, y=average_latency_to_enter_correct_side)) + 
+  geom_boxplot()+ stat_n_text() +
+  geom_text(x=1, y=0.4, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p +  ggtitle ("Does learning 1+ median predict average_latency_to_enter_correct_side?")
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+#Does learning a median predict average_number_of_entries_full_4_minutes?
+
+test<-t.test(df$average_number_of_entries_full_4_minutes~df$did_fish_have_a_median_above_60)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df$average_number_of_entries_full_4_minutes~df$did_fish_have_a_median_above_60)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df, aes(x=did_fish_have_a_median_above_60, y=average_number_of_entries_full_4_minutes)) + 
+  geom_boxplot()+ stat_n_text() +
+  geom_text(x=1, y=20, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p +  ggtitle ("Does learning 1+ median predict average_number_of_entries_full_4_minutes?")
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+#Does learning a median predict average_number_of_entries_T0_to_T29?
+
+test<-t.test(df$average_number_of_entries_T0_to_T29~df$did_fish_have_a_median_above_60)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df$average_number_of_entries_T0_to_T29~df$did_fish_have_a_median_above_60)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df, aes(x=did_fish_have_a_median_above_60, y=average_number_of_entries_T0_to_T29)) + 
+  geom_boxplot()+ stat_n_text() +
+  geom_text(x=1, y=10, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p +  ggtitle ("Does learning 1+ median predict average_number_of_entries_T0_to_T29?")
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+#Does learning a median predict average_prop_time_thigmo_T0_to_T29?
+
+test<-t.test(df$average_prop_time_thigmo_T0_to_T29~df$did_fish_have_a_median_above_60)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df$average_prop_time_thigmo_T0_to_T29~df$did_fish_have_a_median_above_60)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df, aes(x=did_fish_have_a_median_above_60, y=average_prop_time_thigmo_T0_to_T29)) + 
+  geom_boxplot()+ stat_n_text() +
+  geom_text(x=1, y=0.6, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p +  ggtitle ("Does learning 1+ median predict average_prop_time_thigmo_T0_to_T29?")
+
+```
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+#Does learning a median predict average_prop_time_mirror_T0_to_T29?
+
+test<-t.test(df$average_prop_time_mirror_T0_to_T29~df$did_fish_have_a_median_above_60)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df$average_prop_time_mirror_T0_to_T29~df$did_fish_have_a_median_above_60)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df, aes(x=did_fish_have_a_median_above_60, y=average_prop_time_mirror_T0_to_T29)) + 
+  geom_boxplot()+ stat_n_text() +
+  geom_text(x=1, y=0.6, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p +  ggtitle ("Does learning 1+ median predict average_prop_time_mirror_T0_to_T29?")
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+#Does learning a median predict average_number_of_entries_full_4_minutes?
+df$did_fish_have_a_median_above_60<-as.factor(df$did_fish_have_a_median_above_60)
+
+test<-t.test(df$average_number_of_entries_full_4_minutes~df$did_fish_have_a_median_above_60)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df$average_number_of_entries_full_4_minutes~df$did_fish_have_a_median_above_60)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df, aes(x=did_fish_have_a_median_above_60, y=average_number_of_entries_full_4_minutes)) + 
+  geom_boxplot()+ stat_n_text() +
+  geom_text(x=1, y=20, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p +  ggtitle ("Does learning 1+ median predict average_number_of_entries_full_4_minutes?")
+p
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+#Does learning a median predict average_number_of_entries_T30_to_T50?
+df$did_fish_have_a_median_above_60<-as.factor(df$did_fish_have_a_median_above_60)
+
+test<-t.test(df$average_number_of_entries_T30_to_T50~df$did_fish_have_a_median_above_60)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df$average_number_of_entries_T30_to_T50~df$did_fish_have_a_median_above_60)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df, aes(x=did_fish_have_a_median_above_60, y=average_number_of_entries_T30_to_T50)) + 
+  geom_boxplot()+ stat_n_text() +
+  geom_text(x=1, y=10, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p +  ggtitle ("Does learning 1+ median predict average_number_of_entries_T30_to_T50?")
+p
+
+```
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+#Does learning a median predict aaverage_reaction_time?
+df$did_fish_have_a_median_above_60<-as.factor(df$did_fish_have_a_median_above_60)
+
+test<-t.test(df$average_reaction_time~df$did_fish_have_a_median_above_60)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df$average_reaction_time~df$did_fish_have_a_median_above_60)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df, aes(x=did_fish_have_a_median_above_60, y=average_reaction_time)) + 
+  geom_boxplot()+ stat_n_text() +
+  geom_text(x=1, y=10, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p +  ggtitle ("Does learning 1+ median predict average_reaction_time?")
+p
+
+```
+
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+#Does learning a median predict average_reaction_time?
+df$did_fish_have_a_median_above_60<-as.factor(df$did_fish_have_a_median_above_60)
+
+test<-t.test(df$average_number_of_entries_full_4_minutes~df$did_fish_have_a_median_above_60)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df$average_number_of_entries_full_4_minutes~df$did_fish_have_a_median_above_60)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df, aes(x=did_fish_have_a_median_above_60, y=average_number_of_entries_full_4_minutes)) + 
+  geom_boxplot()+ stat_n_text() +
+  geom_text(x=1, y=10, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p +  ggtitle ("Does learning 1+ median predict average_number of entries full four minutes?")
+p
+
+```
+
+
 
 
 TEMPLATE AGAIN
