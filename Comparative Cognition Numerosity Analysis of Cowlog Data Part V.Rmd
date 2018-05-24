@@ -23,7 +23,7 @@ library(readr)
 library(utils)
 library(EnvStats)
 
-shuttle<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/shuttlebox_data_april_25_2018.csv")
+shuttle<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/shuttlebox_data_May_24_2018.csv")
 
 det<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Detour/detour_data_for_R_April_5_2018.csv")
 
@@ -32,33 +32,15 @@ num<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cogni
 df.full<- left_join(det,shuttle, by = 'fish_name')
 df.full<- left_join(df.full,num, by = 'fish_name') #need to not join shuttlebox twice!
 df.full$detour_trial_1_did_fish_solve_barrier_problem <-as.character(df.full$detour_trial_1_did_fish_solve_barrier_problem)
+df.full$last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent <-as.character(df.full$last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent)
 
 
 #WRITE IT OUT IF NEEDED
-write_csv(df.full, 'Full_Comparative_Cognition_Data_Detour_Shuttlebox_Numerosity_May_1_2018.csv')
+write_csv(df.full, 'Full_Comparative_Cognition_Data_Detour_Shuttlebox_Numerosity_May_24_2018.csv')
 
 ```
 
 Shuttlebox Measures:
-
-average distance from correct stimulus during gaps
-average distance from correct stimulus during stim
-shuttlebox slope
-binned average distance from correct stimulus during stim
-binned average distance from correct stimulus during gaps
-binned shuttlebox slope
-
-shuttlebox_average_proportion_of_time_on_correct_side_during_stimulus
-shuttlebox_average_proportion_of_time_on_correct_side_during_gaps
-shuttlebox_proportion_of_time_on_correct_side_during_stimulus_slope_across_presentations
-shuttlebox_proportion_of_time_on_correct_side_during_gaps_slope_across_presentations
-binned shuttlebox_average_proportion_of_time_on_correct_side_during_stimulus
-binned  shuttlebox_average_proportion_of_time_on_correct_side_during_gaps
-binned shuttlebox_proportion_of_time_on_correct_side_during_stimulus_slope_across_presentations
-binned shuttlebox_proportion_of_time_on_correct_side_during_gaps_slope_across_presentations
-AND THE 23 presentation filtered versions of those listed above
-
-
 
 
 ```{r, echo=FALSE, message=FALSE}
@@ -1908,5 +1890,76 @@ p + geom_point(size = 3) +
 ```
 
 
+```{r, echo=FALSE, message=FALSE}
+#Do fish that solve shuttlebox (increase prop correct by 20%+ last 10 secs of gap) have higher average numerosity scores?
+
+test<-t.test(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data~df.full$last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data~df.full$last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full, aes(x=last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent, y=average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do fish that solve shuttlebox (increase prop correct by 20%+
+        last 10 secs of gap)
+        have higher average numerosity scores?') +
+  geom_text(x=1, y=0.2, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE}
+#Do fish that solve shuttlebox (increase prop correct by 20%+ last 10 secs of gap) have higher numerosity proportion correct first choices?
+
+test<-t.test(df.full$proportion_of_correct_first_choices~df.full$last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$proportion_of_correct_first_choices~df.full$last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full, aes(x=last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent, y=proportion_of_correct_first_choices)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do fish that solve shuttlebox (increase prop correct by 20%+
+        last 10 secs of gap)
+        have higher numerosity proportion of correct first choices?') +
+  geom_text(x=1, y=0.2, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#How frequently do individuals solve both shuttlebox and learn numerosity??
+df.full$did_fish_have_a_median_above_60<-as.factor(df.full$did_fish_have_a_median_above_60)
+df.full$last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent<-as.numeric(df.full$last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent)                                                                 
+
+ggplot(df.full, aes(last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent, fill = did_fish_have_a_median_above_60))+
+  geom_histogram(aes(width = 20)) +
+  ggtitle ("How many individuals solved shuttlebox, and of those
+           how many learned numerosity?")
+
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#How frequently do individuals solve both shuttlebox and learn detour?
+df.full$detour_trial_1_did_fish_solve_barrier_problem<-as.factor(df.full$detour_trial_1_did_fish_solve_barrier_problem)
+df.full$last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent<-as.numeric(df.full$last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent)                                                                 
+
+ggplot(df.full, aes(last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent, fill = detour_trial_1_did_fish_solve_barrier_problem))+
+  geom_histogram(aes(width = 20)) +
+  ggtitle ("How many individuals solved shuttlebox, and of those
+           how many succcessfully got around detour barrier?")
+
+
+
+```
 
 
