@@ -79,7 +79,7 @@ library(EnvStats)
 library(coin)
 
 
-df<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Comparative Cognition R Scripts/Numerosity Comparative Cognition Full Dataset May_7_2018.csv", col_names = TRUE, col_types = NULL)
+df<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Comparative Cognition R Scripts/Numerosity Comparative Cognition Full Dataset May_31_2018.csv", col_names = TRUE, col_types = NULL)
 
 df$number_of_medians_above_60_using_full_4_minutes_data<-as.factor(df$number_of_medians_above_60_using_full_4_minutes_data)
 df$number_of_medians_above_60_using_T30_to_T50_data<-as.factor(df$number_of_medians_above_60_using_T30_to_T50_data)
@@ -94,7 +94,6 @@ df.females$sex_code<-1
 df<-full_join(df.males,df.females)
 
 View(df)
-
 
 
 ```
@@ -212,7 +211,7 @@ r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 p <- ggplot(df, aes(average_latency_to_enter_correct_side, proportion_of_correct_first_choices))
 p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
-  annotate("text", x=30, y=0.8, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+  annotate("text", x=40, y=0.8, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") + 
   labs(x= "average_latency_to_enter_correct_side",y="proportion_of_correct_first_choices") +
   ggtitle ("Does average latency to enter the correct side predict 
@@ -236,7 +235,7 @@ r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 p <- ggplot(df, aes(average_latency_to_enter_correct_side_filtered_just_correct_choice, proportion_of_correct_first_choices))
 p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
-  annotate("text", x=30, y=0.8, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+  annotate("text", x=40, y=0.8, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") + 
   labs(x= "average_latency_to_enter_correct_side_filtered_just_correct_choice",y="proportion_of_correct_first_choices") +
   ggtitle ("Does average latency to enter the correct side (filtered) predict 
@@ -406,7 +405,7 @@ r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 p <- ggplot(df, aes(average_latency_to_enter_correct_side, mean_of_median_performance_on_each_ratio_full_four_minutes_data))
 p + geom_point(size = 4) + 
   theme(text = element_text(size=10)) + 
-  annotate("text", x=30, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+  annotate("text", x=40, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") +
   labs(x= "average_latency_to_enter_correct_side",y="mean_of_median_performance_on_each_ratio_
        full_four_minutes_data") +
@@ -737,6 +736,516 @@ p + geom_point(size = 4) +
 
 
 ```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does average number of entries predict average performance (T30 to T50) FEMALE ONLY?
+
+mod<- lm(df.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.females$average_number_of_entries_full_4_minutes, na.rm = TRUE)
+summary(mod)
+
+number <- df.females %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.females, aes(average_number_of_entries_full_4_minutes, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 4, color = "red") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=50, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "average_number_of_entries_full_4_minutes",y="average_performance_across_all_9_testing_trials
+       _using_T30_to_T50_data") +
+  ggtitle ("Does average number of entries predict average performance (T30 to T50) FEMALE ONLY?") +
+  geom_smooth(method = "lm")
+
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does average number of entries predict average performance (T30 to T50) MALE ONLY?
+
+mod<- lm(df.males$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.males$average_number_of_entries_full_4_minutes, na.rm = TRUE)
+summary(mod)
+
+number <- df.males %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.males, aes(average_number_of_entries_full_4_minutes, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 4, color = "blue") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=50, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "average_number_of_entries_full_4_minutes",y="average_performance_across_all_9_testing_trials
+       _using_T30_to_T50_data") +
+  ggtitle ("Does average number of entries predict average performance (T30 to T50) MALE ONLY?") +
+  geom_smooth(method = "lm")
+
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does average number of unique zones visited predict average performance (T30 to T50)?
+
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df$unique_zones_entered_full_4_minutes, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(unique_zones_entered_full_4_minutes)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df, aes(unique_zones_entered_full_4_minutes, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=6, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "unique_zones_entered_full_4_minutes",y="average_performance_across_all_9_testing_trials
+       _using_T30_to_T50_data") +
+  ggtitle ("Does average number of unique zones visited predict average performance (T30 to T50)?") +
+  geom_smooth(method = "lm")
+
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does average number of unique zones visited predict average performance (T30 to T50) FEMALE ONLY?
+
+mod<- lm(df.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.females$unique_zones_entered_full_4_minutes, na.rm = TRUE)
+summary(mod)
+
+number <- df.females %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(unique_zones_entered_full_4_minutes)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.females, aes(unique_zones_entered_full_4_minutes, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 4, color = "red") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=6, y=0.4, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "unique_zones_entered_full_4_minutes",y="average_performance_across_all_9_testing_trials
+       _using_T30_to_T50_data") +
+  ggtitle ("Does aaverage number of unique zones visited predict average performance (T30 to T50) FEMALE ONLY?") +
+  geom_smooth(method = "lm")
+
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does average number of unique zones visited predict average performance (T30 to T50) MALE ONLY?
+
+mod<- lm(df.males$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.males$unique_zones_entered_full_4_minutes, na.rm = TRUE)
+summary(mod)
+
+number <- df.males %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(unique_zones_entered_full_4_minutes)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.males, aes(unique_zones_entered_full_4_minutes, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 4, color = "blue") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=6, y=0.4, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "unique_zones_entered_full_4_minutes",y="average_performance_across_all_9_testing_trials
+       _using_T30_to_T50_data") +
+  ggtitle ("Does average number of unique zones visited predict average performance (T30 to T50) MALE ONLY?") +
+  geom_smooth(method = "lm")
+
+
+
+```
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does average number of unique zones visited predict average_number_of_entries_full_4_minutes?
+
+mod<- lm(df$average_number_of_entries_full_4_minutes~ df$unique_zones_entered_full_4_minutes, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% filter(!is.na(unique_zones_entered_full_4_minutes)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df, aes(unique_zones_entered_full_4_minutes, average_number_of_entries_full_4_minutes))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=6, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "unique_zones_entered_full_4_minutes",y="average_number_of_entries_full_4_minutes") +
+  ggtitle ("Does average number of unique zones visited predict average number of entries?") +
+  geom_smooth(method = "lm")
+
+
+
+```
+
+
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+#Does sex predict average number of unique zones entered?
+#This is a wilcoxon rank sum test
+
+test<-t.test(df$unique_zones_entered_full_4_minutes~df$sex)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df$unique_zones_entered_full_4_minutes~ df$sex)
+wilcox_test$estimate
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df, aes(x=sex, y=unique_zones_entered_full_4_minutes)) + 
+  geom_boxplot()+ stat_n_text() +
+  geom_text(x=1,y=3, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p +  ggtitle ("Does sex predict average number of 
+              unique zones entered(exploration)?")
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+#Does learning category predict average number of unique zones entered?
+#This is a wilcoxon rank sum test
+
+test<-t.test(df$unique_zones_entered_full_4_minutes~df$did_fish_have_a_median_above_60)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df$unique_zones_entered_full_4_minutes~ df$did_fish_have_a_median_above_60)
+wilcox_test$estimate
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df, aes(x=did_fish_have_a_median_above_60, y=unique_zones_entered_full_4_minutes)) + 
+  geom_boxplot()+ stat_n_text() +
+  geom_text(x=1,y=3, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p +  ggtitle ("Does learning catefory predict average number of 
+              unique zones entered(exploration)?")
+
+```
+
+
+
+
+
+
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does average number of entries into center predict average performance (T30 to T50)?
+
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df$entries_into_center_full_4_minutes, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(entries_into_center_full_4_minutes)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df, aes(entries_into_center_full_4_minutes, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=15, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "entries_into_center_full_4_minutes",y="average_performance_across_all_9_testing_trials
+       _using_T30_to_T50_data") +
+  ggtitle ("Does average number of entries into center predict average performance (T30 to T50)?") +
+  geom_smooth(method = "lm")
+
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does average number of entries into center predict average performance (T30 to T50) FEMALE ONLY?
+
+mod<- lm(df.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.females$entries_into_center_full_4_minutes, na.rm = TRUE)
+summary(mod)
+
+number <- df.females %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(entries_into_center_full_4_minutes)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.females, aes(entries_into_center_full_4_minutes, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 4, color = "red") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=15, y=0.4, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "entries_into_center_full_4_minutes",y="average_performance_across_all_9_testing_trials
+       _using_T30_to_T50_data") +
+  ggtitle ("Does aaverage number of entries into center predict average performance (T30 to T50) FEMALE ONLY?") +
+  geom_smooth(method = "lm")
+
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does average number of entries into centerpredict average performance (T30 to T50) MALE ONLY?
+
+mod<- lm(df.males$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.males$entries_into_center_full_4_minutes, na.rm = TRUE)
+summary(mod)
+
+number <- df.males %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(entries_into_center_full_4_minutes)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.males, aes(entries_into_center_full_4_minutes, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 4, color = "blue") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=15, y=0.4, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "entries_into_center_full_4_minutes",y="average_performance_across_all_9_testing_trials
+       _using_T30_to_T50_data") +
+  ggtitle ("Does average number of entries into center predict average performance (T30 to T50) MALE ONLY?") +
+  geom_smooth(method = "lm")
+
+
+
+```
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does average number of entries into center predict average_number_of_entries_full_4_minutes?
+
+mod<- lm(df$average_number_of_entries_full_4_minutes~ df$entries_into_center_full_4_minutes, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% filter(!is.na(entries_into_center_full_4_minutes)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df, aes(entries_into_center_full_4_minutes, average_number_of_entries_full_4_minutes))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=15, y=30, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "entries_into_center_full_4_minutes",y="average_number_of_entries_full_4_minutes") +
+  ggtitle ("Does average number of entries into center predict average number of entries?") +
+  geom_smooth(method = "lm")
+
+
+
+```
+
+
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+#Does sex predict average number of entries into center?
+#This is a wilcoxon rank sum test
+
+test<-t.test(df$entries_into_center_full_4_minutes~df$sex)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df$entries_into_center_full_4_minutes~ df$sex)
+wilcox_test$estimate
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df, aes(x=sex, y=entries_into_center_full_4_minutes)) + 
+  geom_boxplot()+ stat_n_text() +
+  geom_text(x=1,y=3, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p +  ggtitle ("Does sex predict average number of 
+              entries into center(boldness)?")
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+#Does learning category predict average number of unique zones entered?
+#This is a wilcoxon rank sum test
+
+test<-t.test(df$entries_into_center_full_4_minutes~df$did_fish_have_a_median_above_60)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df$entries_into_center_full_4_minutes~ df$did_fish_have_a_median_above_60)
+wilcox_test$estimate
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df, aes(x=did_fish_have_a_median_above_60, y=entries_into_center_full_4_minutes)) + 
+  geom_boxplot()+ stat_n_text() +
+  geom_text(x=1,y=3, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p +  ggtitle ("Does learning catefory predict average number of 
+              unique zones entered(exploration)?")
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does average prop time in mirror predict average performance (T30 to T50)?
+
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df$totalmirror_full_4_minutes, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(totalmirror_full_4_minutes)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df, aes(totalmirror_full_4_minutes, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 4, color = "black") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.3, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "totalmirror_full_4_minutes",y="average_performance_across_all_9_testing_trials
+       _using_T30_to_T50_data") +
+  ggtitle ("Does average prop time mirror predict average performance (T30 to T50)") +
+  geom_smooth(method = "lm")
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does average prop time in mirror predict average performance (T30 to T50)FEMALES?
+
+mod<- lm(df.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.females$totalmirror_full_4_minutes, na.rm = TRUE)
+summary(mod)
+
+number <- df.females %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(totalmirror_full_4_minutes)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.females, aes(totalmirror_full_4_minutes, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 4, color = "red") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.5, y=0.3, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "totalmirror_full_4_minutes",y="average_performance_across_all_9_testing_trials
+       _using_T30_to_T50_data") +
+  ggtitle ("Does average prop time mirror predict 
+           average performance (T30 to T50)FEMALES") +
+  geom_smooth(method = "lm")
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does average prop time in mirror predict average performance (T30 to T50)MALES?
+
+mod<- lm(df.males$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.males$totalmirror_full_4_minutes, na.rm = TRUE)
+summary(mod)
+
+number <- df.males %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(totalmirror_full_4_minutes)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.males, aes(totalmirror_full_4_minutes, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 4, color = "blue") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.3, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "totalmirror_full_4_minutes",y="average_performance_across_all_9_testing_trials
+       _using_T30_to_T50_data") +
+  ggtitle ("Does average prop time mirror predict 
+           average performance (T30 to T50)MALES") +
+  geom_smooth(method = "lm")
+
+
+```
+
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does average prop time in thigmo predict average performance (T30 to T50)?
+
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df$totalthigmo_full_4_minutes, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(totalthigmo_full_4_minutes)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df, aes(totalthigmo_full_4_minutes, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 4, color = "black") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.2, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "totalthigmo_full_4_minutes",y="average_performance_across_all_9_testing_trials
+       _using_T30_to_T50_data") +
+  ggtitle ("Does average prop time thigmo predict average performance (T30 to T50)") +
+  geom_smooth(method = "lm")
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does average prop time in thigmo predict average performance (T30 to T50)FEMALES?
+
+mod<- lm(df.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.females$totalthigmo_full_4_minutes, na.rm = TRUE)
+summary(mod)
+
+number <- df.females %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(totalthigmo_full_4_minutes)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.females, aes(totalthigmo_full_4_minutes, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 4, color = "red") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.2, y=0.3, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "totalthigmo_full_4_minutes",y="average_performance_across_all_9_testing_trials
+       _using_T30_to_T50_data") +
+  ggtitle ("Does average prop time thigmo predict 
+           average performance (T30 to T50)FEMALES") +
+  geom_smooth(method = "lm")
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does average prop time in thigmo predict average performance (T30 to T50)MALES?
+
+mod<- lm(df.males$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.males$totalthigmo_full_4_minutes, na.rm = TRUE)
+summary(mod)
+
+number <- df.males %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(totalthigmo_full_4_minutes)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.males, aes(totalthigmo_full_4_minutes, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 4, color = "blue") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.2, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "totalthigmo_full_4_minutes",y="average_performance_across_all_9_testing_trials
+       _using_T30_to_T50_data") +
+  ggtitle ("Does average prop time thigmo predict 
+           average performance (T30 to T50)MALES") +
+  geom_smooth(method = "lm")
+
+
+```
+
+
+
 
 
 ```{r, echo=FALSE, message=FALSE}
@@ -1360,6 +1869,82 @@ p + geom_point(size = 4) +
 
 
 ```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does average reaction time predict average performance (T30 to T50)FEMALES?
+mod<- lm(df.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.females$average_reaction_time, na.rm = TRUE)
+summary(mod)
+
+
+number <- df.females %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(average_reaction_time)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.females, aes(average_reaction_time, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 4, color = "red") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=15, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") +
+  labs(x= "average_reaction_time",y="average_performance_across_all_9_testing_trials_
+       using_T30_to_T50_data") +
+  ggtitle ("Does average reaction time predict average performance (T30 to T50)?FEMALES") +
+  geom_smooth(method = "lm")
+
+
+```
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does average reaction time predict average performance (T30 to T50)MALES?
+mod<- lm(df.males$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.males$average_reaction_time, na.rm = TRUE)
+summary(mod)
+
+
+number <- df.males %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(average_reaction_time)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.males, aes(average_reaction_time, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 4, color = "blue") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=25, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") +
+  labs(x= "average_reaction_time",y="average_performance_across_all_9_testing_trials_
+       using_T30_to_T50_data") +
+  ggtitle ("Does average reaction time predict average performance (T30 to T50)?MALES") +
+  geom_smooth(method = "lm")
+
+
+```
+
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does average reaction time predict average performance (T30 to T50)?
+mod<- lm(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df$average_reaction_time, na.rm = TRUE)
+summary(mod)
+
+
+number <- df %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(average_reaction_time)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df, aes(average_reaction_time, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=25, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "red") +
+  labs(x= "average_reaction_time",y="average_performance_across_all_9_testing_trials_
+       using_T30_to_T50_data") +
+  ggtitle ("Does average reaction time predict average performance (T30 to T50)?") +
+  geom_smooth(method = "lm")
+
+
+```
+
+
 
 
 

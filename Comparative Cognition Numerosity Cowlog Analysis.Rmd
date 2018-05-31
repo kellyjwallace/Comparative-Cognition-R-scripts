@@ -200,7 +200,8 @@ for(i in 1:length(file_list)){
   df$entries_full_4_minutes[i]<-fil.entries -1
   df$total[i]<-(sum(fil.end$time) - 30)
   #df$center[i]<-sum(fil.center$time.difference) / 20
-  
+  df$unique_zones_entered[i]<-length(unique(fil$code)) - 1
+  df$entries_into_center_full_4_minutes[i]<-nrow(fil.center)
   
   df$leftscreen_full_4_minutes[i]<-sum(fil.leftscreen$time.difference) / (sum(fil.end$time) - 30)
   df$rightscreen_full_4_minutes[i]<-sum(fil.rightscreen$time.difference) / (sum(fil.end$time) - 30)
@@ -226,9 +227,9 @@ for(i in 1:length(file_list)){
   #df$topmirror[is.na(df$topmirror)] <- 0
   #df$bottomrightthigmo[is.na(df$bottomrightthigmo)] <- 0
   
-  #df$totalthigmo[i]<- (sum(fil.topleftthigmo$time.difference) + sum(fil.toprightthigmo$time.difference) + sum(fil.bottomleftthigmo$time.difference) + sum(fil.bottomrightthigmo$time.difference)) / 20
+  df$totalthigmo_full_4_minutes[i]<- (sum(fil.topleftthigmo$time.difference) + sum(fil.toprightthigmo$time.difference) + sum(fil.bottomleftthigmo$time.difference) + sum(fil.bottomrightthigmo$time.difference)) / (sum(fil.end$time) - 30)
   
-  #df$totalmirror[i]<- (sum(fil.topmirror$time.difference) + sum(fil.bottommirror$time.difference)) /20
+  df$totalmirror_full_4_minutes[i]<- (sum(fil.topmirror$time.difference) + sum(fil.bottommirror$time.difference)) /(sum(fil.end$time) - 30)
   
   #df$totalleft[i]<- (sum(fil.leftscreen$time.difference) + sum(fil.topleftthigmo$time.difference) + sum(fil.bottomleftthigmo$time.difference))/20
   #df$totalright[i]<- (sum(fil.rightscreen$time.difference) + sum(fil.toprightthigmo$time.difference) + sum(fil.bottomrightthigmo$time.difference))/20
@@ -637,6 +638,10 @@ if (df.fish$fishname[1] == 'gideon'){
   df.fish$latency_enter_incorr[2]<-NA
   df.fish$screen_entered_first[2]<-NA
   df.fish$latency_enter_corr_filtered_just_correct_choice[2]<-NA
+  df.fish$totalthigmo_full_4_minutes[2]<-NA
+  df.fish$totalmirror_full_4_minutes[2]<-NA
+  df.fish$unique_zones_entered[2]<-NA
+  df.fish$entries_into_center_full_4_minutes[2]<-NA
 }
 
 if (df.fish$fishname[1] == 'wildflower'){
@@ -664,6 +669,10 @@ if (df.fish$fishname[1] == 'wildflower'){
   df.fish$latency_enter_incorr[3]<-NA
   df.fish$screen_entered_first[3]<-NA
   df.fish$latency_enter_corr_filtered_just_correct_choice[3]<-NA
+  df.fish$totalthigmo_full_4_minutes[3]<-NA
+  df.fish$totalmirror_full_4_minutes[3]<-NA
+  df.fish$unique_zones_entered[3]<-NA
+  df.fish$entries_into_center_full_4_minutes[3]<-NA
 }
 
 if (df.fish$fishname[1] == 'willis'){
@@ -691,6 +700,10 @@ if (df.fish$fishname[1] == 'willis'){
   df.fish$latency_enter_incorr[6]<-NA
   df.fish$screen_entered_first[6]<-NA
   df.fish$latency_enter_corr_filtered_just_correct_choice[6]<-NA
+  df.fish$totalthigmo_full_4_minutes[6]<-NA
+  df.fish$totalmirror_full_4_minutes[6]<-NA
+  df.fish$unique_zones_entered[6]<-NA
+  df.fish$entries_into_center_full_4_minutes[6]<-NA
 }
 
 
@@ -708,6 +721,10 @@ df.sum$average_number_of_entries_T0_to_T29[i]<-mean(df.fish$entries_T0_to_T29, n
 df.sum$average_number_of_entries_T30_to_T50[i]<-mean(df.fish$entries_T30_to_T50, na.rm = TRUE)
 df.sum$average_number_of_entries_full_4_minutes[i]<-mean(df.fish$entries_full_4_minutes, na.rm = TRUE)
 df.sum$average_reaction_time[i]<-mean(df.fish$reaction_time, na.rm = TRUE)
+df.sum$totalthigmo_full_4_minutes[i]<-mean(df.fish$totalthigmo_full_4_minutes, na.rm = TRUE)
+df.sum$totalmirror_full_4_minutes[i]<-mean(df.fish$totalmirror_full_4_minutes, na.rm = TRUE)
+df.sum$unique_zones_entered_full_4_minutes[i]<-mean(df.fish$unique_zones_entered, na.rm = TRUE)
+df.sum$entries_into_center_full_4_minutes[i]<-mean(df.fish$entries_into_center_full_4_minutes, na.rm = TRUE)
 }
 
 ```
@@ -1703,7 +1720,7 @@ for(i in 1:nrow(df.sum)){
 ```{r}
 #Export as a csv file
 
-write_csv(df.sum, "Numerosity Comparative Cognition Full Dataset May_7_2018.csv")
+write_csv(df.sum, "Numerosity Comparative Cognition Full Dataset May_31_2018.csv")
 
 
 ```
