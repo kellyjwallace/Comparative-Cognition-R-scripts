@@ -1,0 +1,673 @@
+---
+title: "Comparative Cognition Numerosity Analysis of Cowlog Data- Final Figures"
+author: "Kelly Wallace"
+date: "July 5, 2018"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r cars}
+library(ggplot2)
+library(dplyr)
+library(rmarkdown)
+library(knitr)
+library(readr)
+library(utils)
+library(EnvStats)
+library(gridExtra)
+library(cowplot)
+library(grid)
+library(waffle)
+library(extrafont)
+#font_import()
+
+
+#shuttle<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/shuttlebox_data_May_24_2018.csv")
+#alternatively:
+shuttle<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/shuttlebox_10sec_data_3_ITI_cutoff_comparing_first_and_last_5_june_8_2018.csv")
+
+det<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Detour/detour_data_for_R_April_5_2018.csv")
+
+num<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Comparative Cognition R Scripts/Numerosity Comparative Cognition Full Dataset July_20_2018.csv")
+
+df.full<- left_join(det,shuttle, by = 'fish_name')
+df.full<- left_join(df.full,num, by = 'fish_name')
+df.full$detour_trial_1_did_fish_solve_barrier_problem <-as.character(df.full$detour_trial_1_did_fish_solve_barrier_problem)
+df.full$last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent <-as.character(df.full$last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent)
+rsquaredtxt <- (expression(r^2))
+chisquaredtxt <- (expression(X^2))
+
+
+df.full.females<- df.full %>% filter(sex.x == "F")
+df.full.males<- df.full %>% filter(sex.x == "M")
+
+
+```
+
+
+#Figure 1- The relationship between various metrics of performance in the numerosity assay. 
+#Panel 1- average performance across all 9 trials T30-50 by average performance across all 9 trials 4 full minutes
+#Panel 2- Proportion of correct first choices by average performance T30-T50
+#Panel 3- Average latency to enter the correct side by average perofrmance (full 4 minutes? T30-50? Both?)
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does average performance over just T30 to T50 predict average performance over the full 4 minutes?
+
+mod<- lm(df.full$average_performance_across_all_9_testing_trials_using_full_4_minutes_data ~df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data, na.rm = TRUE)
+summary(mod)
+
+number <- df.full %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_full_4_minutes_data)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+
+plot1 <- ggplot(df.full, aes(average_performance_across_all_9_testing_trials_using_T30_to_T50_data, average_performance_across_all_9_testing_trials_using_full_4_minutes_data)) + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0, y=0.265, parse = TRUE, label= glue::glue("{as.character(rsquaredtxt)}"), size = 5, color = "gray39", hjust = 0) + 
+  annotate("text", x=0.032, y=0.265, label= glue::glue("= {round(r_squared,4)}"), size = 5, color = "gray39", hjust = 0) + 
+  annotate("text", x=0, y=0.20, label= glue::glue("p = {round(p_value,4)}
+n = {number}"), size = 5, color = "gray39", hjust = 0) + 
+  annotate("text", x=0, y=0.7, label= glue::glue("(a)"), size = 10, color = "deepskyblue4", hjust = 0) +
+  labs(x= "Average numerosity performance \n (1st 20 seconds only)",y="Avg numerosity performance \n (full 4 minutes)") +
+  #ggtitle ("Does average performance over just T30 to T50 predict 
+  #         average performance over the full 4 minutes?") +
+  geom_smooth(method = "lm", size = 2, fill = "light gray", color = "deepskyblue4")+
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) 
+
+plot1
+
+
+mod<- lm(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~df.full$proportion_of_correct_first_choices, na.rm = TRUE)
+summary(mod)
+
+number <- df.full %>% filter(!is.na(proportion_of_correct_first_choices)) %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+plot2 <- ggplot(df.full, aes(proportion_of_correct_first_choices, average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.02, y=0.125, parse = TRUE, label= glue::glue("{as.character(rsquaredtxt)}"), size = 5, color = "gray39", hjust = 0) + 
+  annotate("text", x=0.059, y=0.125, label= glue::glue("= {round(r_squared,4)}"), size = 5, color = "gray39", hjust = 0) + 
+  annotate("text", x=0.02, y=0.04, label= glue::glue("p = {round(p_value,4)}
+n = {number}"), size = 5, color = "gray39", hjust = 0) +
+  annotate("text", x=0, y=0.7, label= glue::glue("(b)"), size = 10, color = "deepskyblue4", hjust = 0) +
+  labs(x= "Correct side selected first \n (proportion)",y="Average numerosity performance \n (1st 20 seconds only)") +
+  #ggtitle ("Does proportion of correct first choices predict 
+  #         average performance over T30-T50?") +
+  geom_smooth(method = "lm", size = 2, fill = "light gray", color = "deepskyblue4")+
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank())+ 
+         theme(plot.title = element_text(size=14))
+
+
+plot2
+
+
+mod<- lm(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~df.full$average_latency_to_enter_correct_side, na.rm = TRUE)
+summary(mod)
+
+number <- df.full %>% filter(!is.na(average_latency_to_enter_correct_side)) %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+plot3 <- ggplot(df.full, aes(average_latency_to_enter_correct_side, average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=4, y=0.125, parse = TRUE, label= glue::glue("{as.character(rsquaredtxt)}"), size = 5, color = "gray39", hjust = 0) + 
+  annotate("text", x=10, y=0.125, label= glue::glue("= {round(r_squared,4)}"), size = 5, color = "gray39", hjust = 0) + 
+  annotate("text", x=4, y=0.04, label= glue::glue("p = {round(p_value,4)}
+n = {number}"), size = 5, color = "gray39", hjust = 0) +
+  annotate("text", x=-9, y=0.7, label= glue::glue("(c)"), size = 10, color = "deepskyblue4", hjust = 0) +
+  labs(x= "Avg latency to enter correct side \n (seconds)",y="Average numerosity performance \n (1st 20 seconds only)") +
+  #ggtitle ("Does proportion of correct first choices predict 
+  #        average performance over T30-T50?") +
+  geom_smooth(method = "lm", size = 2, fill = "light gray", color = "deepskyblue4")+
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank())+ 
+         theme(plot.title = element_text(size=14))
+
+
+plot3
+
+
+figure1<-grid.arrange(plot1, plot2, plot3, nrow=1, ncol=3, widths = c(6,6,6), heights =c(2), top = textGrob("The relationship between performance metrics in the numerosity assay", gp=gpar(fontsize=20,font=3)))
+
+```
+
+
+#Figure 2- Cognitive flexibiility is not driven by motivation
+#Panel 1- do individuals who solve the barrier problem have lower latencies to approach the barrier (boxplot)
+#Panel 2- x = latency to approach the barrier (time to barrier contact) y = time to solve full social reward
+#Panel 3- x = latency to approach the barrier y = barrier solution time (time around minus time contacted)
+
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+
+mod<- lm(df.full$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier ~ df.full$time_to_barrier_contact_minus_start_time)
+summary(mod)
+
+number <- df.full %>% filter(!is.na(time_to_barrier_contact_minus_start_time)) %>% filter(!is.na(detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+plot1 <- ggplot(df.full, aes(time_to_barrier_contact_minus_start_time, detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier)) + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=320, y=450, parse = TRUE, label= glue::glue("{as.character(rsquaredtxt)}"), size = 5, color = "gray39", hjust = 0) + 
+  annotate("text", x=340, y=450, label= glue::glue("= {round(r_squared,4)}"), size = 5, color = "gray27", hjust = 0) + 
+  annotate("text", x=320, y=360, label= glue::glue("p = {round(p_value,4)}
+n = {number}"), size = 5, color = "gray39", hjust = 0) +
+  #annotate("text", x=-20, y=500, label= glue::glue("(a)"), size = 10, color = "deepskyblue4", hjust = 0) +
+  labs(x= "Latency to approach barrier",y="Latency to solve barrier task") +
+  geom_smooth(method = "lm", size = 2, fill = "light gray", color = "deepskyblue4")+
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank())+ 
+         theme(plot.title = element_text(size=14))
+plot1
+
+
+
+mod<- lm(df.full$detour_trial_1_full_problem_time_to_social_reward_minus_time_to_contact_barrier ~ df.full$time_to_barrier_contact_minus_start_time)
+summary(mod)
+
+number <- df.full %>% filter(!is.na(time_to_barrier_contact_minus_start_time)) %>% filter(!is.na(detour_trial_1_full_problem_time_to_social_reward_minus_time_to_contact_barrier)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+plot2 <- ggplot(df.full, aes(time_to_barrier_contact_minus_start_time, detour_trial_1_full_problem_time_to_social_reward_minus_time_to_contact_barrier)) + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0, y=13, parse = TRUE, label= glue::glue("{as.character(rsquaredtxt)}"), size = 5, color = "gray39", hjust = 0) + 
+  annotate("text", x=28, y=0, label= glue::glue("= {round(r_squared,4)}"), size = 5, color = "gray39", hjust = 0) + 
+  annotate("text", x=0, y=-80, label= glue::glue("p = {round(p_value,4)}
+n = {number}"), size = 5, color = "gray39", hjust = 0) +
+  annotate("text", x=0, y=480, label= glue::glue("(b)"), size = 10, color = "deepskyblue4", hjust = 0) + 
+  labs(x= "Latency to approach barrier",y="Latency to solve full social task") +
+  geom_smooth(method = "lm", size = 2, fill = "light gray", color = "deepskyblue4")+
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank())+ 
+         theme(plot.title = element_text(size=14))
+
+plot2
+
+
+
+test<-t.test(df.full$time_to_barrier_contact_minus_start_time~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$time_to_barrier_contact_minus_start_time~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+shapiro.test(df.full$time_to_barrier_contact_minus_start_time)
+#if shapiro wilk is NOT significant, use a t test
+
+plot3 <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=time_to_barrier_contact_minus_start_time)) + 
+  geom_boxplot(lwd=1, outlier.colour = "black")+ stat_n_text(size = 5) +
+  labs(x= "Detour Learning Category",y="Latency to approach barrier") +
+  geom_text(x=1, y=-5, label= glue::glue("p = {round(p_value_wilcox,4)}"), size = 5, color = "gray39", fontface = 'italic') +
+  #annotate("text", x=0.5, y=430, label= glue::glue("(c)"), size = 10, color = "deepskyblue4", hjust = 0) +  
+  scale_x_discrete(breaks=c(0, 1),labels=c("Non-Learners", "Learners")) + theme(axis.text.y = element_text(size = 14)) + theme(axis.text.x = element_text(size = 14))
+plot3
+
+
+figure1<-grid.arrange(plot1, plot2, plot3, nrow=1, ncol=3, widths = c(6,6,6), heights =c(2), top = textGrob("Cognitive Flexibility is not driven by social motivation", gp=gpar(fontsize=20,font=3)))
+
+```
+
+
+#Figure 3- Sex does not predict associative learning or cognitive flexibility performance
+#Panel 1- x = sex, y = number of medians above 60 using T30-T50 (boxplot)
+#Panel 2- x = sex, y = average num performance T30-50 (boxplot)
+#Panel 3- waffle plot - detour solvers, sex
+#Panel4- waffle plot- detour nonsolvers, sex
+
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+shapiro.test(df.full$number_of_medians_above_60_using_T30_to_T50_data) #if this is NOT significant, you can use t test results
+
+df.full$number_of_medians_above_60_using_T30_to_T50_data <-as.numeric(df.full$number_of_medians_above_60_using_T30_to_T50_data)
+df.full$sex.x<-as.factor(df.full$sex.x)
+fit <- aov(number_of_medians_above_60_using_T30_to_T50_data ~ sex.x, data=df.full) 
+p_value_ANOVA<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+kruskalfit<-kruskal.test(number_of_medians_above_60_using_T30_to_T50_data ~ sex.x, data=df.full)
+p_value_kruskal<- kruskalfit$p.value
+
+#Does number of medians above 60%  predict latency to enter correct side?
+plot1 <- ggplot(df.full, aes(x=sex.x, y=number_of_medians_above_60_using_T30_to_T50_data)) + 
+  geom_boxplot(lwd=1)+ stat_n_text(size = 5) +
+  #ggtitle ('Does sex predict number of medians above 60%?') +
+  geom_text(x=1, y=-0.1, label= glue::glue("p = {round(p_value_kruskal,4)}"), size = 5, color = "gray27") + 
+  labs(x= "Sex",y="# of numerosity medians learned \n (>60%, 1st 20 seconds)") +  scale_x_discrete(breaks=c('F','M'),labels=c("Female", "Male")) + theme(axis.text.y = element_text(size = 14)) + theme(axis.text.x = element_text(size = 14)) +
+  annotate("text", x=0.4, y=3.2, label= glue::glue("  (a)"), size = 10, color = "deepskyblue4", hjust = 0)
+plot1
+
+
+shapiro.test(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data) #if this is NOT significant, you can use t test results
+test<-t.test(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data~df.full$sex.x)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data~df.full$sex.x)
+p_value_wilcox<-wilcox_test$p.value
+
+plot2 <- ggplot(df.full, aes(x=sex.x, y=average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) + 
+  geom_boxplot(lwd=1)+ stat_n_text(size = 5) +
+  geom_text(x=1, y=0.01, label= glue::glue("p= {round(p_value_t,4)}"), size = 5, color = "gray27", fontface = 'italic') +
+  labs(x= "Sex",y="Average numerosity performance \n (1st 20 seconds)") +  scale_x_discrete(breaks=c('F','M'),labels=c("Female", "Male")) + theme(axis.text.y = element_text(size = 14)) + theme(axis.text.x = element_text(size = 14)) #+
+  #annotate("text", x=0.4, y=0.8, label= glue::glue("  (b)"), size = 10, color = "deepskyblue4", hjust = 0)
+plot2
+
+
+
+
+ solvers<- c('Females' = 14, 'Males' = 13)
+ nonsolvers<-c('Females' = 13, 'Males' = 12)
+ 
+ plot3 <- waffle(solvers, rows = 2, colors=c("deepskyblue4","darkorange2","white")) + ggtitle("Detour Solvers") + theme(legend.position="bottom") + theme(legend.text = element_text(size = 21))
+ plot4 <- waffle(nonsolvers, rows = 2, colors=c("deepskyblue4","darkorange2","white"),legend_pos = "bottom") + ggtitle("Detour Non-solvers")  + theme(legend.text = element_text(size = 21))
+ 
+ lay <- rbind(c(1,1,2,2),
+             c(1,1,2,2),
+               c(3))
+ 
+plot5 <- grid.arrange(plot3, plot4, heights =c(2))
+
+figure1<-grid.arrange(plot1, plot2, plot5, layout_matrix = lay,  top = textGrob("Cognitive flexibility and associative learning \n performance are not predicted by sex", gp=gpar(fontsize=24,font=3)))
+grid.text("(c)", x = unit(0.03, "npc"), 
+          y = unit(.3, "npc"),gp = gpar(fontsize=28, col = "deepskyblue4"))
+
+
+
+```
+
+
+
+
+
+
+
+
+#Figure 4- detour perofrmance by numerosity performance (just one panel)
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+test<-t.test(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+shapiro.test(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data) #if this is NOT significant, you can use t test results
+
+plot1 <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) + 
+  geom_boxplot(lwd=1)+ stat_n_text(size = 5) +
+  #ggtitle ('Cognitive flexibility predicts \n numerosity performance') +
+  labs(x= "Detour Learning Category",y="Average numerosity performance \n (1st 20 seconds only)") +
+  geom_text(x=1, y=0.08, label= glue::glue("p= {round(p_value_t,3)}"), size = 5, color = "gray39") +  scale_x_discrete(breaks=c(0, 1),labels=c("Non-Learners", "Learners")) + theme(axis.text.y = element_text(size = 14)) + theme(axis.text.x = element_text(size = 14)) +
+theme(plot.title=element_text(face="italic", size = 18))
+plot1
+
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#FEMALES ONLY
+test<-t.test(df.full.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data~df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data~df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+shapiro.test(df.full.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data) #if this is NOT significant, you can use t test results
+
+plot1 <- ggplot(df.full.females, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) + 
+  geom_boxplot(lwd=1)+ stat_n_text(size = 5) +
+  ggtitle ('FEMALES') +
+  labs(x= "Detour Learning Category",y="Average numerosity performance \n (1st 20 seconds only)") +
+  geom_text(x=1, y=0.3, label= glue::glue("p= {round(p_value_t,3)}"), size = 5, color = "gray39") +  scale_x_discrete(breaks=c(0, 1),labels=c("Non-Learners", "Learners")) + theme(axis.text.y = element_text(size = 14)) + theme(axis.text.x = element_text(size = 14)) +
+theme(plot.title=element_text(face="italic", size = 18))
+plot1
+
+
+
+```
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#MALES ONLY
+test<-t.test(df.full.males$average_performance_across_all_9_testing_trials_using_T30_to_T50_data~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.males$average_performance_across_all_9_testing_trials_using_T30_to_T50_data~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+shapiro.test(df.full.males$average_performance_across_all_9_testing_trials_using_T30_to_T50_data) #if this is NOT significant, you can use t test results
+
+plot1 <- ggplot(df.full.males, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) + 
+  geom_boxplot(lwd=1)+ stat_n_text(size = 5) +
+  ggtitle ('MALES') +
+  labs(x= "Detour Learning Category",y="Average numerosity performance \n (1st 20 seconds only)") +
+  geom_text(x=1, y=0.2, label= glue::glue("p= {round(p_value_t,3)}"), size = 5, color = "gray39") +  scale_x_discrete(breaks=c(0, 1),labels=c("Non-Learners", "Learners")) + theme(axis.text.y = element_text(size = 14)) + theme(axis.text.x = element_text(size = 14)) +
+theme(plot.title=element_text(face="italic", size = 18))
+plot1
+
+
+
+```
+
+#Figure 5- individuals who learned one median ("learners") have higher average performances and higher activity scores
+#Panel 1- boxplot, x = did fish have median above 60 y = average perf 30-50
+#Panel 2- boxplot, x = did fish have median above 60 y = average number of entries full 4 minutes
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+df.full$did_fish_have_a_median_above_60<- as.factor(df.full$did_fish_have_a_median_above_60)
+shapiro.test(df.full.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data)
+test<-t.test(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data~df.full$did_fish_have_a_median_above_60)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data~df.full$did_fish_have_a_median_above_60)
+p_value_wilcox<-wilcox_test$p.value
+
+plot1 <- ggplot(df.full, aes(x=did_fish_have_a_median_above_60, y=average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) + 
+  geom_boxplot(lwd=1)+ stat_n_text(size =5) +
+  geom_text(x=0.79, y=0.56, label= glue::glue("p= {round(p_value_t,3)}"), size = 6, color = "gray39", fontface = 'italic') +
+  labs(x= "Learning Category",y="Average numerosity performance \n (1st 20 seconds only)") +  scale_x_discrete(breaks=c(0,1),labels=c("Non-learners", "Learners")) + theme(axis.text.y = element_text(size = 14)) + theme(axis.text.x = element_text(size = 14)) #+
+  #annotate("text", x=0.4, y=0.8, label= glue::glue("  (a)"), size = 10, color = "deepskyblue4", hjust = 0)
+plot1
+
+
+
+shapiro.test(df.full$average_number_of_entries_full_4_minutes)
+test<-t.test(df$average_number_of_entries_full_4_minutes~df$did_fish_have_a_median_above_60)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df$average_number_of_entries_full_4_minutes~df$did_fish_have_a_median_above_60)
+p_value_wilcox<-wilcox_test$p.value
+
+plot2 <- ggplot(df, aes(x=did_fish_have_a_median_above_60, y=average_number_of_entries_full_4_minutes)) + 
+  geom_boxplot(lwd=1)+ stat_n_text(size = 5) +
+  geom_text(x=0.8, y=106, label= glue::glue("p= {round(p_value_wilcox,4)}"), size = 6, color = "gray27") + theme(axis.text.y = element_text(size = 14)) + theme(axis.text.x = element_text(size = 14)) +  scale_x_discrete(breaks=c(0,1),labels=c("No", "Yes")) + theme(axis.text.y = element_text(size = 14)) + theme(axis.text.x = element_text(size = 14)) +
+  labs(x= "Did fish meet 60% learning criterion \n on 1+ medians?",y="Activity (average number of entries)") +
+  annotate("text", x=0.4, y=135, label= glue::glue("  (b)"), size = 10, color = "deepskyblue4", hjust = 0)
+plot2
+
+figure1<-grid.arrange(plot1, plot2,nrow=1, ncol=2, widths = c(6,6), heights =c(2), top = textGrob("Numerosity learners exhibit higher activity levels", gp=gpar(fontsize=24,font=3)))
+
+```
+
+
+
+
+#Figure 6 - behavioral predictors of numerosity average performance
+#Panel 1- FEMALE x = average number of entries full 4 minutes y = average perofrmance 30-50
+#Panel 2- FEMALE x = average reaction time y = average perofrmance 30-50
+#Panel 3- FEMALE x = average number of unique zones entered y = average perofrmance 30-50
+#Panel 4- MALE x = time spent in mirror y = average perofrmance 30-50
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+
+
+mod<- lm(df.full.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.full.females$average_number_of_entries_full_4_minutes, na.rm = TRUE)
+summary(mod)
+
+number <- df.full.females %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+plot1 <- ggplot(df.full.females, aes(average_number_of_entries_full_4_minutes, average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) + geom_point(size = 4, color = "deepskyblue4") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=30, y=0.37, parse = TRUE, label= glue::glue("{as.character(rsquaredtxt)}"), size = 5, color = "gray39", hjust = 0) + 
+  annotate("text", x=36, y=0.37, label= glue::glue("= {round(r_squared,4)}"), size = 5, color = "gray39", hjust = 0) + 
+  annotate("text", x=30, y=0.25, label= glue::glue("p = {round(p_value,4)}
+n = {number}"), size = 5, color = "gray39", hjust = 0) + 
+  labs(x= "Activity (average number of entries)",y="Average numerosity performance \n (1st 20 seconds only)") +
+  geom_smooth(method = "lm", size = 2, fill = "light gray", color = "black") +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+  ggtitle ("Females") #+
+  #annotate("text", x=0, y=0.9, label= glue::glue("  (a)"), size = 10, color = "deepskyblue4", hjust = 0) +
+  #theme(plot.title = element_text(hjust = 0))
+plot1
+
+
+
+
+mod<- lm(df.full.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.full.females$average_reaction_time, na.rm = TRUE)
+summary(mod)
+
+number <- df.full.females %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(average_reaction_time)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+plot2 <- ggplot(df.full.females, aes(average_reaction_time, average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) + geom_point(size = 4, color = "deepskyblue4") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.2, y=0.37, parse = TRUE, label= glue::glue("{as.character(rsquaredtxt)}"), size = 5, color = "gray39", hjust = 0) + 
+  annotate("text", x=1.3, y=0.36, label= glue::glue("= {round(r_squared,4)}"), size = 5, color = "gray39", hjust = 0) + 
+  annotate("text", x=0.2, y=0.25, label= glue::glue("p = {round(p_value,4)}
+n = {number}"), size = 5, color = "gray39", hjust = 0) + 
+  labs(x= "Average reaction time",y="Average numerosity performance \n (1st 20 seconds only)") + 
+  ggtitle ("Females") +
+  theme(plot.title = element_text(hjust = 0)) +
+  geom_smooth(method = "lm", size = 2, fill = "light gray", color = "black") +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank())  + 
+  scale_x_continuous(limits = c(0, 22)) #+
+  #annotate("text", x=0, y=0.8, label= glue::glue("  (b)"), size = 10, color = "deepskyblue4", hjust = 0) +
+ # theme(plot.title = element_text(hjust = 0)) + scale_x_continuous(limits = c(0, 22))
+plot2
+
+
+
+mod<- lm(df.full.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.full.females$unique_zones_entered_full_4_minutes, na.rm = TRUE)
+summary(mod)
+
+number <- df.full.females %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(unique_zones_entered_full_4_minutes)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+plot3 <- ggplot(df.full.females, aes(unique_zones_entered_full_4_minutes, average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) + geom_point(size = 4, color = "deepskyblue4") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.82, y=0.35, parse = TRUE, label= glue::glue("{as.character(rsquaredtxt)}"), size = 5, color = "gray39", hjust = 0) + 
+  annotate("text", x=0.832, y=0.345, label= glue::glue("= {round(r_squared,4)}"), size = 5, color = "gray39", hjust = 0) + 
+  annotate("text", x=0.82, y=0.25, label= glue::glue("p = {round(p_value,4)}
+n = {number}"), size = 5, color = "gray39", hjust = 0) + 
+  labs(x= "Exploration (average number \n of unique zones entered)",y="Average numerosity performance \n (1st 20 seconds only)") + 
+  ggtitle ("Females") +
+  theme(plot.title = element_text(hjust = 0)) +
+  geom_smooth(method = "lm", size = 2, fill = "light gray", color = "black") +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) +
+  #annotate("text", x=0, y=0.8, label= glue::glue("  (c)"), size = 10, color = "deepskyblue4", hjust = 0) +
+  #theme(plot.title = element_text(hjust = 0)) +
+scale_x_continuous(limits = c(0.7, 1))
+plot3
+
+
+
+
+mod<- lm(df.full.males$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.full.males$totalmirror_full_4_minutes, na.rm = TRUE)
+summary(mod)
+
+number <- df.full.males %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(totalmirror_full_4_minutes)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+plot4 <- ggplot(df.full.males, aes(totalmirror_full_4_minutes, average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) + geom_point(size = 4, color = "darkorange2") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0, y=0.24, parse = TRUE, label= glue::glue("{as.character(rsquaredtxt)}"), size = 5, color = "gray39", hjust = 0) + 
+  annotate("text", x=0.04, y=0.24, label= glue::glue("= {round(r_squared,4)}"), size = 5, color = "gray39", hjust = 0) + 
+  annotate("text", x=0, y=0.10, label= glue::glue("p = {round(p_value,4)}
+n = {number}"), size = 5, color = "gray39", hjust = 0) + 
+  labs(x= "Sociability (average proportion time \n in miror region)",y="Average numerosity performance \n (1st 20 seconds only)") + 
+  ggtitle ("Males") +
+  theme(plot.title = element_text(hjust = 0)) +
+  geom_smooth(method = "lm", size = 2, fill = "light gray", color = "black") +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) +
+  annotate("text", x=0, y=0.8, label= glue::glue("  (d)"), size = 10, color = "deepskyblue4", hjust = 0) +
+  theme(plot.title = element_text(hjust = 0))
+plot4
+
+
+
+figure1<-grid.arrange(plot1, plot2,plot3, plot4, nrow=2, ncol=2, top = textGrob("Behavioal predictors of numerosity performance", gp=gpar(fontsize=24,font=3)))
+
+
+
+
+```
+
+
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+
+df.full.hist<-df.full%>%filter(is.na(df.full$did_fish_have_a_median_above_60) == FALSE)
+df.full.hist$did_fish_have_a_median_above_60<-as.numeric(df.full.hist$did_fish_have_a_median_above_60)
+
+ggplot(df.full.hist, aes(did_fish_have_a_median_above_60, fill = sex.y))+
+  geom_histogram(binwidth = 0.5) + 
+  labs(x= "Numerosity learning category",y="Number of individuals") +  
+  scale_x_discrete(breaks=c(0, 1)) +
+  annotate("text", x=0.5, y=15, label= glue::glue("Non-learners"), size = 7, color = "black", hjust = 0, fontface = 'italic') +
+  annotate("text", x=1.66, y=25, label= glue::glue("Learners"), size = 7, color = "black", hjust = 0, fontface = 'italic') +
+  theme(plot.title = element_text(hjust = 0)) +
+  theme(text = element_text(size=20)) +
+  annotate("text", x=0.95, y=9, label= glue::glue("6"), size = 7, color = "white", hjust = 0)+
+  annotate("text", x=0.95, y=2, label= glue::glue("7"), size = 7, color = "white", hjust = 0) +
+  annotate("text", x=1.90, y=13, label= glue::glue("12"), size = 7, color = "white", hjust = 0)+
+  annotate("text", x=1.90, y=2, label= glue::glue("11"), size = 7, color = "white", hjust = 0) +
+  scale_color_manual(values=c("deepskyblue4", "darkorange2")) +
+  theme(legend.position="left") + 
+  #guides(fill=guide_legend(title= "Sex")) +
+  scale_fill_manual(values=c("deepskyblue4", "darkorange2"),name="Sex",labels=c("  Female", "  Male")) + 
+  annotate("text", x=0.3, y=6.1, parse = TRUE, label= glue::glue("{as.character(chisquaredtxt)}"), size = 5, color = "gray39", hjust = 0) + 
+  annotate("text", x=0.47, y=5.9, label= glue::glue("= 0"), size = 6, color = "gray39", hjust = 0, fontface = 'italic') + 
+  annotate("text", x=0.36, y=3.6, label= glue::glue("p = 1"), size = 6, color = "gray39", hjust = 0, fontface = 'italic')
+
+#to get the numbers I ran variations of this code: nrow(df.full.males%>% filter(did_fish_have_a_median_above_60 == 1))
+#female solvers = 12
+#male solvers = 11
+#female nonsolvers = 6
+#male nonsolvers = 7
+
+
+
+solvers = c(12,11)
+nonsolvers = c(6,7)
+numsolvesex<-data.frame(solvers,nonsolvers)
+chisq.test(numsolvesex)
+
+
+
+
+```
+
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+
+df.full.hist2<-df.full%>%filter(is.na(df.full$detour_trial_1_did_fish_solve_barrier_problem) == FALSE)
+df.full.hist2$detour_trial_1_did_fish_solve_barrier_problem<-as.numeric(df.full.hist2$detour_trial_1_did_fish_solve_barrier_problem)
+
+ggplot(df.full.hist2, aes(detour_trial_1_did_fish_solve_barrier_problem, fill = sex.x))+
+  geom_histogram(binwidth = 0.5) + 
+  labs(x= "Detour maze Learning Category",y="Number of individuals") +  
+  scale_x_discrete(breaks=c(0, 1)) +
+  annotate("text", x=-0.48, y=27, label= glue::glue("Non-learners"), size = 7, color = "black", hjust = 0) +
+  annotate("text", x=0.63, y=29, label= glue::glue("Learners"), size = 7, color = "black", hjust = 0) +
+  theme(plot.title = element_text(hjust = 0))+
+  annotate("text", x=-0.12, y=14, label= glue::glue("13"), size = 7, color = "white", hjust = 0)+
+  annotate("text", x=-0.12, y=2, label= glue::glue("12"), size = 7, color = "white", hjust = 0) +
+  annotate("text", x=0.88, y=14.6, label= glue::glue("14"), size = 7, color = "white", hjust = 0)+
+  annotate("text", x=0.88, y=2, label= glue::glue("13"), size = 7, color = "white", hjust = 0) +
+  scale_color_manual(values=c("deepskyblue4", "darkorange2")) +
+  theme(legend.position="left") + 
+  #guides(fill=guide_legend(title= "Sex")) +
+  scale_fill_manual(values=c("deepskyblue4", "darkorange2"),name="Sex",labels=c("  Female", "  Male"))+ 
+  annotate("text", x=-0.79, y=6.1, parse = TRUE, label= glue::glue("{as.character(chisquaredtxt)}"), size = 5, color = "gray39", hjust = 0) + 
+  annotate("text", x=-0.65, y=5.87, label= glue::glue("= 0"), size = 6, color = "gray39", hjust = 0, fontface = 'italic') + 
+  annotate("text", x=-0.8, y=3.6, label= glue::glue("p = 1"), size = 6, color = "gray39", hjust = 0, fontface = 'italic')
+  
+#to get the numbers I ran variations of this code: nrow(df.full.males%>% filter(detour_trial_1_did_fish_solve_barrier_problem == 1))
+solvers = c(14,13)
+nonsolvers = c(13,12)
+detoursolvesex<-data.frame(solvers,nonsolvers)
+chisq.test(detoursolvesex)
+
+#female solvers = 14
+#male solvers = 13
+#female nonsolver = 13
+#male nonsolvers = 12
+
+#female non-participatory = 4
+#male non-participatory = 5
+
+
+```
+
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+
+shapiro.test(df.full$average_number_of_entries_full_4_minutes)
+#if shapiro wilk is NOT significant, use a t test
+wilcox_test<-wilcox.test(df.full$average_number_of_entries_full_4_minutes~ df.full$sex.y)
+wilcox_test$estimate
+p_value_wilcox<-wilcox_test$p.value
+
+plot1 <- ggplot(df.full, aes(x=sex.y, y=average_number_of_entries_full_4_minutes)) + 
+  geom_boxplot(lwd = 1)+ stat_n_text() +
+  geom_text(x=1,y=3, label= glue::glue("p = {round(p_value_wilcox,4)}"), size = 6, color = "black") + 
+  labs(x= "sex.y",y="Activity \n (average numbe rof entries)")
+plot1
+
+```
+
+
+
+
+
+
+
+

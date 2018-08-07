@@ -23,11 +23,13 @@ library(readr)
 library(utils)
 library(EnvStats)
 
-shuttle<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/shuttlebox_data_May_24_2018.csv")
+#shuttle<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/shuttlebox_data_May_24_2018.csv")
+#alternatively:
+shuttle<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/shuttlebox_10sec_data_3_ITI_cutoff_comparing_first_and_last_5_june_8_2018.csv")
 
 det<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Detour/detour_data_for_R_April_5_2018.csv")
 
-num<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Comparative Cognition R Scripts/Numerosity Comparative Cognition Full Dataset May_31_2018.csv")
+num<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Comparative Cognition R Scripts/Numerosity Comparative Cognition Full Dataset July_20_2018.csv")
 
 df.full<- left_join(det,shuttle, by = 'fish_name')
 df.full<- left_join(df.full,num, by = 'fish_name') #need to not join shuttlebox twice!
@@ -36,7 +38,7 @@ df.full$last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_
 
 
 #WRITE IT OUT IF NEEDED
-write_csv(df.full, 'Full_Comparative_Cognition_Data_Detour_Shuttlebox_Numerosity_May_31_2018.csv')
+write_csv(df.full, 'Full_Comparative_Cognition_Data_Detour_Shuttlebox_Numerosity_July_20_2018.csv')
 
 ```
 
@@ -1906,7 +1908,7 @@ p <- ggplot(df.full, aes(x=last10secdata_was_difference_avg_prop_correct_first_5
   ggtitle('Do fish that solve shuttlebox (increase prop correct by 20%+
         last 10 secs of gap)
         have higher average numerosity scores?') +
-  geom_text(x=1, y=0.2, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+  geom_text(x=1, y=0.6, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
                                           p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
 p
 
@@ -1943,18 +1945,18 @@ df.full$last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_
 
 
 df.full.shuttlesolvers<- df.full%>% filter(last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent == 1)
-nrow(df.full.shuttlesolvers) #13
-nrow(df.full.shuttlesolvers %>% filter(did_fish_have_a_median_above_60 == 1)) #3
-nrow(df.full.shuttlesolvers %>% filter(did_fish_have_a_median_above_60 == 0)) #6
-nrow(df.full.shuttlesolvers %>% filter(is.na(did_fish_have_a_median_above_60) == TRUE)) #4
+nrow(df.full.shuttlesolvers) #4
+nrow(df.full.shuttlesolvers %>% filter(did_fish_have_a_median_above_60 == 1)) #2
+nrow(df.full.shuttlesolvers %>% filter(did_fish_have_a_median_above_60 == 0)) #1
+nrow(df.full.shuttlesolvers %>% filter(is.na(did_fish_have_a_median_above_60) == TRUE)) #1
 
 df.full.shuttlenonsolvers<- df.full%>% filter(last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent == 0)
-nrow(df.full.shuttlenonsolvers) #28
-nrow(df.full.shuttlenonsolvers %>% filter(did_fish_have_a_median_above_60 == 1)) #15
-nrow(df.full.shuttlenonsolvers %>% filter(did_fish_have_a_median_above_60 == 0)) # 4
-nrow(df.full.shuttlenonsolvers %>% filter(is.na(did_fish_have_a_median_above_60) == TRUE)) # 9                                                            
- solvers<- c(3,6)
- nonsolvers<-c(15,4)
+nrow(df.full.shuttlenonsolvers) #11
+nrow(df.full.shuttlenonsolvers %>% filter(did_fish_have_a_median_above_60 == 1)) #5
+nrow(df.full.shuttlenonsolvers %>% filter(did_fish_have_a_median_above_60 == 0)) # 2
+nrow(df.full.shuttlenonsolvers %>% filter(is.na(did_fish_have_a_median_above_60) == TRUE)) # 4                                                            
+ solvers<- c(2,1)
+ nonsolvers<-c(5,2)
  w1 <- waffle(solvers, rows = 1)
  w2 <- waffle(nonsolvers, rows = 2)
  iron (w1, w2)
@@ -1982,15 +1984,15 @@ df.full$detour_trial_1_did_fish_solve_barrier_problem<-as.factor(df.full$detour_
 df.full$last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent<-as.numeric(df.full$last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent)                                                                 
 
 df.full.shuttlesolvers<- df.full%>% filter(last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent == 1)
-nrow(df.full.shuttlesolvers) #13
-nrow(df.full.shuttlesolvers %>% filter(detour_trial_1_did_fish_solve_barrier_problem == 1)) #7
-nrow(df.full.shuttlesolvers %>% filter(detour_trial_1_did_fish_solve_barrier_problem == 0)) #6
+nrow(df.full.shuttlesolvers) #4
+nrow(df.full.shuttlesolvers %>% filter(detour_trial_1_did_fish_solve_barrier_problem == 1)) #3
+nrow(df.full.shuttlesolvers %>% filter(detour_trial_1_did_fish_solve_barrier_problem == 0)) #1
 nrow(df.full.shuttlesolvers %>% filter(is.na(detour_trial_1_did_fish_solve_barrier_problem) == TRUE)) #0
 
 df.full.shuttlenonsolvers<- df.full%>% filter(last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent == 0)
-nrow(df.full.shuttlenonsolvers) #28
-nrow(df.full.shuttlenonsolvers %>% filter(detour_trial_1_did_fish_solve_barrier_problem == 1)) #15
-nrow(df.full.shuttlenonsolvers %>% filter(detour_trial_1_did_fish_solve_barrier_problem == 0)) # 13
+nrow(df.full.shuttlenonsolvers) #11
+nrow(df.full.shuttlenonsolvers %>% filter(detour_trial_1_did_fish_solve_barrier_problem == 1)) #6
+nrow(df.full.shuttlenonsolvers %>% filter(detour_trial_1_did_fish_solve_barrier_problem == 0)) # 5
 nrow(df.full.shuttlenonsolvers %>% filter(is.na(detour_trial_1_did_fish_solve_barrier_problem) == TRUE)) # 0                                                            
  solvers<- c(7,6)
  nonsolvers<-c(15,13)
@@ -2054,7 +2056,7 @@ p_value_wilcox<-wilcox_test$p.value
 p <- ggplot(df.full, aes(x=last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent, y=average_number_of_entries_full_4_minutes)) + 
   geom_boxplot()+ stat_n_text() +
   ggtitle('Does numerosity number of entries full 4 minutes predict shuttlebox solve??') +
-  geom_text(x=1, y=20, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+  geom_text(y=90, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
                                           p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
 p
 ```
@@ -2072,7 +2074,7 @@ p_value_wilcox<-wilcox_test$p.value
 p <- ggplot(df.full, aes(x=last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent, y=standard_length)) + 
   geom_boxplot()+ stat_n_text() +
   ggtitle('Does standard length predict shuttlebox solve?? p = 0.9615 ') +
-  geom_text(x=0, y=1500, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+  geom_text(y=1500, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
                                           p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
 p
 ```

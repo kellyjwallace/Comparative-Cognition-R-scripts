@@ -75,7 +75,7 @@ Step 8: Determine "new" learning criterion (note- 7 learned trials in a row)
 
 Step 9: Export as a csv file
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 #Step 1a. load relevant packages
 
 library(ggplot2)
@@ -88,7 +88,7 @@ library(utils)
 ```
 
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 #Step 1b. list the file's you're going to analyze
 
 file_list <- list.files("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/numerosity cc score sheets", pattern = "*.csv")
@@ -96,7 +96,7 @@ file_list <- list.files("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Compara
 ```
 
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 #Step 1c. make an empty dataframe that you'll fill with data
 
 test_column <- vector(length = length(file_list))
@@ -106,7 +106,7 @@ df <- data.frame(total = test_column)
 ```
 
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 #2a. Get data about proportion time spent in each zone
 
 for(i in 1:length(file_list)){
@@ -150,9 +150,7 @@ for(i in 1:length(file_list)){
   filename.scoredate<-strsplit(filename, "_")[[1]][16]
   filename.scoredate
   
-  
-  filename.vidID<-combine(filename.fishname, filename.assay, filename.day, filename.trial)
-  filename.vidID<-paste(filename.vidID, collapse="")
+  filename.vidID<-paste(filename.fishname, filename.assay, filename.day, filename.trial, collapse="")
   filename.vidID
   
   fil$code<-gsub(" ", "", fil$code)
@@ -199,8 +197,8 @@ for(i in 1:length(file_list)){
   df$correctside[i]<-filename.correctside
   df$entries_full_4_minutes[i]<-fil.entries -1
   df$total[i]<-(sum(fil.end$time) - 30)
-  #df$center[i]<-sum(fil.center$time.difference) / 20
-  df$unique_zones_entered[i]<-length(unique(fil$code)) - 1
+  df$center_full_4_minutes[i]<-sum(fil.center$time.difference) / (sum(fil.end$time) - 30)
+  df$unique_zones_entered[i]<-(length(unique(fil$code)) - 1) / 9
   df$entries_into_center_full_4_minutes[i]<-nrow(fil.center)
   
   df$leftscreen_full_4_minutes[i]<-sum(fil.leftscreen$time.difference) / (sum(fil.end$time) - 30)
@@ -277,8 +275,7 @@ for(i in 1:length(file_list)){
   filename.scoredate
   
   
-  filename.vidID<-combine(filename.fishname, filename.assay, filename.day, filename.trial)
-  filename.vidID<-paste(filename.vidID, collapse="")
+  filename.vidID<-paste(filename.fishname, filename.assay, filename.day, filename.trial, collapse="")
   filename.vidID
   
   fil$code<-gsub(" ", "", fil$code)
@@ -357,8 +354,7 @@ for(i in 1:length(file_list)){
   filename.scoredate
   
   
-  filename.vidID<-combine(filename.fishname, filename.assay, filename.day, filename.trial)
-  filename.vidID<-paste(filename.vidID, collapse="")
+  filename.vidID<-paste(filename.fishname, filename.assay, filename.day, filename.trial, collapse="")
   filename.vidID
 
   
@@ -392,7 +388,7 @@ df$entries_T0_to_T29[i]<-fil.entries -1
 ```
 
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 #2b. determine which zone is "correct" versus "incorrect"" and get proportion time in those zones
 
 for(i in 1:length(file_list)){
@@ -444,7 +440,7 @@ for(i in 1:length(file_list)){
 
 
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 #2c. get trial ID column
 
 df$trialID <- paste(df$day,df$trial, sep= "")
@@ -453,7 +449,7 @@ df$trialID <- paste(df$day,df$trial, sep= "")
 ```
 
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 #3a. Proportion time in correct screen / (proportion time in correct screen+ proportion time in incorrect screen)
 
 for(i in 1:length(file_list)){
@@ -464,7 +460,7 @@ for(i in 1:length(file_list)){
 ```
 
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 #3b. Was this performance greater than 60%? Yes or no
 for(i in 1:length(file_list)){
  
@@ -486,7 +482,7 @@ for(i in 1:length(file_list)){
 ```
 
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 #4a. Latency to react to screen (i.e. move to any zone after T30)
 
 
@@ -515,7 +511,7 @@ for(i in 1:length(file_list)){
 ```
 
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 #4b. Latency to enter correct side and incorrect side
 
 for(i in 1:length(file_list)){ 
@@ -560,7 +556,7 @@ for(i in 1:length(file_list)){
 
 
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 #4c/d. Determine which side was entered first (correct or incorrect) and remove latency value if latency to enter correct or incorrect side = 0 i.e. fish was already there
 
 for(i in 1:length(file_list)){
@@ -580,7 +576,25 @@ else if((df$latency_enter_corr[i] < df$latency_enter_incorr[i]) == FALSE){
 
 ```
 
-```{r}
+
+```{r, echo=FALSE, message=FALSE}
+
+#Based on which side was entered first, correct or incorrect, find latency to enter EITHER screen zone (aka decision speed)
+for(i in 1:length(file_list)){
+  if(is.na(df$screen_entered_first[i]) == TRUE){
+     df$latency_enter_either_screen[i]<- NA}
+  else if(df$screen_entered_first[i] == "incorrect"){
+    df$latency_enter_either_screen[i]<-(df$latency_enter_incorr[i])}
+  else if(df$screen_entered_first[i] == "correct"){
+    df$latency_enter_either_screen[i]<-(df$latency_enter_corr[i])}
+}
+
+```
+
+
+
+
+```{r, echo=FALSE, message=FALSE}
 #If fish entered the incorrect side first on a given trial, then make a new column which is latency to enter the correct side but if fish picked incorrect first the latency to enter first then latency to enter correct is NA has either latency or NA
 
 df<-mutate(df, latency_enter_corr_filtered_just_correct_choice = latency_enter_corr)
@@ -598,7 +612,7 @@ for(i in 1:length(df)){
 ```
 
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 #Make a summary master data frame (df.sum), where there will be one row per form and within that row I will have both summary data and data about performance on each trial. This chunk pulls out relevant information about each trial (i.e. correct side, performance, latency to enter correct) and adds it into this summary master data frame.
 
 #From around march 5- OK so this part is a little different than the plan, hopefully I'll be able to just take pieces of this big chunk and distribute it accordingly. I'm first putting the important metric for each trial in a bunch of columns, each row being 1 fish. Then I'll get some summary stats (i.e. median performance on 75 ratio) and append those as new columns (keeping one row per fish). 
@@ -642,6 +656,8 @@ if (df.fish$fishname[1] == 'gideon'){
   df.fish$totalmirror_full_4_minutes[2]<-NA
   df.fish$unique_zones_entered[2]<-NA
   df.fish$entries_into_center_full_4_minutes[2]<-NA
+  df.fish$latency_enter_either_screen[2]<-NA
+  df.fish$center_full_4_minutes[2]<-NA
 }
 
 if (df.fish$fishname[1] == 'wildflower'){
@@ -673,6 +689,8 @@ if (df.fish$fishname[1] == 'wildflower'){
   df.fish$totalmirror_full_4_minutes[3]<-NA
   df.fish$unique_zones_entered[3]<-NA
   df.fish$entries_into_center_full_4_minutes[3]<-NA
+  df.fish$latency_enter_either_screen[3]<-NA
+  df.fish$center_full_4_minutes[3]<-NA
 }
 
 if (df.fish$fishname[1] == 'willis'){
@@ -704,6 +722,8 @@ if (df.fish$fishname[1] == 'willis'){
   df.fish$totalmirror_full_4_minutes[6]<-NA
   df.fish$unique_zones_entered[6]<-NA
   df.fish$entries_into_center_full_4_minutes[6]<-NA
+  df.fish$latency_enter_either_screen[6]<-NA
+  df.fish$center_full_4_minutes[6]<-NA
 }
 
 
@@ -725,11 +745,13 @@ df.sum$totalthigmo_full_4_minutes[i]<-mean(df.fish$totalthigmo_full_4_minutes, n
 df.sum$totalmirror_full_4_minutes[i]<-mean(df.fish$totalmirror_full_4_minutes, na.rm = TRUE)
 df.sum$unique_zones_entered_full_4_minutes[i]<-mean(df.fish$unique_zones_entered, na.rm = TRUE)
 df.sum$entries_into_center_full_4_minutes[i]<-mean(df.fish$entries_into_center_full_4_minutes, na.rm = TRUE)
+df.sum$average_latency_enter_either_screen[i]<- mean(df.fish$average_latency_enter_either_screen, na.rm = TRUE)
+df.sum$average_prop_time_center_full_4_minutes[i]<-mean(df.fish$center_full_4_minutes, na.rm = TRUE)
 }
 
 ```
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 
 #For each ratio, get the number of "usable trials" (i.e. where fish actually enters both sides) for full 4 minutes and T30 to T50. Then get the median performance for each ratio. 
 #Note on how I'm calculating medians: if there's 3 trials in a ratio, take the median of 3. If there's only 2, take the mean of the two. If there's only 1, just take that one
@@ -766,6 +788,8 @@ if (df.fish$fishname[1] == 'gideon'){
   df.fish$latency_enter_incorr[2]<-NA
   df.fish$screen_entered_first[2]<-NA
   df.fish$latency_enter_corr_filtered_just_correct_choice[2]<-NA
+  df.fish$latency_enter_either_screen[2]<-NA
+  df.fish$center_full_4_minutes[2]<-NA
 }
 
 if (df.fish$fishname[1] == 'wildflower'){
@@ -793,6 +817,8 @@ if (df.fish$fishname[1] == 'wildflower'){
   df.fish$latency_enter_incorr[3]<-NA
   df.fish$screen_entered_first[3]<-NA
   df.fish$latency_enter_corr_filtered_just_correct_choice[3]<-NA
+  df.fish$latency_enter_either_screen[3]<-NA
+  df.fish$center_full_4_minutes[3]<-NA
 }
 
 if (df.fish$fishname[1] == 'willis'){
@@ -820,6 +846,8 @@ if (df.fish$fishname[1] == 'willis'){
   df.fish$latency_enter_incorr[6]<-NA
   df.fish$screen_entered_first[6]<-NA
   df.fish$latency_enter_corr_filtered_just_correct_choice[6]<-NA
+  df.fish$latency_enter_either_screen[6]<-NA
+  df.fish$center_full_4_minutes[6]<-NA
 }
 
   df.sum$average_performance_across_all_9_testing_trials_using_full_4_minutes_data[i]<- mean(df.fish$performancescreen_full_4_minutes, na.rm=TRUE)
@@ -866,6 +894,8 @@ if (df.fish$fishname[1] == 'gideon'){
   df.fish$latency_enter_incorr[2]<-NA
   df.fish$screen_entered_first[2]<-NA
   df.fish$latency_enter_corr_filtered_just_correct_choice[2]<-NA
+  df.fish$latency_enter_either_screen[2]<-NA
+  df.fish$center_full_4_minutes[2]<-NA
 }
 
 if (df.fish$fishname[1] == 'wildflower'){
@@ -893,6 +923,8 @@ if (df.fish$fishname[1] == 'wildflower'){
   df.fish$latency_enter_incorr[3]<-NA
   df.fish$screen_entered_first[3]<-NA
   df.fish$latency_enter_corr_filtered_just_correct_choice[3]<-NA
+  df.fish$latency_enter_either_screen[3]<-NA
+  df.fish$center_full_4_minutes[3]<-NA
 }
 
 if (df.fish$fishname[1] == 'willis'){
@@ -920,6 +952,8 @@ if (df.fish$fishname[1] == 'willis'){
   df.fish$latency_enter_incorr[6]<-NA
   df.fish$screen_entered_first[6]<-NA
   df.fish$latency_enter_corr_filtered_just_correct_choice[6]<-NA
+  df.fish$latency_enter_either_screen[6]<-NA
+  df.fish$center_full_4_minutes[6]<-NA
 }
 
 df.fish.50<-filter(df.fish,ratio == '50')
@@ -985,7 +1019,7 @@ else{
 
 
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 #how many medians are above 60% using full four minutes anf T30 to 50 data. 
 
 for(i in 1:length(fish_list)){
@@ -1013,7 +1047,7 @@ if (is.na(df.sum$median_performance_on_0.75_ratio_using_full_4_minutes_data[i]) 
 
 
 for(i in 1:length(fish_list)){
-  print(i)
+  #print(i)
   count = 0
 if (is.na(df.sum$median_performance_on_0.50_ratio_using_T30_to_T50_data[i]) == TRUE){
      count<- count}
@@ -1036,12 +1070,19 @@ if (is.na(df.sum$median_performance_on_0.75_ratio_using_T30_to_T50_data[i]) == T
    df.sum$number_of_medians_above_60_using_T30_to_T50_data[i] <- count 
 }
 
+
+for(i in 1:length(fish_list)){
+  df.sum$number_of_medians_above_60_using_T30_to_T50_data_two_and_three_combined[i]<-df.sum$number_of_medians_above_60_using_T30_to_T50_data[i]
+  if (df.sum$number_of_medians_above_60_using_T30_to_T50_data_two_and_three_combined[i] == 3) {
+    df.sum$number_of_medians_above_60_using_T30_to_T50_data_two_and_three_combined[i] <- 2}
+}  
+
 ```
 
 
 
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 #Run the shapiro-wilk test to determine if testing trials are normally distributed or not, then using that result run either a t test of a wilcox test to see if performance was significantly from mu=0.5 for a given fish
 
 for(i in 1:length(fish_list)){
@@ -1260,7 +1301,7 @@ for(i in 1:length(fish_list)){
 
 ```
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 #take the "number of medians above 60%" and the t test/wilcox test results and determine etheredege et al learning category (high, low, or non)
 
 for(i in 1:length(fish_list)){
@@ -1300,7 +1341,7 @@ for(i in 1:length(fish_list)){
 ```
 
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 #did fish have a median above 60?
 df.sum$number_of_medians_above_60_using_T30_to_T50_data<-as.numeric(df.sum$number_of_medians_above_60_using_T30_to_T50_data)
 
@@ -1313,7 +1354,7 @@ for(i in 1:length(fish_list)){
 ```
 
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 #did fish have two medians above 60?
 for(i in 1:length(fish_list)){
     if(df.sum$number_of_medians_above_60_using_T30_to_T50_data[i] > 1){
@@ -1324,7 +1365,7 @@ for(i in 1:length(fish_list)){
 ```
 
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 #average latency to enter the correct and incorrectside
 
 for(i in 1:length(fish_list)){
@@ -1356,6 +1397,8 @@ if (df.fish$fishname[1] == 'gideon'){
   df.fish$latency_enter_incorr[2]<-NA
   df.fish$screen_entered_first[2]<-NA
   df.fish$latency_enter_corr_filtered_just_correct_choice[2]<-NA
+  df.fish$latency_enter_either_screen[2]<-NA
+  df.fish$center_full_4_minutes[2]<-NA
 }
 
 if (df.fish$fishname[1] == 'wildflower'){
@@ -1383,6 +1426,8 @@ if (df.fish$fishname[1] == 'wildflower'){
   df.fish$latency_enter_incorr[3]<-NA
   df.fish$screen_entered_first[3]<-NA
   df.fish$latency_enter_corr_filtered_just_correct_choice[3]<-NA
+  df.fish$latency_enter_either_screen[3]<-NA
+  df.fish$center_full_4_minutes[3]<-NA
 }
 
 if (df.fish$fishname[1] == 'willis'){
@@ -1410,11 +1455,14 @@ if (df.fish$fishname[1] == 'willis'){
   df.fish$latency_enter_incorr[6]<-NA
   df.fish$screen_entered_first[6]<-NA
   df.fish$latency_enter_corr_filtered_just_correct_choice[6]<-NA
+  df.fish$latency_enter_either_screen[6]<-NA
+  df.fish$center_full_4_minutes[6]<-NA
 }
 
 df.sum$average_latency_to_enter_correct_side[i]<- mean(df.fish$latency_enter_corr, na.rm =TRUE)
 df.sum$average_latency_to_enter_incorrect_side[i]<- mean(df.fish$latency_enter_incorr, na.rm =TRUE)
 df.sum$average_latency_to_enter_correct_side_filtered_just_correct_choice[i]<- mean(df.fish$latency_enter_corr_filtered_just_correct_choice, na.rm =TRUE)
+df.sum$average_latency_enter_either_screen[i]<-mean(df.fish$latency_enter_either_screen, na.rm = TRUE)
 }
 
 
@@ -1424,7 +1472,7 @@ df.sum$average_latency_to_enter_correct_side_filtered_just_correct_choice[i]<- m
 
 
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 
 #proportion of trials where the correct side was chosen first (excludes trials where NA)
 
@@ -1526,7 +1574,7 @@ df.sum$proportion_of_correct_first_choices[i]<- number_correct/(number_incorrect
 
 
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 
 #Get the number of testing trials in a row where a) performance was above 60% useing the full four minutes data, b) performance was above 60% using the T30 to T50 data, or c) if correct or was picked first
 
@@ -1688,7 +1736,7 @@ df.sum$number_of_trials_in_a_row_correct_choice_first[j] <- streak.correct_choic
 
 
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 #This is to check for any score sheets where the entries are doubled, don't actually need to rerun this part
 
 for(i in 1:length(file_list)){
@@ -1703,7 +1751,7 @@ for(i in 1:length(file_list)){
 ```
 
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 #get mean of medians (i.e. mean of the 3 values: median performance on 50, 67, and 75)
 
 for(i in 1:nrow(df.sum)){
@@ -1717,10 +1765,10 @@ for(i in 1:nrow(df.sum)){
 
 
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 #Export as a csv file
 
-write_csv(df.sum, "Numerosity Comparative Cognition Full Dataset May_31_2018.csv")
+write_csv(df.sum, "Numerosity Comparative Cognition Full Dataset July_20_2018.csv")
 
 
 ```
@@ -1730,7 +1778,7 @@ write_csv(df.sum, "Numerosity Comparative Cognition Full Dataset May_31_2018.csv
 ##################S T O P  H E R E ####################
 #######################################################
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 #This next section is if we want to write out a dataframe that has the relevant information about EACH TRIAL as a new column!
 
 '''
@@ -2071,7 +2119,7 @@ for(i in 1:length(fish_list)){
 
 
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 #flag trials where fish was already in the correct side when the trial started at T30 (1 means it started in the correct zone)  
 '''
  for(i in 1:nrow(df.sum)){ 
@@ -2144,7 +2192,7 @@ for(i in 1:length(fish_list)){
 ```
 
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 #removing trials where the fish was already in the correct side at T30- I'm hard coding this for now because there are only three trials
 '''
 

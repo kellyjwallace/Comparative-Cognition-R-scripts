@@ -79,7 +79,7 @@ library(EnvStats)
 library(waffle)
 library(extrafont)
 
-df<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Comparative Cognition R Scripts/Numerosity Comparative Cognition Full Dataset May_31_2018.csv", col_names = TRUE, col_types = NULL)
+df<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Comparative Cognition R Scripts/Numerosity Comparative Cognition Full Dataset July_20_2018.csv", col_names = TRUE, col_types = NULL)
 
 View(df)
 
@@ -93,6 +93,10 @@ df.full$detour_trial_1_did_fish_solve_barrier_problem <-as.character(df.full$det
 df.full$detour_trial_1_did_fish_solve_full_social_problem <-as.character(df.full$detour_trial_1_did_fish_solve_full_social_problem)
 df.full<-df.full %>% mutate(detour_trial_1_latency_to_enter_reward_following_barrier_solution = detour_trial_1_full_problem_time_to_social_reward_minus_time_to_contact_barrier- detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier)
 df.full$number_of_medians_above_60_using_T30_to_T50_data<-as.numeric(df.full$number_of_medians_above_60_using_T30_to_T50_data)
+
+df.full.females<- df.full %>% filter(sex.y == "F")
+df.full.males<- df.full %>% filter(sex.y == "M")
+
 
 #Note winthrop is removed because his detour trial 1 video started with fish in reward
 #OPTIONAL WRITE OUT FULL CSV
@@ -121,6 +125,61 @@ p + geom_point(size = 3) +
   geom_smooth(method = "lm")
 
 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does sex predict solving the barrier problem?
+
+test<-t.test(df.full$detour_trial_1_did_fish_solve_barrier_problem~df.full$sex.y)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$detour_trial_1_did_fish_solve_barrier_problem~df.full$sex.y)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full, aes(x=sex.y, y=detour_trial_1_did_fish_solve_barrier_problem)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Does sex predict solving the barrier problem?') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does sex predict latency to solve the barrier problem?
+
+test<-t.test(df.full$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier~df.full$sex.y)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier~df.full$sex.y)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full, aes(x=sex.y, y=detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Does sex predict latency to solve the barrier problem?') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does sex predict latency to approach barrier?
+
+test<-t.test(df.full$time_to_barrier_contact_minus_start_time~df.full$sex.x)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$time_to_barrier_contact_minus_start_time~df.full$sex.x)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full, aes(x=sex.x, y=time_to_barrier_contact_minus_start_time)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Does sex predict latency to approach barrier') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -172,6 +231,34 @@ numerosity performance (T30 to T50)?") +
 
 
 ```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does latency to solve full social problem predict average performance (T30 to T50)?
+
+mod<- lm(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.full$detour_trial_1_full_problem_time_to_social_reward_minus_time_to_contact_barrier, na.rm = TRUE)
+summary(mod)
+
+
+number <- df.full %>% filter(!is.na(detour_trial_1_full_problem_time_to_social_reward_minus_time_to_contact_barrier)) %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.full, aes(detour_trial_1_full_problem_time_to_social_reward_minus_time_to_contact_barrier, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=200, y=0.3, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "detour_trial_1_full_problem_time_to_social_reward_
+minus_time_to_contact_barrier",y="average_performance_across_all_9_testing_trials_using_
+       T30_to_T50_data") +
+  ggtitle ("Note:Does latency to solve full social problem predict average 
+numerosity performance (T30 to T50)?") +
+  geom_smooth(method = "lm")
+
+
+```
+
 
 
 
@@ -305,6 +392,11 @@ ggplot(df.full, aes(detour_trial_1_solved_code, fill = sex.y))+
 #for anything that's slipt out by sex, use sex.y because that is the "sex" column from the detour data sheet which has the sex for individuals who we can't use their numerosity
 ```
 
+
+
+
+
+
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #How frequently do individuals only solve barrier problem but not full social problem(histogram)?
 library(waffle)
@@ -317,6 +409,12 @@ font_import()
  w1 <- waffle(solvers, rows = 2)
  w2 <- waffle(nonsolvers, rows = 2)
  iron (w1, w2)
+ 
+ solvers = c(14,13)
+nonsolvers = c(13,12)
+detoursolvesex<-data.frame(solvers,nonsolvers)
+chisq.test(detoursolvesex)
+ 
 
 ggplot(df.full, aes(detour_trial_1_solved_code, fill = sex.y))+
   geom_histogram(aes(width = 12)) +
@@ -347,6 +445,12 @@ p
 
 
 
+
+
+
+
+
+
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Do individual who solve the barrier problem have lower latencies to approach the barrier (higher motivation?)
 
@@ -365,6 +469,27 @@ p
 
 
 ```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individual who solve the barrier problem have lower latencies to approach the barrier (higher motivation?)MALES
+
+test<-t.test(df.full.males$time_to_barrier_contact_minus_start_time~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.males$time_to_barrier_contact_minus_start_time~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.males, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=time_to_barrier_contact_minus_start_time)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individual who solve the barrier problem have lower latencies 
+          to approach the barrier (higher motivation?)MALES') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -517,6 +642,55 @@ p
 ```
 
 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does latency to approach barrier predict latency to solve full social problem?
+
+mod<- lm(df.full$detour_trial_1_full_problem_time_to_social_reward_minus_time_to_contact_barrier ~ df.full$time_to_barrier_contact_minus_start_time)
+summary(mod)
+
+number <- df.full %>% filter(!is.na(time_to_barrier_contact_minus_start_time)) %>% filter(!is.na(detour_trial_1_full_problem_time_to_social_reward_minus_time_to_contact_barrier)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.full, aes(time_to_barrier_contact_minus_start_time, detour_trial_1_full_problem_time_to_social_reward_minus_time_to_contact_barrier))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=150, y=0.3,label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "time_to_barrier_contact_minus_start_time",y="detour_trial_1_full_problem_time_to_social_reward_minus_time_to_contact_barrier") +
+  ggtitle ("Note:Does latency to approach barrier predict latency to solve full social problem??") +
+  geom_smooth(method = "lm")
+
+```
+
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does latency to approach barrier predict latency to solve barrier problem?
+
+mod<- lm(df.full$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier ~ df.full$time_to_barrier_contact_minus_start_time)
+summary(mod)
+
+number <- df.full %>% filter(!is.na(time_to_barrier_contact_minus_start_time)) %>% filter(!is.na(detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.full, aes(time_to_barrier_contact_minus_start_time, detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=150, y=0.3,label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "time_to_barrier_contact_minus_start_time",y="detour_trial_1_barrier_problem_time_
+       around_barrier_minus_time_to_contact_barrier") +
+  ggtitle ("Note:Does latency to approach barrier predict latency to solve barrier problem??") +
+  geom_smooth(method = "lm")
+
+```
+
+
+
+
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Does latency to approach barrier predict latency to solve barrier problem?
@@ -580,7 +754,7 @@ p + geom_jitter(width = 0.3, height = 0.3, size = 4) +
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-#Does latency to solve the the detour predict if fish had a median above 60?
+#Does latency to solve the the detour predict if fish had a median above 60? WRONG NOT A LATENCY
 
 mod<- lm(df.full$did_fish_have_a_median_above_60 ~ df.full$detour_trial_1_did_fish_solve_barrier_problem)
 summary(mod)
@@ -634,6 +808,47 @@ ggplot(df.full, aes(detour_trial_1_did_fish_solve_barrier_problem, fill = did_fi
 
 
 ```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+df.full.detoursolvers<- df.full%>% filter(detour_trial_1_did_fish_solve_barrier_problem == 1)
+df.full.detournonsolvers<- df.full%>% filter(detour_trial_1_did_fish_solve_barrier_problem == 0)
+
+df.full.detoursolvers %>% filter(number_of_medians_above_60_using_T30_to_T50_data == 0) %>% nrow() #5
+df.full.detoursolvers %>% filter(number_of_medians_above_60_using_T30_to_T50_data == 1) %>% nrow() #6
+df.full.detoursolvers %>% filter(number_of_medians_above_60_using_T30_to_T50_data == 2) %>% nrow() #7
+df.full.detoursolvers %>% filter(number_of_medians_above_60_using_T30_to_T50_data == 3) %>% nrow() #0
+
+df.full.detournonsolvers %>% filter(number_of_medians_above_60_using_T30_to_T50_data == 0) %>% nrow() #8
+df.full.detournonsolvers %>% filter(number_of_medians_above_60_using_T30_to_T50_data == 1) %>% nrow() #7
+df.full.detournonsolvers %>% filter(number_of_medians_above_60_using_T30_to_T50_data == 2) %>% nrow() #2
+df.full.detournonsolvers %>% filter(number_of_medians_above_60_using_T30_to_T50_data == 3) %>% nrow() #1
+
+
+ solvers<- c(5,6,7,0)
+ nonsolvers<-c(8,7,2,1)
+ w1 <- waffle(solvers, rows = 2)
+ w2 <- waffle(nonsolvers, rows = 2)
+ iron (w1, w2)
+ 
+ 
+solvers = c(5,6,7,0)
+nonsolvers = c(8,7,2,1)
+detoursolvemedian<-data.frame(solvers,nonsolvers)
+chisq.test(detoursolvemedian)
+
+
+#I'm going to now run the chi2 test again, but my two groups will just be num high solvers (learned 2+ median) to everyone else (0-1 medians learned)
+solvers23 = c(11,7)
+nonsolvers01 = c(15,3)
+detourbynum23vs01<-data.frame(solvers23,nonsolvers01)
+chisq.test(detourbynum23vs01)
+
+
+
+```
+
+
 
 
 
@@ -755,6 +970,694 @@ p
 
 ```
 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have average_number_of_entries_T0_to_T29?
+
+test<-t.test(df.full$average_number_of_entries_T0_to_T29~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$average_number_of_entries_T0_to_T29~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_number_of_entries_T0_to_T29)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          average_number_of_entries_T0_to_T29?') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have average_number_of_entries_T0_to_T29?females
+
+test<-t.test(df.full.females$average_number_of_entries_T0_to_T29~df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.females$average_number_of_entries_T0_to_T29~df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.females, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_number_of_entries_T0_to_T29)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          average_number_of_entries_T0_to_T29?females') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have average_number_of_entries_T0_to_T29?males
+
+test<-t.test(df.full.males$average_number_of_entries_T0_to_T29~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.males$average_number_of_entries_T0_to_T29~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.males, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_number_of_entries_T0_to_T29)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          average_number_of_entries_T0_to_T29?males') +
+  geom_text(x=1, y=3, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have average_number_of_entries_full_4_minutes?
+
+test<-t.test(df.full$average_number_of_entries_full_4_minutes~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$average_number_of_entries_full_4_minutes~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_number_of_entries_full_4_minutes)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          average_number_of_entries_full_4_minutes?') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have average_number_of_entries_full_4_minutes?females
+
+test<-t.test(df.full.females$average_number_of_entries_full_4_minutes~df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.females$average_number_of_entries_full_4_minutes~df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.females, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_number_of_entries_full_4_minutes)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          average_number_of_entries_full_4_minutes?females') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have average_number_of_entries_full_4_minutes?males
+
+test<-t.test(df.full.males$average_number_of_entries_full_4_minutes~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.males$average_number_of_entries_full_4_minutes~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.males, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_number_of_entries_full_4_minutes)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          average_number_of_entries_full_4_minutes?males') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have unique_zones_entered_full_4_minutes?
+
+test<-t.test(df.full$unique_zones_entered_full_4_minutes~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$unique_zones_entered_full_4_minutes~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=unique_zones_entered_full_4_minutes)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          unique_zones_entered_full_4_minutes?') +
+  geom_text(x=1, y=6, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have unique_zones_entered_full_4_minutes?females
+
+test<-t.test(df.full.females$unique_zones_entered_full_4_minutes~df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.females$unique_zones_entered_full_4_minutes~df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.females, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=unique_zones_entered_full_4_minutes)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          unique_zones_entered_full_4_minutes?females') +
+  geom_text(x=1, y=4, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have unique_zones_entered_full_4_minutes?males
+
+test<-t.test(df.full.males$unique_zones_entered_full_4_minutes~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.males$unique_zones_entered_full_4_minutes~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.males, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=unique_zones_entered_full_4_minutes)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          unique_zones_entered_full_4_minutes?males') +
+  geom_text(x=1, y=6, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have average_prop_time_thigmo_T0_to_T29?
+
+test<-t.test(df.full$average_prop_time_thigmo_T0_to_T29~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$average_prop_time_thigmo_T0_to_T29~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_prop_time_thigmo_T0_to_T29)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          average_prop_time_thigmo_T0_to_T29?') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have average_prop_time_thigmo_T0_to_T29?females
+
+test<-t.test(df.full.females$average_prop_time_thigmo_T0_to_T29~df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.females$average_prop_time_thigmo_T0_to_T29~df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.females, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_prop_time_thigmo_T0_to_T29)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          average_prop_time_thigmo_T0_to_T29?females') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have average_prop_time_thigmo_T0_to_T29?males
+
+test<-t.test(df.full.males$average_prop_time_thigmo_T0_to_T29~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.males$average_prop_time_thigmo_T0_to_T29~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.males, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_prop_time_thigmo_T0_to_T29)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          average_prop_time_thigmo_T0_to_T29?males') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have totalthigmo_full_4_minutes?
+
+test<-t.test(df.full$totalthigmo_full_4_minutes~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$totalthigmo_full_4_minutes~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=totalthigmo_full_4_minutes)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          totalthigmo_full_4_minutes?') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have totalthigmo_full_4_minutes?females
+
+test<-t.test(df.full.females$totalthigmo_full_4_minutes~df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.females$totalthigmo_full_4_minutes~df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.females, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=totalthigmo_full_4_minutes)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          totalthigmo_full_4_minutes?females') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have totalthigmo_full_4_minutes?males
+
+test<-t.test(df.full.males$totalthigmo_full_4_minutes~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.males$totalthigmo_full_4_minutes~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.males, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=totalthigmo_full_4_minutes)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          totalthigmo_full_4_minutes?males') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have totalmirror_full_4_minutes?
+
+test<-t.test(df.full$totalmirror_full_4_minutes~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$totalmirror_full_4_minutes~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=totalmirror_full_4_minutes)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          totalmirror_full_4_minutes?') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have totalmirror_full_4_minutes?females
+
+test<-t.test(df.full.females$totalmirror_full_4_minutes~df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.females$totalmirror_full_4_minutes~df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.females, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=totalmirror_full_4_minutes)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          totalmirror_full_4_minutes?females') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have totalmirror_full_4_minutes?males
+
+test<-t.test(df.full.males$totalmirror_full_4_minutes~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.males$totalmirror_full_4_minutes~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.males, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=totalmirror_full_4_minutes)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          totalmirror_full_4_minutes?males') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have average_prop_time_mirror_T0_to_T29?
+
+test<-t.test(df.full$average_prop_time_mirror_T0_to_T29~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$average_prop_time_mirror_T0_to_T29~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_prop_time_mirror_T0_to_T29)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          average_prop_time_mirror_T0_to_T29?') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have average_prop_time_mirror_T0_to_T29?females
+
+test<-t.test(df.full.females$average_prop_time_mirror_T0_to_T29~df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.females$average_prop_time_mirror_T0_to_T29~df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.females, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_prop_time_mirror_T0_to_T29)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          average_prop_time_mirror_T0_to_T29?females') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have average_prop_time_mirror_T0_to_T29?males
+
+test<-t.test(df.full.males$average_prop_time_mirror_T0_to_T29~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.males$average_prop_time_mirror_T0_to_T29~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.males, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_prop_time_mirror_T0_to_T29)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          average_prop_time_mirror_T0_to_T29?males') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have entries_into_center_full_4_minutes?
+
+test<-t.test(df.full$entries_into_center_full_4_minutes~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$entries_into_center_full_4_minutes~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=entries_into_center_full_4_minutes)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          entries_into_center_full_4_minutes?') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have entries_into_center_full_4_minutes?females
+
+test<-t.test(df.full.females$entries_into_center_full_4_minutes~df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.females$entries_into_center_full_4_minutes~df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.females, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=entries_into_center_full_4_minutes)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          entries_into_center_full_4_minutes?females') +
+  geom_text(x=1, y=10, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have entries_into_center_full_4_minutes?males
+
+test<-t.test(df.full.males$entries_into_center_full_4_minutes~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.males$entries_into_center_full_4_minutes~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.males, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=entries_into_center_full_4_minutes)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          entries_into_center_full_4_minutes?males') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have average_reaction_time?
+
+test<-t.test(df.full$average_reaction_time~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$average_reaction_time~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_reaction_time)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          average_reaction_time?') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have average_reaction_time?females
+
+test<-t.test(df.full.females$average_reaction_time~df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.females$average_reaction_time~df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.females, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_reaction_time)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          average_reaction_time?females') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have average_reaction_time?males
+
+test<-t.test(df.full.males$average_reaction_time~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.males$average_reaction_time~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.males, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_reaction_time)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          average_reaction_time?males') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+#Does solving detour predict latency to enter either screen? (decision speed)
+test<-t.test(df.full$average_latency_enter_either_screen ~ df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$average_latency_enter_either_screen~ df.full$detour_trial_1_did_fish_solve_barrier_problem)
+wilcox_test$estimate
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_latency_enter_either_screen)) + 
+  geom_boxplot()+ stat_n_text() +
+  geom_text(x=1,y=3, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p +  ggtitle ("Does solving detour predict latency to enter
+              either screen? (decision speed)?")
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+#Does solving detour predict latency to enter either screen? (decision speed)FEMALES
+test<-t.test(df.full.females$average_latency_enter_either_screen ~ df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.females$average_latency_enter_either_screen~ df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+wilcox_test$estimate
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.females, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_latency_enter_either_screen)) + 
+  geom_boxplot()+ stat_n_text() +
+  geom_text(x=1,y=3, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p +  ggtitle ("Does solving detour predict latency to enter
+              either screen? (decision speed)? FEMALES")
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+#Does solving detour predict latency to enter either screen? (decision speed)males
+test<-t.test(df.full.males$average_latency_enter_either_screen ~ df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.males$average_latency_enter_either_screen~ df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+wilcox_test$estimate
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.males, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_latency_enter_either_screen)) + 
+  geom_boxplot()+ stat_n_text() +
+  geom_text(x=1,y=3, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p +  ggtitle ("Does solving detour predict latency to enter
+              either screen? (decision speed)? males")
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have average_prop_time_center_full_4_minutes?
+
+test<-t.test(df.full$average_prop_time_center_full_4_minutes~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$average_prop_time_center_full_4_minutes~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_prop_time_center_full_4_minutes)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          average_prop_time_center_full_4_minutes?') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have average_prop_time_center_full_4_minutes?females
+
+test<-t.test(df.full.females$average_prop_time_center_full_4_minutes~df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.females$average_prop_time_center_full_4_minutes~df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.females, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_prop_time_center_full_4_minutes)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          average_prop_time_center_full_4_minutes?females') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have average_prop_time_center_full_4_minutes?males
+
+test<-t.test(df.full.males$average_prop_time_center_full_4_minutes~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.males$average_prop_time_center_full_4_minutes~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.males, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_prop_time_center_full_4_minutes)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          average_prop_time_center_full_4_minutes?males') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+
+
+#############TEMPLATE
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have XXX?
+
+test<-t.test(df.full$XXX~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full$XXX~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=XXX)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          XXX?') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have XXX?females
+
+test<-t.test(df.full.females$XXX~df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.females$XXX~df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.females, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=XXX)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          XXX?females') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do individuals who solve the barrier problem have XXX?males
+
+test<-t.test(df.full.males$XXX~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.males$XXX~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.males, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=XXX)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Do individuals who solve the barrier problem have 
+          XXX?males') +
+  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p
+
+
+```
 
 COMPARE NUMEROSITY AND DETOUR
 Does latency to solve barrier problem predict average performance (full 4 minutes)?
