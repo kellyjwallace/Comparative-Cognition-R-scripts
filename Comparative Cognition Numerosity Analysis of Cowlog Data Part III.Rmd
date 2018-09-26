@@ -1012,6 +1012,29 @@ p
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does standard length predict latency to solve detour? SEXES COMBINED
+
+mod<- lm(df.full$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier ~ df.full$standard_length)
+summary(mod)
+
+number <- df.full %>% filter(!is.na(standard_length)) %>% filter(!is.na(detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.full, aes(standard_length, detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=2000, y=0.3,label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "standard_legnth",y="detour_trial_1_barrier_problem_time
+       _around_barrier_minus_time_to_contact_barrier") +
+  ggtitle ("Note:Does standard length predict latency to solve detour?SEXES COMBINED") +
+  geom_smooth(method = "lm")
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Does standard length predict latency to solve detour?FEMALES
 
 mod<- lm(df.full.females$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier ~ df.full.females$standard_length)
@@ -1032,6 +1055,33 @@ p + geom_point(size = 3) +
   geom_smooth(method = "lm")
 
 ```
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does standard length predict latency to solve detour?MALES
+
+mod<- lm(df.full.males$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier ~ df.full.males$standard_length)
+summary(mod)
+
+number <- df.full.males %>% filter(!is.na(standard_length)) %>% filter(!is.na(detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.full.males, aes(standard_length, detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=2000, y=0.3,label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "blue") + 
+  labs(x= "standard_legnth",y="detour_trial_1_barrier_problem_time
+       _around_barrier_minus_time_to_contact_barrier") +
+  ggtitle ("Note:Does standard length predict latency to solve detour?MALES") +
+  geom_smooth(method = "lm")
+
+```
+
+
+
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Does standard length predict latency to approach barrier?FEMALES
