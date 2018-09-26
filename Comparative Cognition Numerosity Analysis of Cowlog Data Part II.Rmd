@@ -1343,7 +1343,7 @@ r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 p <- ggplot(df.females, aes(unique_zones_entered_full_4_minutes, average_reaction_time))
 p + geom_point(size = 4, color = "red") + 
   theme(text = element_text(size=10)) + 
-  annotate("text", x=6, y=0.4, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+  annotate("text", x=1, y=0.4, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") + 
   labs(x= "unique_zones_entered_full_4_minutes",y="average_reaction_time") +
   ggtitle ("Does aaverage number of unique zones visited predict average reaction time
@@ -3343,6 +3343,51 @@ p + geom_point(size = 4) +
 
 ```
 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does size/age predict average performance(T30 to T50)?FEMALE ONLY
+mod<- lm(df.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.females$standard_length, na.rm = TRUE)
+summary(mod)
+
+number <- df.females %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(standard_length)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.females, aes(standard_length, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=1700, y=0.3, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") +
+  labs(x= "standard_length",y="average_performance_across_all_9_testing_trials_
+       using_T30_to_T50_data") +
+  ggtitle ("Does size/age predict average performance(T30 to T50)?FEMALE") +
+  geom_smooth(method = "lm")
+
+
+```
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does size/age predict average performance(T30 to T50)?MALE ONLY
+mod<- lm(df.males$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.males$standard_length, na.rm = TRUE)
+summary(mod)
+
+number <- df.males %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(standard_length)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.males, aes(standard_length, average_performance_across_all_9_testing_trials_using_T30_to_T50_data))
+p + geom_point(size = 4, color = "blue") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=1700, y=0.3, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") +
+  labs(x= "standard_length",y="average_performance_across_all_9_testing_trials_
+       using_T30_to_T50_data") +
+  ggtitle ("Does size/age predict average performance(T30 to T50)?MALE") +
+  geom_smooth(method = "lm")
+
+
+```
 
 
 
@@ -3460,6 +3505,217 @@ p + geom_point(size = 4, color = "red") +
 
 ```
 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does size/age predict boldness?
+mod<- lm(df$average_prop_time_center_full_4_minutes ~ df$standard_length, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(average_prop_time_center_full_4_minutes)) %>% filter(!is.na(standard_length)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df, aes(standard_length, average_prop_time_center_full_4_minutes))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=1800, y=0.3, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "standard_length",y="average_prop_time_center_full_4_minutes") +
+  ggtitle ("Does size/age predict average boldness? ") +
+  geom_smooth(method = "lm")
+
+
+
+```
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does size/age predict boldness?FEMALE ONLY
+mod<- lm(df.females$average_prop_time_center_full_4_minutes ~ df.females$standard_length, na.rm = TRUE)
+summary(mod)
+
+number <- df.females %>% filter(!is.na(average_prop_time_center_full_4_minutes)) %>% filter(!is.na(standard_length)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.females, aes(standard_length, average_prop_time_center_full_4_minutes))
+p + geom_point(size = 4, color = "red") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=1800, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "standard_length",y="average_prop_time_center_full_4_minutes") +
+  ggtitle ("Does size/age predict average boldness? 
+           female only") +
+  geom_smooth(method = "lm")
+
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does size/age predict boldness?MALE ONLY
+mod<- lm(df.males$average_prop_time_center_full_4_minutes ~ df.males$standard_length, na.rm = TRUE)
+summary(mod)
+
+number <- df.males %>% filter(!is.na(average_prop_time_center_full_4_minutes)) %>% filter(!is.na(standard_length)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.males, aes(standard_length, average_prop_time_center_full_4_minutes))
+p + geom_point(size = 4, color = "blue") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=1800, y=0.3, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "standard_length",y="average_prop_time_center_full_4_minutes") +
+  ggtitle ("Does size/age predict average boldness? 
+           male only") +
+  geom_smooth(method = "lm")
+
+
+
+```
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does size/age predict sociability?FEMALE ONLY
+mod<- lm(df.females$totalmirror_full_4_minutes ~ df.females$standard_length, na.rm = TRUE)
+summary(mod)
+
+number <- df.females %>% filter(!is.na(totalmirror_full_4_minutes)) %>% filter(!is.na(standard_length)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.females, aes(standard_length, totalmirror_full_4_minutes))
+p + geom_point(size = 4, color = "red") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=1800, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "standard_length",y="totalmirror_full_4_minutes") +
+  ggtitle ("Does size/age predict average sociability? 
+           female only") +
+  geom_smooth(method = "lm")
+
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does size/age predict sociability?MALE ONLY
+mod<- lm(df.males$totalmirror_full_4_minutes ~ df.males$standard_length, na.rm = TRUE)
+summary(mod)
+
+number <- df.males %>% filter(!is.na(totalmirror_full_4_minutes)) %>% filter(!is.na(standard_length)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.males, aes(standard_length, totalmirror_full_4_minutes))
+p + geom_point(size = 4, color = "blue") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=1800, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "standard_length",y="totalmirror_full_4_minutes") +
+  ggtitle ("Does size/age predict average sociability? 
+           male only") +
+  geom_smooth(method = "lm")
+
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does size/age predict sociability?
+mod<- lm(df$totalmirror_full_4_minutes ~ df$standard_length, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(totalmirror_full_4_minutes)) %>% filter(!is.na(standard_length)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df, aes(standard_length, totalmirror_full_4_minutes))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=1800, y=0.5, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "standard_length",y="totalmirror_full_4_minutes") +
+  ggtitle ("Does size/age predict average sociability?") +
+  geom_smooth(method = "lm")
+
+
+
+```
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does size/age predict anxiety?FEMALE ONLY
+mod<- lm(df.females$totalthigmo_full_4_minutes ~ df.females$standard_length, na.rm = TRUE)
+summary(mod)
+
+number <- df.females %>% filter(!is.na(totalthigmo_full_4_minutes)) %>% filter(!is.na(standard_length)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.females, aes(standard_length, totalthigmo_full_4_minutes))
+p + geom_point(size = 4, color = "red") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=1800, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "standard_length",y="totalthigmo_full_4_minutes") +
+  ggtitle ("Does size/age predict average anxiety? 
+           female only") +
+  geom_smooth(method = "lm")
+
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does size/age predict anxiety?MALE ONLY
+mod<- lm(df.males$totalthigmo_full_4_minutes ~ df.males$standard_length, na.rm = TRUE)
+summary(mod)
+
+number <- df.males %>% filter(!is.na(totalthigmo_full_4_minutes)) %>% filter(!is.na(standard_length)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.males, aes(standard_length, totalthigmo_full_4_minutes))
+p + geom_point(size = 4, color = "blue") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=1800, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "standard_length",y="totalthigmo_full_4_minutes") +
+  ggtitle ("Does size/age predict average anxiety? 
+           male only") +
+  geom_smooth(method = "lm")
+
+
+
+```
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does size/age predict anxiety?
+mod<- lm(df$totalthigmo_full_4_minutes ~ df$standard_length, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(totalthigmo_full_4_minutes)) %>% filter(!is.na(standard_length)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df, aes(standard_length, totalthigmo_full_4_minutes))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=1800, y=0.2, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "standard_length",y="totalthigmo_full_4_minutes") +
+  ggtitle ("Does size/age predict average anxiety? ") +
+  geom_smooth(method = "lm")
+
+
+
+```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Does size/age predict average latency to enter correct side?MALE ONLY
@@ -3532,6 +3788,52 @@ p + geom_point(size = 4, color = "blue") +
 ```
 
 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does size/age predict average number of entries?
+mod<- lm(df$average_number_of_entries_full_4_minutes ~ df$standard_length, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% filter(!is.na(standard_length)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df, aes(standard_length, average_number_of_entries_full_4_minutes))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=1800, y=75, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "standard_length",y="average_number_of_entries_full_4_minutes") +
+  ggtitle ("Does size/age predict average number of entries?") +
+  geom_smooth(method = "lm")
+
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does size/age predict average number of unique zones entere?
+mod<- lm(df$unique_zones_entered_full_4_minutes ~ df$standard_length, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(unique_zones_entered_full_4_minutes)) %>% filter(!is.na(standard_length)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df, aes(standard_length, unique_zones_entered_full_4_minutes))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=2500, y=0.6, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "standard_length",y="unique_zones_entered_full_4_minutes") +
+  ggtitle ("Does size/age predict average number of unique zones entered?") +
+  geom_smooth(method = "lm")
+
+
+
+```
+
+
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Does size/age predict average number of unique zones entered? FEMALE ONLY
@@ -3545,7 +3847,7 @@ r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 p <- ggplot(df.females, aes(standard_length, unique_zones_entered_full_4_minutes))
 p + geom_point(size = 4, color = "red") + 
   theme(text = element_text(size=10)) + 
-  annotate("text", x=2500, y=8, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+  annotate("text", x=2500, y=0.6, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") + 
   labs(x= "standard_length",y="unique_zones_entered_full_4_minutes") +
   ggtitle ("Does size/age predict average number of unique zones entered? 
@@ -3555,12 +3857,95 @@ p + geom_point(size = 4, color = "red") +
 
 
 ```
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does size/age predict average number of unique zones entered? MALE ONLY
+mod<- lm(df.males$unique_zones_entered_full_4_minutes ~ df.males$standard_length, na.rm = TRUE)
+summary(mod)
+
+number <- df.males %>% filter(!is.na(unique_zones_entered_full_4_minutes)) %>% filter(!is.na(standard_length)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.males, aes(standard_length, unique_zones_entered_full_4_minutes))
+p + geom_point(size = 4, color = "blue") + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=2500, y=0.6, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "standard_length",y="unique_zones_entered_full_4_minutes") +
+  ggtitle ("Does size/age predict average number of unique zones entered? 
+           male only") +
+  geom_smooth(method = "lm")
+
+
+
+```
+
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+#Does size/age predict if fish have one median above 60?
+shapiro.test(df$standard_length)
+#if not significant, use t test
+
+test<-t.test(df$standard_length ~ df$did_fish_have_a_median_above_60)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df$standard_length~df$did_fish_have_a_median_above_60)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df, aes(x=did_fish_have_a_median_above_60, y=standard_length)) + 
+  geom_boxplot()+ stat_n_text() +
+  geom_text(x=1, y=2000, label= glue::glue("p (t-test)= {round(p_value_t,4)}"), size = 6, color = "black")
+p +  ggtitle ("Does size/age predict if fish have one median above 60?")
+
+```
+
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+#Does size/age predict if fish have one median above 60?FEWMALES
+shapiro.test(df.females$standard_length)
+#if not significant, use t test
+
+test<-t.test(df.females$standard_length ~ df.females$did_fish_have_a_median_above_60)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.females$standard_length~df.females$did_fish_have_a_median_above_60)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.females, aes(x=did_fish_have_a_median_above_60, y=standard_length)) + 
+  geom_boxplot()+ stat_n_text() +
+  geom_text(x=1, y=2000, label= glue::glue("p (wilcox)= {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p +  ggtitle ("Does size/age predict if fish have one median above 60?FEMALES")
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+#Does size/age predict if fish have one median above 60?MALES
+shapiro.test(df.males$standard_length)
+#if not significant, use t test
+
+test<-t.test(df.males$standard_length ~ df.males$did_fish_have_a_median_above_60)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.males$standard_length~df.males$did_fish_have_a_median_above_60)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.males, aes(x=did_fish_have_a_median_above_60, y=standard_length)) + 
+  geom_boxplot()+ stat_n_text() +
+  geom_text(x=1, y=2000, label= glue::glue("p (wilcox)= {round(p_value_wilcox,4)}"), size = 6, color = "black")
+p +  ggtitle ("Does size/age predict if fish have one median above 60?MALES")
+
+```
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Does size/age predict average number of unique zones entered? FEMALE ONLY and removed 1 outlier
 
-df.femalesexcludeoutlier <- df.females %>% filter(unique_zones_entered_full_4_minutes > 5)
+df.femalesexcludeoutlier <- df.females %>% filter(unique_zones_entered_full_4_minutes > 0.6)
 
 mod<- lm(df.femalesexcludeoutlier$unique_zones_entered_full_4_minutes ~ df.femalesexcludeoutlier$standard_length, na.rm = TRUE)
 summary(mod)
@@ -3572,7 +3957,7 @@ r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
 p <- ggplot(df.femalesexcludeoutlier, aes(standard_length, unique_zones_entered_full_4_minutes))
 p + geom_point(size = 4, color = "red") + 
   theme(text = element_text(size=10)) + 
-  annotate("text", x=2500, y=8, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+  annotate("text", x=2500, y=0.6, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
         n = {number}"), size = 6, color = "black") + 
   labs(x= "standard_length",y="unique_zones_entered_full_4_minutes") +
   ggtitle ("Does size/age predict average number of unique zones entered? 
@@ -3684,6 +4069,32 @@ p + geom_point(size = 4, color = "blue") +
 
 
 ```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does size/age predict average reaction time?
+mod<- lm(df$average_reaction_time ~ df$standard_length, na.rm = TRUE)
+summary(mod)
+
+number <- df %>% filter(!is.na(average_reaction_time)) %>% filter(!is.na(standard_length)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df, aes(standard_length, average_reaction_time))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=1800, y=8, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "standard_length",y="average_reaction_time") +
+  ggtitle ("Does size/age predict average reaction time?") +
+  geom_smooth(method = "lm")
+
+
+
+```
+
+
+
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Does size/age predict average latency to enter correct side (filtered)?

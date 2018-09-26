@@ -146,6 +146,8 @@ p
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Does sex predict latency to solve the barrier problem?
+shapiro.test(df.full$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier)
+#if shapiro wilk is NOT significant, use a t test
 
 test<-t.test(df.full$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier~df.full$sex.y)
 p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
@@ -155,8 +157,7 @@ p_value_wilcox<-wilcox_test$p.value
 p <- ggplot(df.full, aes(x=sex.y, y=detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier)) + 
   geom_boxplot()+ stat_n_text() +
   ggtitle('Does sex predict latency to solve the barrier problem?') +
-  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
-                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+  geom_text(x=1, y=0.1, label= glue::glue("p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
 p
 
 
@@ -166,16 +167,18 @@ p
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Does sex predict latency to approach barrier?
 
-test<-t.test(df.full$time_to_barrier_contact_minus_start_time~df.full$sex.x)
+shapiro.test(df.full$time_to_barrier_contact_minus_start_time)
+#if shapiro wilk is NOT significant, use a t test
+
+test<-t.test(df.full$time_to_barrier_contact_minus_start_time~df.full$sex.y)
 p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
-wilcox_test<-wilcox.test(df.full$time_to_barrier_contact_minus_start_time~df.full$sex.x)
+wilcox_test<-wilcox.test(df.full$time_to_barrier_contact_minus_start_time~df.full$sex.y)
 p_value_wilcox<-wilcox_test$p.value
 
-p <- ggplot(df.full, aes(x=sex.x, y=time_to_barrier_contact_minus_start_time)) + 
+p <- ggplot(df.full, aes(x=sex.y, y=time_to_barrier_contact_minus_start_time)) + 
   geom_boxplot()+ stat_n_text() +
   ggtitle('Does sex predict latency to approach barrier') +
-  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
-                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+  geom_text(x=1, y=0.1, label= glue::glue("p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
 p
 
 
@@ -956,6 +959,7 @@ p
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Does standard length predict detour solve?
+shapiro.test(df.full$standard_length) #non-significant, does not deviate from normality, use t test
 test<-t.test(df.full$standard_length ~ df.full$detour_trial_1_did_fish_solve_barrier_problem)
 p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
 wilcox_test<-wilcox.test(df.full$standard_length ~ df.full$detour_trial_1_did_fish_solve_barrier_problem)
@@ -963,10 +967,132 @@ p_value_wilcox<-wilcox_test$p.value
 
 p <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=standard_length)) + 
   geom_boxplot()+ stat_n_text() +
-  ggtitle('Does standard lengthr predict detour solve??') +
-  geom_text(x=1, y=2000, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
-                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+  ggtitle('Does standard length predict detour solve??') +
+  geom_text(x=1, y=2000, label= glue::glue("p (t-test)= {round(p_value_t,4)}"), size = 6, color = "black")
 p
+
+```
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does standard length predict detour solve?FEMALES
+
+shapiro.test(df.full.females$standard_length) #significant, so wilcox
+test<-t.test(df.full.females$standard_length ~ df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.females$standard_length ~ df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.females, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=standard_length)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Does standard length predict detour solve??FEMALES') +
+  geom_text(x=1, y=2000, label= glue::glue("p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "red")
+p
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does standard length predict detour solve?MALES
+
+shapiro.test(df.full.males$standard_length) #significant, so wilcox
+test<-t.test(df.full.males$standard_length ~ df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.full.males$standard_length ~ df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.males, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=standard_length)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle('Does standard length predict detour solve??MALES') +
+  geom_text(x=1, y=2000, label= glue::glue("p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "blue")
+p
+
+```
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does standard length predict latency to solve detour?FEMALES
+
+mod<- lm(df.full.females$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier ~ df.full.females$standard_length)
+summary(mod)
+
+number <- df.full.females %>% filter(!is.na(standard_length)) %>% filter(!is.na(detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.full.females, aes(standard_length, detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=2000, y=0.3,label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "red") + 
+  labs(x= "standard_legnth",y="detour_trial_1_barrier_problem_time
+       _around_barrier_minus_time_to_contact_barrier") +
+  ggtitle ("Note:Does standard length predict latency to solve detour?FEMALES") +
+  geom_smooth(method = "lm")
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does standard length predict latency to approach barrier?FEMALES
+
+mod<- lm(df.full.females$time_to_barrier_contact_minus_start_time ~ df.full.females$standard_length)
+summary(mod)
+
+number <- df.full.females %>% filter(!is.na(standard_length)) %>% filter(!is.na(time_to_barrier_contact_minus_start_time)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.full.females, aes(standard_length, time_to_barrier_contact_minus_start_time))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=2000, y=0.3,label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "red") + 
+  labs(x= "standard_legnth",y="latency to approach barrier") +
+  ggtitle ("Note:Does standard length predict latency to approach barrier?FEMALES") +
+  geom_smooth(method = "lm")
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does standard length predict latency to approach barrier?MALES
+
+mod<- lm(df.full.males$time_to_barrier_contact_minus_start_time ~ df.full.males$standard_length)
+summary(mod)
+
+number <- df.full.males %>% filter(!is.na(standard_length)) %>% filter(!is.na(time_to_barrier_contact_minus_start_time)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.full.males, aes(standard_length, time_to_barrier_contact_minus_start_time))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=2000, y=0.3,label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "blue") + 
+  labs(x= "standard_legnth",y="latency to approach barrier") +
+  ggtitle ("Note:Does standard length predict latency to approach barrier?MALES") +
+  geom_smooth(method = "lm")
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does standard length predict latency to approach barrier?
+
+mod<- lm(df.full$time_to_barrier_contact_minus_start_time ~ df.full$standard_length)
+summary(mod)
+
+number <- df.full %>% filter(!is.na(standard_length)) %>% filter(!is.na(time_to_barrier_contact_minus_start_time)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+p <- ggplot(df.full, aes(standard_length, time_to_barrier_contact_minus_start_time))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=2000, y=0.3,label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6) + 
+  labs(x= "standard_legnth",y="latency to approach barrier") +
+  ggtitle ("Note:Does standard length predict latency to approach barrier?") +
+  geom_smooth(method = "lm")
 
 ```
 
@@ -1299,6 +1425,9 @@ p
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Do individuals who solve the barrier problem have totalmirror_full_4_minutes?males
+shapiro.test(df.full.males$totalmirror_full_4_minutes)
+#if shapiro wilk is NOT significant, use a t test
+
 
 test<-t.test(df.full.males$totalmirror_full_4_minutes~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
 p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
@@ -1309,8 +1438,7 @@ p <- ggplot(df.full.males, aes(x=detour_trial_1_did_fish_solve_barrier_problem, 
   geom_boxplot()+ stat_n_text() +
   ggtitle('Do individuals who solve the barrier problem have 
           totalmirror_full_4_minutes?males') +
-  geom_text(x=1, y=0.1, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
-                                          p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+  geom_text(x=1, y=0.1, label= glue::glue("p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
 p
 
 

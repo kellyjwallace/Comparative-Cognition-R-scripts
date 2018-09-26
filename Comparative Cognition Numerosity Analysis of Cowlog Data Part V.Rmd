@@ -38,7 +38,7 @@ df.full$last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_
 
 
 #WRITE IT OUT IF NEEDED
-write_csv(df.full, 'Full_Comparative_Cognition_Data_Detour_Shuttlebox_Numerosity_July_20_2018.csv')
+write_csv(df.full, 'Full_Comparative_Cognition_Data_Detour_Shuttlebox_Numerosity_August_17_2018.csv')
 
 ```
 

@@ -565,21 +565,21 @@ ggplot(df.full.hist, aes(did_fish_have_a_median_above_60, fill = sex.y))+
   geom_histogram(binwidth = 0.5) + 
   labs(x= "Numerosity learning category",y="Number of individuals") +  
   scale_x_discrete(breaks=c(0, 1)) +
-  annotate("text", x=0.5, y=15, label= glue::glue("Non-learners"), size = 7, color = "black", hjust = 0, fontface = 'italic') +
-  annotate("text", x=1.66, y=25, label= glue::glue("Learners"), size = 7, color = "black", hjust = 0, fontface = 'italic') +
+  #annotate("text", x=0.5, y=15, label= glue::glue("Non-learners"), size = 7, color = "black", hjust = 0, fontface = 'italic') +
+  #annotate("text", x=1.66, y=25, label= glue::glue("Learners"), size = 7, color = "black", hjust = 0, fontface = 'italic') +
   theme(plot.title = element_text(hjust = 0)) +
   theme(text = element_text(size=20)) +
-  annotate("text", x=0.95, y=9, label= glue::glue("6"), size = 7, color = "white", hjust = 0)+
-  annotate("text", x=0.95, y=2, label= glue::glue("7"), size = 7, color = "white", hjust = 0) +
-  annotate("text", x=1.90, y=13, label= glue::glue("12"), size = 7, color = "white", hjust = 0)+
-  annotate("text", x=1.90, y=2, label= glue::glue("11"), size = 7, color = "white", hjust = 0) +
+  #annotate("text", x=0.95, y=9, label= glue::glue("6"), size = 7, color = "white", hjust = 0)+
+  #annotate("text", x=0.95, y=2, label= glue::glue("7"), size = 7, color = "white", hjust = 0) +
+  #annotate("text", x=1.90, y=13, label= glue::glue("12"), size = 7, color = "white", hjust = 0)+
+  #annotate("text", x=1.90, y=2, label= glue::glue("11"), size = 7, color = "white", hjust = 0) +
   scale_color_manual(values=c("deepskyblue4", "darkorange2")) +
   theme(legend.position="left") + 
   #guides(fill=guide_legend(title= "Sex")) +
-  scale_fill_manual(values=c("deepskyblue4", "darkorange2"),name="Sex",labels=c("  Female", "  Male")) + 
-  annotate("text", x=0.3, y=6.1, parse = TRUE, label= glue::glue("{as.character(chisquaredtxt)}"), size = 5, color = "gray39", hjust = 0) + 
-  annotate("text", x=0.47, y=5.9, label= glue::glue("= 0"), size = 6, color = "gray39", hjust = 0, fontface = 'italic') + 
-  annotate("text", x=0.36, y=3.6, label= glue::glue("p = 1"), size = 6, color = "gray39", hjust = 0, fontface = 'italic')
+  scale_fill_manual(values=c("deepskyblue4", "darkorange2"),name="Sex",labels=c("  Female", "  Male")) #+ 
+  #annotate("text", x=0.3, y=6.1, parse = TRUE, label= glue::glue("{as.character(chisquaredtxt)}"), size = 5, color = "gray39", hjust = 0) + 
+  #annotate("text", x=0.47, y=5.9, label= glue::glue("= 0"), size = 6, color = "gray39", hjust = 0, fontface = 'italic') + 
+  #annotate("text", x=0.36, y=3.6, label= glue::glue("p = 1"), size = 6, color = "gray39", hjust = 0, fontface = 'italic')
 
 #to get the numbers I ran variations of this code: nrow(df.full.males%>% filter(did_fish_have_a_median_above_60 == 1))
 #female solvers = 12
@@ -612,20 +612,20 @@ ggplot(df.full.hist2, aes(detour_trial_1_did_fish_solve_barrier_problem, fill = 
   geom_histogram(binwidth = 0.5) + 
   labs(x= "Detour maze Learning Category",y="Number of individuals") +  
   scale_x_discrete(breaks=c(0, 1)) +
-  annotate("text", x=-0.48, y=27, label= glue::glue("Non-learners"), size = 7, color = "black", hjust = 0) +
-  annotate("text", x=0.63, y=29, label= glue::glue("Learners"), size = 7, color = "black", hjust = 0) +
-  theme(plot.title = element_text(hjust = 0))+
-  annotate("text", x=-0.12, y=14, label= glue::glue("13"), size = 7, color = "white", hjust = 0)+
-  annotate("text", x=-0.12, y=2, label= glue::glue("12"), size = 7, color = "white", hjust = 0) +
-  annotate("text", x=0.88, y=14.6, label= glue::glue("14"), size = 7, color = "white", hjust = 0)+
-  annotate("text", x=0.88, y=2, label= glue::glue("13"), size = 7, color = "white", hjust = 0) +
+  #annotate("text", x=-0.48, y=27, label= glue::glue("Non-learners"), size = 7, color = "black", hjust = 0) +
+  #annotate("text", x=0.63, y=29, label= glue::glue("Learners"), size = 7, color = "black", hjust = 0) +
+  theme(plot.title = element_text(hjust = 0)) +
+  #annotate("text", x=-0.12, y=14, label= glue::glue("13"), size = 7, color = "white", hjust = 0)+
+  #annotate("text", x=-0.12, y=2, label= glue::glue("12"), size = 7, color = "white", hjust = 0) +
+  #annotate("text", x=0.88, y=14.6, label= glue::glue("14"), size = 7, color = "white", hjust = 0)+
+  #annotate("text", x=0.88, y=2, label= glue::glue("13"), size = 7, color = "white", hjust = 0) +
   scale_color_manual(values=c("deepskyblue4", "darkorange2")) +
   theme(legend.position="left") + 
   #guides(fill=guide_legend(title= "Sex")) +
-  scale_fill_manual(values=c("deepskyblue4", "darkorange2"),name="Sex",labels=c("  Female", "  Male"))+ 
-  annotate("text", x=-0.79, y=6.1, parse = TRUE, label= glue::glue("{as.character(chisquaredtxt)}"), size = 5, color = "gray39", hjust = 0) + 
-  annotate("text", x=-0.65, y=5.87, label= glue::glue("= 0"), size = 6, color = "gray39", hjust = 0, fontface = 'italic') + 
-  annotate("text", x=-0.8, y=3.6, label= glue::glue("p = 1"), size = 6, color = "gray39", hjust = 0, fontface = 'italic')
+  scale_fill_manual(values=c("deepskyblue4", "darkorange2"),name="Sex",labels=c("  Female", "  Male")) #+ 
+  #annotate("text", x=-0.79, y=6.1, parse = TRUE, label= glue::glue("{as.character(chisquaredtxt)}"), size = 5, color = "gray39", hjust = 0) + 
+  #annotate("text", x=-0.65, y=5.87, label= glue::glue("= 0"), size = 6, color = "gray39", hjust = 0, fontface = 'italic') + 
+  #annotate("text", x=-0.8, y=3.6, label= glue::glue("p = 1"), size = 6, color = "gray39", hjust = 0, fontface = 'italic')
   
 #to get the numbers I ran variations of this code: nrow(df.full.males%>% filter(detour_trial_1_did_fish_solve_barrier_problem == 1))
 solvers = c(14,13)
