@@ -18,6 +18,8 @@ library(rmarkdown)
 library(knitr)
 library(readr)
 library(utils)
+library(irr)
+library(tidyr)
 
 ```
 
@@ -401,6 +403,236 @@ sd(df$reaction_time) #0.323 or an std of 0.3 seconds
 
 ```
 
+```{r, echo=FALSE, message=FALSE}
+#ok so I have to get some kind of "correlation" measure- ICC correlation
+
+#parameters I should keep in mind:
+
+#
+#ICC for ratio variables (proportions)
+#two way model because not everyone scored everything
+#aboslute agreeement (not consistency, because the raters should have scores that are similar in absolute value)
+#single-measures (because subset of videos are coded for validation)
+#use a random effects model because coders are a subset?
+#scorers should be the columns, and zones should be rows
+
+View(df$scorername)
+
+df.icc<- df%>% select(entries_full_4_minutes,totalmirror_full_4_minutes,reaction_time,center_full_4_minutes,leftscreen_T30_to_T50,unique_zones_entered,totalthigmo_full_4_minutes,rightscreen_T30_to_T50)
+
+View(df.icc)
+df.icc$entries_full_4_minutes<-as.numeric(df.icc$entries_full_4_minutes)
+df.icc$totalmirror_full_4_minutes<-as.numeric(df.icc$totalmirror_full_4_minutes)
+df.icc$reaction_time<-as.numeric(df.icc$reaction_time)
+df.icc$center_full_4_minutes<-as.numeric(df.icc$center_full_4_minutes)
+df.icc$leftscreen_T30_to_T50<-as.numeric(df.icc$leftscreen_T30_to_T50)
+df.icc$unique_zones_entered<-as.numeric(df.icc$unique_zones_entered)
+df.icc$totalthigmo_full_4_minutes<-as.numeric(df.icc$totalthigmo_full_4_minutes)
+df.icc$rightscreen_T30_to_T50<-as.numeric(df.icc$rightscreen_T30_to_T50)
+
+df.icctrans<-data.matrix(df.icc)
+df.icctrans<-t(df.icctrans)
+
+
+View(df.icctrans)
+
+
+
+
+
+
+icc(df.icctrans, model="twoway", type="agreement", unit="single")
+
+
+
+
+```
+
+
+
+#NOW TO DO THE SAME FOR DETOUR- I'M GOING TO MAKE MY OWN DATASET based off of the scores I compared to daniel and caleb
+#look at detour hand score data han 2018 for original
+
+
+
+
+```{r, echo=FALSE, message=FALSE}
+
+det<-data.frame(matrix(NA, nrow = 53, ncol = 3))
+names(det)<-c("KW","CF","DH")
+det$KW[1]<-9
+det$KW[2]<-6
+det$KW[3]<-10
+det$KW[4]<-14
+det$KW[5]<-8
+det$KW[6]<-6
+det$KW[7]<-7
+det$KW[8]<-6
+det$KW[9]<-5
+det$KW[10]<-5
+det$KW[11]<-19
+det$KW[12]<-31
+det$KW[13]<-49
+det$KW[14]<-88
+det$KW[15]<-34
+det$KW[16]<-121
+det$KW[17]<-19
+det$KW[18]<-12
+det$KW[19]<-10
+det$KW[20]<-20
+det$KW[21]<-39
+det$KW[22]<-54
+det$KW[23]<-92
+det$KW[24]<-37
+det$KW[25]<-124
+det$KW[26]<-21
+det$KW[27]<-16
+det$KW[28]<-14
+det$KW[29]<-207
+det$KW[30]<-258
+det$KW[31]<-45
+det$KW[32]<-541
+det$KW[33]<-46
+det$KW[34]<-46
+det$KW[35]<-107
+det$KW[36]<-36
+det$KW[37]<-209
+det$KW[38]<-262
+det$KW[39]<-47
+det$KW[41]<-548
+det$KW[42]<-55
+det$KW[43]<-49
+det$KW[44]<-107
+det$KW[45]<-297
+det$KW[46]<-27
+det$KW[47]<-13
+det$KW[48]<-69
+det$KW[49]<-49
+det$KW[50]<-13
+det$KW[51]<-489
+det$KW[52]<-135
+
+det$CF[1]<-8
+det$CF[2]<-7
+det$CF[3]<-9
+det$CF[4]<-14
+det$CF[5]<-8
+det$CF[6]<-NA
+det$CF[7]<-NA
+det$CF[8]<-NA
+det$CF[9]<-NA
+det$CF[10]<-NA
+det$CF[11]<-19
+det$CF[12]<-31
+det$CF[13]<-49
+det$CF[14]<-87
+det$CF[15]<-NA
+det$CF[16]<-NA
+det$CF[17]<-NA
+det$CF[18]<-NA
+det$CF[19]<-NA
+det$CF[20]<-20
+det$CF[21]<-38
+det$CF[22]<-54
+det$CF[23]<-93
+det$CF[24]<-NA
+det$CF[25]<-NA
+det$CF[26]<-NA
+det$CF[27]<-NA
+det$CF[28]<-NA
+det$CF[29]<-207
+det$CF[30]<-258
+det$CF[31]<-44
+det$CF[32]<-540
+det$CF[33]<-NA
+det$CF[34]<-NA
+det$CF[35]<-NA
+det$CF[36]<-NA
+det$CF[37]<-211
+det$CF[38]<-262
+det$CF[39]<-47
+det$CF[41]<-548
+det$CF[42]<-NA
+det$CF[43]<-NA
+det$CF[44]<-NA
+det$CF[45]<-NA
+det$CF[46]<-25
+det$CF[47]<-10
+det$CF[48]<-65
+det$CF[49]<-NA
+det$CF[50]<-NA
+det$CF[51]<-NA
+det$CF[52]<-NA
+
+
+det$DH[1]<-NA
+det$DH[2]<-NA
+det$DH[3]<-NA
+det$DH[4]<-NA
+det$DH[5]<-NA
+det$DH[6]<-6
+det$DH[7]<-10
+det$DH[8]<-8
+det$DH[9]<-5
+det$DH[10]<-5
+det$DH[11]<-NA
+det$DH[12]<-NA
+det$DH[13]<-NA
+det$DH[14]<-NA
+det$DH[15]<-34
+det$DH[16]<-120
+det$DH[17]<-18
+det$DH[18]<-12
+det$DH[19]<-10
+det$DH[20]<-NA
+det$DH[21]<-NA
+det$DH[22]<-NA
+det$DH[23]<-NA
+det$DH[24]<-38
+det$DH[25]<-124
+det$DH[26]<-24
+det$DH[27]<-17
+det$DH[28]<-15
+det$DH[29]<-NA
+det$DH[30]<-NA
+det$DH[31]<-NA
+det$DH[32]<-NA
+det$DH[33]<-46
+det$DH[34]<-46
+det$DH[35]<-106
+det$DH[36]<-37
+det$DH[37]<-NA
+det$DH[38]<-NA
+det$DH[39]<-NA
+det$DH[41]<-NA
+det$DH[42]<-54
+det$DH[43]<-49
+det$DH[44]<-108
+det$DH[45]<-300
+det$DH[46]<-NA
+det$DH[47]<-NA
+det$DH[48]<-NA
+det$DH[49]<-50
+det$DH[50]<-11
+det$DH[51]<-512
+det$DH[52]<-141
+
+for(i in 1:52){
+det$KW[i]<-as.numeric(det$KW[i])
+det$CF[i]<-as.numeric(det$CF[i])
+det$DH[i]<-as.numeric(det$DH[i])
+}
+
+det.KC<-det%>%select(KW, CF)
+det.KD<-det%>%select(KW,DH)
+
+View(det)
+
+icc(det.KC, model="twoway", type="agreement", unit="single")
+icc(det.KD, model="twoway", type="agreement", unit="single")
+
+
+```
 
 
 

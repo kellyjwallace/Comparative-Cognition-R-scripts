@@ -126,7 +126,7 @@ p + geom_point(size = 3) +
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-#Does sex predict solving the barrier problem?
+#Does sex predict solving the barrier problem? THIS IS A PROBLEM BECAUSE TWO CATEGORICAL
 
 test<-t.test(df.full$detour_trial_1_did_fish_solve_barrier_problem~df.full$sex.y)
 p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
@@ -155,9 +155,12 @@ wilcox_test<-wilcox.test(df.full$detour_trial_1_barrier_problem_time_around_barr
 p_value_wilcox<-wilcox_test$p.value
 
 p <- ggplot(df.full, aes(x=sex.y, y=detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier)) + 
-  geom_boxplot()+ stat_n_text() +
-  ggtitle('Does sex predict latency to solve the barrier problem?') +
-  geom_text(x=1, y=0.1, label= glue::glue("p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+  geom_boxplot(lwd=1)+ stat_n_text(size = 5) + theme_minimal() +
+  geom_text(x=1, y=-10, label= glue::glue("p= {round(p_value_t,4)}"), size = 5, color = "gray27", fontface = 'italic') +
+  labs(x= "Sex",y="Time to solve detour maze", size = 20, color = "gray39", fontface = 'italic') +
+  scale_x_discrete(breaks=c('F','M'),labels=c("Female", "Male")) + theme(axis.text.y = element_text(size = 20)) + theme(axis.text.x = element_text(size = 20)) +
+  theme(axis.text.y = element_text(size = 17)) + theme(axis.text.x = element_text(size = 17)) +
+  theme(axis.title = element_text(size = 17))
 p
 
 
@@ -176,9 +179,10 @@ wilcox_test<-wilcox.test(df.full$time_to_barrier_contact_minus_start_time~df.ful
 p_value_wilcox<-wilcox_test$p.value
 
 p <- ggplot(df.full, aes(x=sex.y, y=time_to_barrier_contact_minus_start_time)) + 
-  geom_boxplot()+ stat_n_text() +
+  geom_boxplot(lwd=1, outlier.colour = "black")+ stat_n_text(size = 5) +
   ggtitle('Does sex predict latency to approach barrier') +
-  geom_text(x=1, y=0.1, label= glue::glue("p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black")
+  geom_text(x=1, y=0.1, label= glue::glue("p(wilcox) = {round(p_value_wilcox,4)}"), size = 6, color = "black") +
+  scale_x_discrete(breaks=c(0, 1),labels=c("Females", "Males")) + theme(axis.text.y = element_text(size = 14)) + theme(axis.text.x = element_text(size = 14))
 p
 
 
@@ -1836,6 +1840,151 @@ p
 
 
 ```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does size/age predict detour latency to solve?
+mod<- lm(df.full$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier ~ df.full$standard_length, na.rm = TRUE)
+summary(mod)
+
+number <- df.full %>% filter(!is.na(detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier)) %>% filter(!is.na(standard_length)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+
+p <- ggplot(df.full, aes(standard_length, detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=1800, y=30, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "standard_length",y="detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier") +
+  ggtitle ("Does size/age predict detour latency to solve? SEXES COMBINED") +
+  geom_smooth(method = "lm")
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does size/age predict detour latency to solve?MALES
+mod<- lm(df.full.males$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier ~ df.full.males$standard_length, na.rm = TRUE)
+summary(mod)
+
+number <- df.full.males %>% filter(!is.na(detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier)) %>% filter(!is.na(standard_length)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+
+p <- ggplot(df.full.males, aes(standard_length, detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=1800, y=30, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "standard_length",y="detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier") +
+  ggtitle ("Does size/age predict detour latency to solve? MALES") +
+  geom_smooth(method = "lm")
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does size/age predict detour latency to solve?females
+mod<- lm(df.full.females$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier ~ df.full.females$standard_length, na.rm = TRUE)
+summary(mod)
+
+number <- df.full.females %>% filter(!is.na(detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier)) %>% filter(!is.na(standard_length)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+
+p <- ggplot(df.full.females, aes(standard_length, detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=1800, y=30, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "standard_length",y="detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier") +
+  ggtitle ("Does size/age predict detour latency to solve? females") +
+  geom_smooth(method = "lm")
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does size/age predict detour motivation?
+mod<- lm(df.full$time_to_barrier_contact_minus_start_time ~ df.full$standard_length, na.rm = TRUE)
+summary(mod)
+
+number <- df.full %>% filter(!is.na(time_to_barrier_contact_minus_start_time)) %>% filter(!is.na(standard_length)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+
+p <- ggplot(df.full, aes(standard_length, time_to_barrier_contact_minus_start_time))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=1800, y=30, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "standard_length",y="time_to_barrier_contact_minus_start_time") +
+  ggtitle ("Does size/age predict detour motivation? SEXES COMBINED") +
+  geom_smooth(method = "lm")
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does size/age predict detour motivation?MALES
+mod<- lm(df.full.males$time_to_barrier_contact_minus_start_time ~ df.full.males$standard_length, na.rm = TRUE)
+summary(mod)
+
+number <- df.full.males %>% filter(!is.na(time_to_barrier_contact_minus_start_time)) %>% filter(!is.na(standard_length)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+
+p <- ggplot(df.full.males, aes(standard_length, time_to_barrier_contact_minus_start_time))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=1800, y=30, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "standard_length",y="time_to_barrier_contact_minus_start_time") +
+  ggtitle ("Does size/age predict detour motivation? MALES") +
+  geom_smooth(method = "lm")
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does size/age predict detour motivation?females
+mod<- lm(df.full.females$time_to_barrier_contact_minus_start_time ~ df.full.females$standard_length, na.rm = TRUE)
+summary(mod)
+
+number <- df.full.females %>% filter(!is.na(time_to_barrier_contact_minus_start_time)) %>% filter(!is.na(standard_length)) %>% nrow
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+r_squared <- mod %>% broom::glance() %>% select(r.squared) %>% unlist
+
+
+p <- ggplot(df.full.females, aes(standard_length, time_to_barrier_contact_minus_start_time))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=1800, y=30, label= glue::glue("p = {round(p_value,4)}, R-squared:  {round(r_squared,3)}
+        n = {number}"), size = 6, color = "black") + 
+  labs(x= "standard_length",y="time_to_barrier_contact_minus_start_time") +
+  ggtitle ("Does size/age predict detour motivation? females") +
+  geom_smooth(method = "lm")
+
+
+```
+
+
+
+
+######
+
+
+
+
 
 COMPARE NUMEROSITY AND DETOUR
 Does latency to solve barrier problem predict average performance (full 4 minutes)?

@@ -81,6 +81,9 @@ library(coin)
 
 df<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Comparative Cognition R Scripts/Numerosity Comparative Cognition Full Dataset July_20_2018.csv", col_names = TRUE, col_types = NULL)
 
+
+df$sexsolve<- paste(df$sex,df$did_fish_have_a_median_above_60)
+
 df$number_of_medians_above_60_using_full_4_minutes_data<-as.factor(df$number_of_medians_above_60_using_full_4_minutes_data)
 df$number_of_medians_above_60_using_T30_to_T50_data<-as.factor(df$number_of_medians_above_60_using_T30_to_T50_data)
 df$number_of_medians_above_60_using_T30_to_T50_data_two_and_three_combined<-as.factor(df$number_of_medians_above_60_using_T30_to_T50_data_two_and_three_combined)
@@ -99,6 +102,12 @@ df<-full_join(df.males,df.females)
 
 View(df)
 
+df.ordered<-df[order(df$fish_name),]
+df.ordered.g<-df.ordered[1:18,]
+df.ordered.w<-df.ordered[19:36,]
+df.ordered.g<-mutate(df.ordered.g, high_or_low = "H")
+df.ordered.w<-mutate(df.ordered.w, high_or_low = "L")
+df.ordered<-rbind(df.ordered.g, df.ordered.w)
 
 ```
 
@@ -121,6 +130,29 @@ p + geom_point(size = 4) +
   labs(x= "XXX",y="XXX") +
   ggtitle ("XXX") +
   geom_smooth(method = "lm")
+  
+  
+  
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+#Does high_or_low predict avg performance
+shapiro.test(df.ordered$average_performance_across_all_9_testing_trials_using_T30_to_T50_data)
+#if it is significant we use wilcox
+
+
+test<-t.test(df.ordered$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.ordered$high_or_low)
+p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
+wilcox_test<-wilcox.test(df.ordered$average_performance_across_all_9_testing_trials_using_T30_to_T50_data~ df.ordered$high_or_low)
+wilcox_test$estimate
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.ordered, aes(x=high_or_low, y=average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) + 
+  geom_boxplot()+ stat_n_text() +
+  geom_text(x=1,y=0.2, label= glue::glue("p (t-test)= {round(p_value_t,4)}, 
+                                        "), size = 6, color = "black")
+p +  ggtitle ("Does high_or_low predict avg performance?")
+```
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -2654,6 +2686,7 @@ p + geom_point(size = 4) +
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Does average number of entries predict average performance (T30 to T50)? separated by sex
+#interaction
 mod<-lm(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df$average_number_of_entries_full_4_minutes * df$sex)
 
 number <- df %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% nrow
@@ -2666,7 +2699,7 @@ p + geom_point(size = 4) +
   theme(text = element_text(size=10)) + 
   annotate("text", x=50, y=0.2, label= glue::glue("p (interaction)= {round(p_value,4)} 
   n = {number}"), size = 6, color = "black") + 
-  labs(x= "average_number_of_entries_full_4_minutes",y="average_performance_across_all_9_testing_trials
+  labs(x= "Activity (average number of entries)",y="average_performance_across_all_9_testing_trials
        _using_T30_to_T50_data") +
   ggtitle ("Does average number of entries predict average performance (T30 to T50)?") +
   geom_smooth(method = "lm")
@@ -2674,6 +2707,33 @@ p + geom_point(size = 4) +
 
 
 ```
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Does average unique zones entered (exploration) predict average performance (T30 to T50)? separated by sex
+#interaction
+mod<-lm(df$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df$unique_zones_entered_full_4_minutes * df$sex)
+
+number <- df %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(unique_zones_entered_full_4_minutes)) %>% nrow
+p_value<- coef(summary(mod))%>%as.list()
+p_value<-p_value[[16]]
+
+
+p <- ggplot(df, aes(unique_zones_entered_full_4_minutes, average_performance_across_all_9_testing_trials_using_T30_to_T50_data, color = sex))
+p + geom_point(size = 4) + 
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.6, y=0.2, label= glue::glue("p (interaction)= {round(p_value,4)} 
+  n = {number}"), size = 6, color = "black") + 
+  labs(x= "Activity (average number of entries)",y="average_performance_across_all_9_testing_trials
+       _using_T30_to_T50_data") +
+  ggtitle ("Does average unique zones entered (exploration) predict average performance (T30 to T50)?") +
+  geom_smooth(method = "lm")
+
+
+
+```
+
 
 
 
@@ -4242,9 +4302,6 @@ p + geom_point(size = 4) +
 
 
 ```
-
-
-
 
 
 
@@ -6071,6 +6128,71 @@ p +  ggtitle ("Does learning 1+ median predict XXX? males")
 p
 
 ```
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+fit <- aov(average_number_of_entries_full_4_minutes ~ sexsolve, data=df) 
+p_value_ANOVA<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+#kruskalfit<-kruskal.test(average_number_of_entries_full_4_minutes ~ sexsolve, data=df)
+#p_value_kruskal<- kruskalfit$p.value
+
+
+#Does sex and solve interaction predict activity?
+
+p <- ggplot(df, aes(x=sexsolve, y=average_number_of_entries_full_4_minutes, color = sex)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle ('Does sex and solve interaction predict activity?') +
+  geom_text(x=2, y=10, label= glue::glue("p (ANOVA) = {round(p_value_ANOVA,4)}"), size = 6, color = "black")
+p
+
+
+
+```
+
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+fit <- aov(average_reaction_time ~ sexsolve, data=df) 
+p_value_ANOVA<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+
+
+
+#Does sex and solve interaction predict activity?
+
+p <- ggplot(df, aes(x=sexsolve, y=average_reaction_time, color = sex)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle ('Does sex and solve interaction predict reaction time?') +
+  geom_text(x=2, y=10, label= glue::glue("p (ANOVA) = {round(p_value_ANOVA,4)}"), size = 6, color = "black")
+p
+
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+fit <- aov(unique_zones_entered_full_4_minutes ~ sexsolve, data=df) 
+p_value_ANOVA<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+
+
+
+#Does sex and solve interaction predict activity?
+
+p <- ggplot(df, aes(x=sexsolve, y=unique_zones_entered_full_4_minutes, color = sex)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle ('Does sex and solve interaction predict exploration?') +
+  geom_text(x=2, y=0.3, label= glue::glue("p (ANOVA) = {round(p_value_ANOVA,4)}"), size = 6, color = "black")
+p
+
+
+
+```
+
 
 #############TEMPLATE
 
