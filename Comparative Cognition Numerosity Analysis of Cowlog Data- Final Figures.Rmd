@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 
-```{r cars}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(ggplot2)
 library(dplyr)
 library(rmarkdown)
@@ -26,9 +26,6 @@ library(waffle)
 library(extrafont)
 #font_import()
 
-
-#shuttle<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/shuttlebox_data_May_24_2018.csv")
-#alternatively:
 shuttle<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Comparative Cognition Shuttlebox Data december 20 2018 30 seconds.csv")
 
 det<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Detour/detour_data_for_R_April_5_2018.csv")
@@ -49,19 +46,147 @@ df.full.males<- df.full %>% filter(sex.x == "M")
 
 ```
 
+#FIGURE 1
+#A- HISTOGRAM: Shuttlebox learning category (did fish learn of screen time 50% within 10 cm 3 consecutive trials in a row before they gave up), number of learners vs nonlearners, colored by sex
+#B- HISTOGRAM: numerical discrimination learning category (did fish have a median above 60), number of learners vs nonlearners, colored by sex
+#C- HISTOGRAM: detour learning category (did fish successfully navigate around barrier), number of learners vs nonlearners, colored by sex
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+df.full.numhist<-df.full%>%filter(is.na(df.full$did_fish_have_a_median_above_60) == FALSE)
+df.full.numhist$did_fish_have_a_median_above_60<-as.numeric(df.full.numhist$did_fish_have_a_median_above_60)
+solvers = c(12,11)
+nonsolvers = c(6,7)
+numsolvesex<-data.frame(solvers,nonsolvers)
+chisq.test(numsolvesex)
+
+plot1A<- ggplot(df.full.numhist, aes(did_fish_have_a_median_above_60, fill = sex.y))+
+  geom_histogram(binwidth = 0.5) + 
+  labs(x= "numerical discrimination",y="number of individuals") +  
+  scale_x_discrete(breaks=c(0, 1)) +
+  scale_y_continuous(limits =c(0,30), breaks =seq(0,30,5)) +
+  annotate("text", x=-0.5, y=15, label= glue::glue("Non-learners"), size = 7, color = "black", hjust = 0, fontface = 'italic') +
+  annotate("text", x=0.66, y=25, label= glue::glue("Learners"), size = 7, color = "black", hjust = 0, fontface = 'italic') +
+  theme(plot.title = element_text(hjust = 0)) +
+  theme(text = element_text(size=20)) +
+  annotate("text", x=-0.06, y=8.6, label= glue::glue("6"), size = 8, color = "white", hjust = 0)+
+  annotate("text", x=-0.06, y=2, label= glue::glue("7"), size = 8, color = "white", hjust = 0) +
+  annotate("text", x=0.9, y=13, label= glue::glue("12"), size = 8, color = "white", hjust = 0)+
+  annotate("text", x=0.9, y=2, label= glue::glue("11"), size = 8, color = "white", hjust = 0) +
+  scale_color_manual(values=c("maroon", "lightblue")) +
+  theme(legend.position="left") + 
+  scale_fill_manual(values=c("maroon", "lightblue"),name="Sex",labels=c("  Female", "  Male")) #+ 
+  #annotate("text", x=-0.8, y=6.1, parse = TRUE, label= glue::glue("{as.character(chisquaredtxt)}"), size = 5, color = "gray39", hjust = 0) + 
+  #annotate("text", x=-0.7, y=5.9, label= glue::glue("= 0"), size = 6, color = "gray39", hjust = 0, fontface = 'italic') + 
+  #annotate("text", x=-0.8, y=3.6, label= glue::glue("p = 1"), size = 6, color = "gray39", hjust = 0, fontface = 'italic')
+
+plot1A
+
+
+
+df.full.dethist<-df.full%>%filter(is.na(df.full$detour_trial_1_did_fish_solve_barrier_problem) == FALSE)
+df.full.dethist$detour_trial_1_did_fish_solve_barrier_problem<-as.numeric(df.full.dethist$detour_trial_1_did_fish_solve_barrier_problem)
+detsolvers = c(14,13)
+detnonsolvers = c(13,12)
+detsolvesex<-data.frame(detsolvers,detnonsolvers)
+chisq.test(detsolvesex)
+
+plot1B<- ggplot(df.full.dethist, aes(detour_trial_1_did_fish_solve_barrier_problem, fill = sex.x))+
+  geom_histogram(binwidth = 0.5) + 
+  labs(x= "detour maze",y="number of individuals") +  
+  scale_x_discrete(breaks=c(0, 1)) +
+  scale_y_continuous(limits =c(0,30), breaks =seq(0,30,5)) +
+  annotate("text", x=-0.5, y=27, label= glue::glue("Non-solvers"), size = 7, color = "black", hjust = 0, fontface = 'italic') +
+  annotate("text", x=0.7, y=29, label= glue::glue("Solvers"), size = 7, color = "black", hjust = 0, fontface = 'italic') +
+  theme(plot.title = element_text(hjust = 0)) +
+  theme(text = element_text(size=20)) +
+  annotate("text", x=-0.12, y=14, label= glue::glue("13"), size = 8, color = "white", hjust = 0)+
+  annotate("text", x=-0.12, y=2, label= glue::glue("12"), size = 8, color = "white", hjust = 0) +
+  annotate("text", x=0.88, y=15, label= glue::glue("14"), size = 8, color = "white", hjust = 0)+
+  annotate("text", x=0.88, y=2, label= glue::glue("13"), size = 8, color = "white", hjust = 0) +
+  scale_color_manual(values=c("maroon", "lightblue")) +
+  theme(legend.position="left") + 
+  scale_fill_manual(values=c("maroon", "lightblue"),name="Sex",labels=c("  Female", "  Male")) #+ 
+  #annotate("text", x=-0.8, y=6.1, parse = TRUE, label= glue::glue("{as.character(chisquaredtxt)}"), size = 5, color = "gray39", hjust = 0) + 
+  #annotate("text", x=-0.7, y=5.9, label= glue::glue("= 0"), size = 6, color = "gray39", hjust = 0, fontface = 'italic') + 
+  #annotate("text", x=-0.8, y=3.6, label= glue::glue("p = 1"), size = 6, color = "gray39", hjust = 0, fontface = 'italic')
+
+plot1B
+
+
+
+df.full.shuthist<-df.full%>%filter(is.na(df.full$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive) == FALSE)
+df.full.shuthist$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive<-as.numeric(df.full.shuthist$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive)
+
+df.full.shuthist%>%filter(sex.x == "M") %>%filter(did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive == 1) %>%filter(did_fish_participate_criterion7 == 1) %>%nrow
+df.full.shuthist%>%filter(sex.x == "F") %>%filter(did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive == 1) %>%filter(did_fish_participate_criterion7 == 1)%>%nrow
+
+
+df.full.shuthist%>%filter(sex.x == "M") %>%filter(did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive == 0) %>%filter(did_fish_participate_criterion7 == 1)%>%nrow
+df.full.shuthist%>%filter(sex.x == "F") %>%filter(did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive == 0) %>%filter(did_fish_participate_criterion7 == 1)%>%nrow
+
+shutsolvers = c(0,7)
+shutnonsolvers = c(17,12)
+shutsolvesex<-data.frame(shutsolvers,shutnonsolvers)
+chisq.test(shutsolvesex)
+
+plot1C<- ggplot(df.full.shuthist, aes(detour_trial_1_did_fish_solve_barrier_problem, fill = sex.x))+
+  geom_histogram(binwidth = 0.5) + 
+  labs(x= "detour maze",y="number of individuals") +  
+  scale_x_discrete(breaks=c(0, 1)) +
+  scale_y_continuous(limits =c(0,30), breaks =seq(0,30,5)) +
+  annotate("text", x=-0.5, y=27, label= glue::glue("Non-solvers"), size = 7, color = "black", hjust = 0, fontface = 'italic') +
+  annotate("text", x=0.7, y=29, label= glue::glue("Solvers"), size = 7, color = "black", hjust = 0, fontface = 'italic') +
+  theme(plot.title = element_text(hjust = 0)) +
+  theme(text = element_text(size=20)) +
+  annotate("text", x=-0.12, y=14, label= glue::glue("13"), size = 8, color = "white", hjust = 0)+
+  annotate("text", x=-0.12, y=2, label= glue::glue("12"), size = 8, color = "white", hjust = 0) +
+  annotate("text", x=0.88, y=15, label= glue::glue("14"), size = 8, color = "white", hjust = 0)+
+  annotate("text", x=0.88, y=2, label= glue::glue("13"), size = 8, color = "white", hjust = 0) +
+  scale_color_manual(values=c("maroon", "lightblue")) +
+  theme(legend.position="left") + 
+  scale_fill_manual(values=c("maroon", "lightblue"),name="Sex",labels=c("  Female", "  Male")) #+ 
+  #annotate("text", x=-0.8, y=6.1, parse = TRUE, label= glue::glue("{as.character(chisquaredtxt)}"), size = 5, color = "gray39", hjust = 0) + 
+  #annotate("text", x=-0.7, y=5.9, label= glue::glue("= 0"), size = 6, color = "gray39", hjust = 0, fontface = 'italic') + 
+  #annotate("text", x=-0.8, y=3.6, label= glue::glue("p = 1"), size = 6, color = "gray39", hjust = 0, fontface = 'italic')
+
+plot1C
 
 
 
 
 
+```
 
 
 
+#FIGURE 2
+#A- SCATTER PLOT: numerosity reaction time by average performance, FEMALES
+#B- SCATTER PLOT:numerosity exploration by average performance, FEMALES
+#C- SCATTER PLOT:numerosity avtivity by average performance, FEMALES
+#D- SCATTER PLOT:numerosity reaction time by average performance, MALES
+#E- SCATTER PLOT:numerosity exploration by average performance, MALES
+#F- SCATTER PLOT:numerosity activity by average performance, MALES
+#G- BOXPLOT: numerosity reaction time across the four groups: male learners, male nonlearners, female learners, female nonlearners
+#H- BOXPLOT: numerosity exploration across the four groups: male learners, male nonlearners, female learners, female nonlearners
+#I- BOXPLOT: numerosity activity across the four groups: male learners, male nonlearners, female learners, female nonlearners
+
+
+#FIGURE 2 ALTERNATIVE
+#A- SCATTER PLOT: numerosity reaction time by average performance, colored by sex
+#B- SCATTER PLOT: numerosity exploration by average performance, colored by sex
+#C- SCATTER PLOT: numerosity activity time by average performance, colored by sex
 
 
 
+#FIGURE 3
+#A- BOXPLOT: detour learning category by average numerosity performnace, sexes combined
+#B- BOXPLOT: detour learning category by average numerosity performnace, MALES
+#C- BOXPLOT: detour learning category by average numerosity performnace, FEMALES
 
 
+
+#FIGURE 4
+#gcDFA
 
 
 
@@ -434,7 +559,7 @@ plot1
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 
 df.full$did_fish_have_a_median_above_60<- as.factor(df.full$did_fish_have_a_median_above_60)
-shapiro.test(df.full.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data)
+shapiro.test(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data)
 test<-t.test(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data~df.full$did_fish_have_a_median_above_60)
 p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
 wilcox_test<-wilcox.test(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data~df.full$did_fish_have_a_median_above_60)
@@ -450,7 +575,7 @@ plot1
 
 
 shapiro.test(df.full$average_number_of_entries_full_4_minutes)
-test<-t.test(df$average_number_of_entries_full_4_minutes~df$did_fish_have_a_median_above_60)
+test<-t.test(df.full$average_number_of_entries_full_4_minutes~df$did_fish_have_a_median_above_60)
 p_value_t<- test %>% broom::tidy() %>% select(p.value) %>% unlist
 wilcox_test<-wilcox.test(df$average_number_of_entries_full_4_minutes~df$did_fish_have_a_median_above_60)
 p_value_wilcox<-wilcox_test$p.value

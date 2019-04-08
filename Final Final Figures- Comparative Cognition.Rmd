@@ -1,0 +1,688 @@
+---
+title: "Final Final Figures- Comparative Cognition"
+author: "Kelly Wallace"
+date: "March 20, 2019"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#SETUP
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(dplyr)
+library(rmarkdown)
+library(knitr)
+library(readr)
+library(utils)
+library(EnvStats)
+library(gridExtra)
+library(cowplot)
+library(grid)
+library(waffle)
+library(extrafont)
+library(ggfortify)
+library(cluster)
+library(tidyr)
+library(MASS)
+library(scales)
+library(candisc)
+library(effsize)
+#font_import()
+
+shuttle<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Comparative Cognition Shuttlebox Data december 20 2018 30 seconds.csv")
+
+det<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Detour/detour_data_for_R_April_5_2018.csv")
+
+num<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Comparative Cognition R Scripts/Numerosity Comparative Cognition Full Dataset July_20_2018.csv")
+
+df.full<- left_join(det,shuttle, by = 'fish_name')
+df.full<- left_join(df.full,num, by = 'fish_name')
+df.full$detour_trial_1_did_fish_solve_barrier_problem <-as.character(df.full$detour_trial_1_did_fish_solve_barrier_problem)
+df.full$did_fish_have_a_median_above_60 <-as.character(df.full$did_fish_have_a_median_above_60)
+rsquaredtxt <- (expression(r^2))
+chisquaredtxt <- (expression(X^2))
+
+
+df.full.females<- df.full %>% filter(sex.x == "F")
+df.full.males<- df.full %>% filter(sex.x == "M")
+
+
+#removing unnecessary columns from the dataset:
+drops <- c("sex.y","detour_trial_1_date_of_trial","detour_trial_1_time_of_trial","detour_trial_1_did_fish_solve_full_social_problem","detour_trial_1_full_problem_time_to_social_reward_minus_time_to_contact_barrier","detour_trial_1_time_from_barrier_contact_minus_time_to_end_of_alley","scorer","shuttlebox_start_side","presentation_when_fish_gave_up3","shuttlebox_average_proportion_of_time_on_correct_side_during_gaps","prop_within_10cm_during_stims_4_through_9","prop_within_10cm_during_all_stims","difference_avg_prop_correct_first_3_gaps_minus_last_3_gaps","difference_avg_prop_correct_first_three_gaps_minus_gap_6","difference_avg_prop_correct_first_three_gaps_minus_avg_gaps_456", "speed_of_learning_aka_which_presentation_20_percent_prop_increase_was_met","did_fish_meet_60_percent_3_consecutive_criterion","did_fish_meet_90_percent_2_consecutive_criterion", "speed_of_learning_60_percent_3_consecutive_criterion","speed_of_learning_90_percent_2_consecutive_criterion","did_fish_meet_within10cm_50_percent_3_consecutive_criterion","speed_of_learning_within10cm_50_percent_3_consecutive_criterion", "average_proportion_within_10cm_gaps_456", "proportion_time_on_left_third_across_gaps_4_through_9", "proportion_time_on_right_third_across_gaps_4_through_9","proportion_time_on_center_third_across_gaps_4_through_9","proportion_time_on_left_10cm_across_gaps_4_through_9", "proportion_time_on_right_10cm_across_gaps_4_through_9", "proportion_time_on_center_10cm_across_gaps_4_through_9", "proportion_time_on_left_10cm_across_stims_1_through_6","did_fish_solve_shuttlebox_using_prop_correct_increase_of_at_least_20_percent_first_3_vs_last_3", "did_fish_solve_shuttlebox_using_prop_correct_increase_of_at_least_20_percent_first_3_vs_456", "did_fish_solve_shuttlebox_using_prop_correct_increase_of_at_least_20_percent_first_3_vs_6", "did_fish_participate_criterion1", "did_fish_participate_criterion2", "did_fish_participate_criterion3","did_fish_participate_criterion4","did_fish_participate_criterion5", "did_fish_participate_criterion6","rank_speed_of_learning", "average_prop_time_thigmo_T0_to_T29", "average_prop_time_mirror_T0_to_T29", "average_number_of_entries_T0_to_T29", "average_number_of_entries_T30_to_T50","average_latency_enter_either_screen","average_performance_across_all_9_testing_trials_using_full_4_minutes_data","total_number_of_testing_trials_using_full_4_minutes_data", "total_number_of_testing_trials_using_T30_to_T50_data", "number_of_trials_on_0.50_ratio_using_full_4_minutes_data", "number_of_trials_on_0.67_ratio_using_full_4_minutes_data", "number_of_trials_on_0.75_ratio_using_full_4_minutes_data","number_of_trials_on_0.50_ratio_using_T30_to_T50_data", "number_of_trials_on_0.67_ratio_using_T30_to_T50_data", "number_of_trials_on_0.75_ratio_using_T30_to_T50_data", "median_performance_on_0.50_ratio_using_full_4_minutes_data", "median_performance_on_0.67_ratio_using_full_4_minutes_data","median_performance_on_0.75_ratio_using_full_4_minutes_data", "median_performance_on_0.50_ratio_using_T30_to_T50_data", "median_performance_on_0.67_ratio_using_T30_to_T50_data", "median_performance_on_0.75_ratio_using_T30_to_T50_data","number_of_medians_above_60_using_full_4_minutes_data", "number_of_medians_above_60_using_T30_to_T50_data", "number_of_medians_above_60_using_T30_to_T50_data_two_and_three_combined", "shapiro_wilk_test_p_value_using_full_4_minutes_data", "was_average_performance_significantly_different_from_0.5_full_4_minutes_p_value_of_either_t_test_or_wilcox", "shapiro_wilk_test_p_value_using_T30_to_T50_data", "was_average_performance_significantly_different_from_0.5_T30_to_T50_p_value_of_either_t_test_or_wilcox", "learning_category_according_to_etheredge_T30_to_T50", "learning_category_according_to_etheredge_full_4_minutes","average_latency_to_enter_incorrect_side", "average_latency_to_enter_correct_side_filtered_just_correct_choice",
+"number_of_trials_in_a_row_greater_than_60_percent_full_4_minutes","number_of_trials_in_a_row_greater_than_60_percent_T30_to_T50", "number_of_trials_in_a_row_correct_choice_first", "mean_of_median_performance_on_each_ratio_full_four_minutes_data", "mean_of_median_performance_on_each_ratio_T30_to_T50_data")
+           
+df<-df.full[ , !(names(df.full) %in% drops)]
+
+df<-unite(df, numsolvesex, c(sex.x, did_fish_have_a_median_above_60), remove=FALSE)
+
+df.num <-df %>% filter(is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data) == FALSE)
+df.num<-df.num %>% filter(is.na(did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive) == FALSE)
+df.num$detour_trial_1_did_fish_solve_barrier_problem<-as.numeric(df.num$detour_trial_1_did_fish_solve_barrier_problem)
+df.num$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive<-as.numeric(df.num$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive)
+
+
+```
+
+
+
+
+
+
+#FIGURE 1A
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+df.full.males$did_fish_have_a_median_above_60<-as.numeric(df.full.males$did_fish_have_a_median_above_60)
+df.full.females$did_fish_have_a_median_above_60<-as.numeric(df.full.females$did_fish_have_a_median_above_60)
+
+#to get the numbers I ran this code:
+w<-nrow(df.full.males%>%filter(did_fish_have_a_median_above_60 == 1))
+x<-nrow(df.full.females%>%filter(did_fish_have_a_median_above_60 == 1))
+y<-nrow(df.full.males%>%filter(did_fish_have_a_median_above_60 == 0))
+z<-nrow(df.full.females%>%filter(did_fish_have_a_median_above_60 == 0))
+
+solvers = c(w,x)
+nonsolvers = c(y,z)
+numsolvesex<-data.frame(solvers,nonsolvers)
+chi<-chisq.test(numsolvesex)
+chip<-chi$p.value
+
+#This is Fisher's exact Test, an alternative that can hendle small numbers in each cell (i.e. when we have only one male learner)
+
+
+
+#female solvers = w
+#male solvers = x
+#female nonsolvers = y
+#male nonsolvers = z
+
+df.full$did_fish_have_a_median_above_60<-as.numeric(df.full$did_fish_have_a_median_above_60)
+
+ggplot(df.full, aes(did_fish_have_a_median_above_60, fill = sex.x))+
+  geom_histogram(binwidth = 0.5) + 
+  labs(x= "Numerosity Learning Category",y="Number of individuals") +  
+  scale_x_discrete(breaks=c(0, 1)) +
+  annotate("text", x=-0.48, y=16, label= glue::glue("non-learners"), size = 7, color = "black", hjust = 0) +
+  annotate("text", x=0.71, y=26, label= glue::glue("learners"), size = 7, color = "black", hjust = 0) +
+  theme(plot.title = element_text(hjust = 0)) +
+  annotate("text", x=-0.06, y=9, label= glue::glue(z), size = 7, color = "white", hjust = 0)+
+  annotate("text", x=-0.06, y=2, label= glue::glue(y), size = 7, color = "white", hjust = 0) +
+  annotate("text", x=0.88, y=13, label= glue::glue(x), size = 7, color = "white", hjust = 0)+
+  annotate("text", x=0.88, y=2, label= glue::glue(w), size = 7, color = "white", hjust = 0) +
+  scale_color_manual(values=c("maroon", "lightblue")) +
+  theme(legend.position="left") + 
+  #guides(fill=guide_legend(title= "Sex")) +
+  scale_fill_manual(values=c("maroon", "lightblue"),name="Sex",labels=c("  Female", "  Male")) #+ 
+ # annotate("text",x = -1, y = 4, parse = TRUE, label= glue::glue("{as.character(chisquaredtxt)}"), size = 7, color = "black", hjust = 0) +
+ # annotate("text",x = -0.7, y = 3.86, parse = TRUE, label= glue::glue("{round(chip,3)}"), size = 7, color = "black", hjust = 0) +
+ # annotate("text",x = -2, y = -1, parse = TRUE, label= glue::glue("Fisher_exact_test_p_{round(fishp,3)}"), size = 7, color = "black", hjust = 0)
+
+
+```
+
+#FIGURE 1B
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+df.full.males$detour_trial_1_did_fish_solve_barrier_problem<-as.numeric(df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+df.full.females$detour_trial_1_did_fish_solve_barrier_problem<-as.numeric(df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+
+#to get the numbers I ran this code:
+w<-nrow(df.full.males%>%filter(detour_trial_1_did_fish_solve_barrier_problem == 1))
+x<-nrow(df.full.females%>%filter(detour_trial_1_did_fish_solve_barrier_problem == 1))
+y<-nrow(df.full.males%>%filter(detour_trial_1_did_fish_solve_barrier_problem == 0))
+z<-nrow(df.full.females%>%filter(detour_trial_1_did_fish_solve_barrier_problem == 0))
+
+solvers = c(w,x)
+nonsolvers = c(y,z)
+detsolvesex<-data.frame(solvers,nonsolvers)
+chi<-chisq.test(detsolvesex)
+chip<-chi$p.value
+
+#This is Fisher's exact Test, an alternative that can hendle small numbers in each cell (i.e. when we have only one male learner)
+
+
+
+#female solvers = w
+#male solvers = x
+#female nonsolvers = y
+#male nonsolvers = z
+
+df.full$detour_trial_1_did_fish_solve_barrier_problem<-as.numeric(df.full$detour_trial_1_did_fish_solve_barrier_problem)
+
+ggplot(df.full, aes(detour_trial_1_did_fish_solve_barrier_problem, fill = sex.x))+
+  geom_histogram(binwidth = 0.5) + 
+  labs(x= "Detour Learning Category",y="Number of individuals") +  
+  scale_x_discrete(breaks=c(0, 1)) +
+  annotate("text", x=-0.48, y=28, label= glue::glue("nonsolvers"), size = 7, color = "black", hjust = 0) +
+  annotate("text", x=0.75, y=30, label= glue::glue("solvers"), size = 7, color = "black", hjust = 0) +
+  theme(plot.title = element_text(hjust = 0)) +
+  annotate("text", x=-0.1, y=14, label= glue::glue(z), size = 7, color = "white", hjust = 0)+
+  annotate("text", x=-0.1, y=2, label= glue::glue(y), size = 7, color = "white", hjust = 0) +
+  annotate("text", x=0.88, y=15, label= glue::glue(x), size = 7, color = "white", hjust = 0)+
+  annotate("text", x=0.88, y=2, label= glue::glue(w), size = 7, color = "white", hjust = 0) +
+  scale_color_manual(values=c("maroon", "lightblue")) +
+  theme(legend.position="left") + 
+  #guides(fill=guide_legend(title= "Sex")) +
+  scale_fill_manual(values=c("maroon", "lightblue"),name="Sex",labels=c("  female", "  male")) #+ 
+ # annotate("text",x = -1, y = 4, parse = TRUE, label= glue::glue("{as.character(chisquaredtxt)}"), size = 7, color = "black", hjust = 0) +
+ # annotate("text",x = -0.7, y = 3.86, parse = TRUE, label= glue::glue("{round(chip,3)}"), size = 7, color = "black", hjust = 0) +
+ # annotate("text",x = -2, y = -1, parse = TRUE, label= glue::glue("Fisher_exact_test_p_{round(fishp,3)}"), size = 7, color = "black", hjust = 0)
+
+
+```
+
+#FIGURE 1C
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+df.full.males$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive<- as.numeric(df.full.males$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive)
+df.full.females$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive<- as.numeric(df.full.females$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive)
+
+df.full.males$did_fish_participate_criterion7<-as.numeric(df.full.males$did_fish_participate_criterion7)
+df.full.females$did_fish_participate_criterion7<-as.numeric(df.full.females$did_fish_participate_criterion7)
+
+#to get the numbers I ran this code:
+w.df<-df.full.males%>%filter(did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive == 1) %>% filter(did_fish_participate_criterion7 == 1) %>% filter(presentation_when_fish_gave_up4 >3)
+w<- nrow(w.df)
+x.df<-df.full.females%>%filter(did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive == 1)  %>% filter(did_fish_participate_criterion7 == 1) %>% filter(presentation_when_fish_gave_up4 >3)
+x<- nrow(x.df)
+y.df<-df.full.males%>%filter(did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive == 0)%>% filter(did_fish_participate_criterion7 == 1) %>% filter(presentation_when_fish_gave_up4 >3)
+y<- nrow(y.df)
+z.df<-df.full.females%>%filter(did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive == 0) %>% filter(did_fish_participate_criterion7 == 1) %>% filter(presentation_when_fish_gave_up4 >3)
+z<- nrow(z.df)
+
+solvers = c(w,x)
+nonsolvers = c(y,z)
+shuttleboxsolvesex<-data.frame(solvers,nonsolvers)
+chi<-chisq.test(shuttleboxsolvesex)
+chip<-chi$p.value
+
+#This is Fisher's exact Test, an alternative that can hendle small numbers in each cell (i.e. when we have only one male learner)
+fish<-fisher.test(shuttleboxsolvesex)
+fishp<-fish$p.value
+
+df.shuttle<-df.full  %>% filter(did_fish_participate_criterion7 == 1) %>% filter(presentation_when_fish_gave_up4 >3)
+
+
+df.shuttle$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive<-as.numeric(df.shuttle$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive)
+
+ggplot(df.shuttle, aes(did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive, fill = sex.x))+
+  geom_histogram(binwidth = 0.5) + 
+  labs(x= "Shuttlebox Learning Category",y="Number of individuals") +  
+  scale_x_discrete(breaks=c(0, 1)) +
+  annotate("text", x=-0.48, y=21, label= glue::glue("non-learners"), size = 7, color = "black", hjust = 0) +
+  annotate("text", x=0.71, y=10, label= glue::glue("learners"), size = 7, color = "black", hjust = 0) +
+  theme(plot.title = element_text(hjust = 0)) +
+  annotate("text", x=-0.09, y=11, label= glue::glue(z), size = 7, color = "white", hjust = 0)+
+  annotate("text", x=-0.06, y=1.5, label= glue::glue(y), size = 7, color = "white", hjust = 0) +
+  annotate("text", x=0.96, y=1.5, label= glue::glue(x), size = 7, color = "white", hjust = 0)+
+  scale_color_manual(values=c("maroon", "lightblue")) +
+  theme(legend.position="left") + 
+  #guides(fill=guide_legend(title= "Sex")) +
+  scale_fill_manual(values=c("maroon", "lightblue"),name="Sex",labels=c("  Female", "  Male")) #+ 
+ # annotate("text",x = -1, y = 4, parse = TRUE, label= glue::glue("{as.character(chisquaredtxt)}"), size = 7, color = "black", hjust = 0) +
+ # annotate("text",x = -0.7, y = 3.86, parse = TRUE, label= glue::glue("{round(chip,3)}"), size = 7, color = "black", hjust = 0) +
+ # annotate("text",x = -2, y = -1, parse = TRUE, label= glue::glue("Fisher_exact_test_p_{round(fishp,3)}"), size = 7, color = "black", hjust = 0)
+
+
+```
+
+
+
+
+
+
+#FIGURE 2A
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+mod<- lm(df.full.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.full.females$average_reaction_time, na.rm = TRUE)
+summary(mod)
+
+number <- df.full.females %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(average_reaction_time)) %>% nrow
+p_value <- summary(mod)$coefficients[8]
+r_squared <- summary(mod)$r.squared
+
+plot2 <- ggplot(df.full.females, aes(average_reaction_time, average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) +
+  geom_point(size = 4, color = "maroon") + 
+  theme(text = element_text(size=10)) + 
+#  annotate("text", x=30, y=0.33, parse = TRUE, label= glue::glue("{as.character(rsquaredtxt)}"), size = 5, color = "gray39", hjust = 0) + 
+#  annotate("text", x=32, y=0.32, label= glue::glue("= {round(r_squared,4)}"), size = 5, color = "gray39", hjust = 0) + 
+#  annotate("text", x=30, y=0.25, label= glue::glue("p = {round(p_value,4)}
+# n = {number}"), size = 5, color = "gray39", hjust = 0) + 
+  labs(x= "reaction time",y="Numerosity Performance") +
+ geom_smooth(method = "lm", size = 2, color = "black", fill = "lightgray") +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) +
+  theme(plot.title = element_text(hjust = 0))+ 
+  scale_x_continuous(name="reaction time", limits=c(0, 35)) +
+  scale_y_continuous(name="numerosity performance", limits=c(0, 0.8)) +
+  theme(axis.text.x = element_text(size=25), axis.text.y = element_text(size=25))
+plot2
+
+```
+
+#Figure 2B
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+mod<- lm(df.full.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.full.females$unique_zones_entered_full_4_minutes, na.rm = TRUE)
+summary(mod)
+
+number <- df.full.females %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(unique_zones_entered_full_4_minutes)) %>% nrow
+p_value <- summary(mod)$coefficients[8]
+r_squared <- summary(mod)$r.squared
+
+plot3 <- ggplot(df.full.females, aes(unique_zones_entered_full_4_minutes, average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) + geom_point(size = 4, color = "maroon") + 
+  theme(text = element_text(size=10)) + 
+  #annotate("text", x=30, y=0.33, parse = TRUE, label= glue::glue("{as.character(rsquaredtxt)}"), size = 5, color = "gray39", hjust = 0) + 
+  #annotate("text", x=32, y=0.32, label= glue::glue("= {round(r_squared,4)}"), size = 5, color = "gray39", hjust = 0) + 
+  #annotate("text", x=30, y=0.25, label= glue::glue("p = {round(p_value,4)}
+#n = {number}"), size = 5, color = "gray39", hjust = 0) + 
+  labs(x= "exploration",y="Numerosity Performance") +
+ geom_smooth(method = "lm", size = 2, color = "black", fill = "lightgray") +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+  theme(plot.title = element_text(hjust = 0))+ scale_x_continuous(name="exploration", limits=c(0.5, 1)) +
+  scale_y_continuous(name="numerosity performance", limits=c(0, 0.8)) +
+  theme(axis.text.x = element_text(size=25), axis.text.y = element_text(size=25))
+plot3
+
+
+
+```
+
+#FIGURE 2C
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+mod<- lm(df.full.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.full.females$average_number_of_entries_full_4_minutes, na.rm = TRUE)
+
+
+number <- df.full.females %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% nrow
+p_value <- summary(mod)$coefficients[8]
+r_squared <- summary(mod)$r.squared
+
+plot1 <- ggplot(df.full.females, aes(average_number_of_entries_full_4_minutes, average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) + geom_point(size = 4, color = "maroon") + 
+  theme(text = element_text(size=10)) + 
+  #annotate("text", x=30, y=0.33, parse = TRUE, label= glue::glue("{as.character(rsquaredtxt)}"), size = 5, color = "gray39", hjust = 0) + 
+  #annotate("text", x=32, y=0.32, label= glue::glue("= {round(r_squared,4)}"), size = 5, color = "gray39", hjust = 0) + 
+  #annotate("text", x=30, y=0.25, label= glue::glue("p = {round(p_value,4)}
+#n = {number}"), size = 5, color = "gray39", hjust = 0) + 
+  labs(x= "activity",y="Numerosity Performance") +
+ geom_smooth(method = "lm", size = 2, color = "black", fill = "lightgray") +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+  theme(plot.title = element_text(hjust = 0))+ 
+  theme(plot.title = element_text(hjust = 0)) + scale_x_continuous(name="activity", limits=c(0, 155)) +
+  scale_y_continuous(name="numerosity performance", limits=c(0, 0.8)) +
+  theme(axis.text.x = element_text(size=25), axis.text.y = element_text(size=25))
+
+plot1
+
+```
+
+#FIGURE 2D
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+
+mod<- lm(df.full.males$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.full.males$average_reaction_time, na.rm = TRUE)
+summary(mod)
+
+number <- df.full.males %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(average_reaction_time)) %>% nrow
+p_value <- summary(mod)$coefficients[8]
+r_squared <- summary(mod)$r.squared
+
+plot2 <- ggplot(df.full.males, aes(average_reaction_time, average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) +
+  geom_point(size = 4, color = "lightblue") + 
+  theme(text = element_text(size=10)) + 
+#  annotate("text", x=30, y=0.33, parse = TRUE, label= glue::glue("{as.character(rsquaredtxt)}"), size = 5, color = "gray39", hjust = 0) + 
+#  annotate("text", x=32, y=0.32, label= glue::glue("= {round(r_squared,4)}"), size = 5, color = "gray39", hjust = 0) + 
+#  annotate("text", x=30, y=0.25, label= glue::glue("p = {round(p_value,4)}
+# n = {number}"), size = 5, color = "gray39", hjust = 0) + 
+  labs(x= "reaction time",y="Numerosity Performance") +
+ #geom_smooth(method = "lm", size = 2, color = "lightgray", se = FALSE) +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+  theme(plot.title = element_text(hjust = 0))+ scale_x_continuous(name="reaction time", limits=c(0, 35)) +
+  scale_y_continuous(name="numerosity performance", limits=c(0, 0.8)) +
+  theme(axis.text.x = element_text(size=25), axis.text.y = element_text(size=25))
+plot2
+
+```
+
+#FIGURE 2E
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+mod<- lm(df.full.males$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.full.males$unique_zones_entered_full_4_minutes, na.rm = TRUE)
+summary(mod)
+
+number <- df.full.males %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(unique_zones_entered_full_4_minutes)) %>% nrow
+p_value <- summary(mod)$coefficients[8]
+r_squared <- summary(mod)$r.squared
+
+plot3 <- ggplot(df.full.males, aes(unique_zones_entered_full_4_minutes, average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) + geom_point(size = 4, color = "lightblue") + 
+  theme(text = element_text(size=10)) + 
+  #annotate("text", x=30, y=0.33, parse = TRUE, label= glue::glue("{as.character(rsquaredtxt)}"), size = 5, color = "gray39", hjust = 0) + 
+  #annotate("text", x=32, y=0.32, label= glue::glue("= {round(r_squared,4)}"), size = 5, color = "gray39", hjust = 0) + 
+  #annotate("text", x=30, y=0.25, label= glue::glue("p = {round(p_value,4)}
+#n = {number}"), size = 5, color = "gray39", hjust = 0) + 
+  labs(x= "exploration",y="Numerosity Performance") +
+ #geom_smooth(method = "lm", size = 2, color = "lightgray", se = FALSE) +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+  theme(plot.title = element_text(hjust = 0)) + scale_x_continuous(name="exploration", limits=c(0.5, 1)) +
+  scale_y_continuous(name="numerosity performance", limits=c(0, 0.8)) +
+  theme(axis.text.x = element_text(size=25), axis.text.y = element_text(size=25))
+plot3
+
+
+
+```
+
+#FIGURE 2F
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+mod<- lm(df.full.males$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.full.males$average_number_of_entries_full_4_minutes, na.rm = TRUE)
+
+
+number <- df.full.males %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% nrow
+p_value <- summary(mod)$coefficients[8]
+r_squared <- summary(mod)$r.squared
+
+plot1 <- ggplot(df.full.males, aes(average_number_of_entries_full_4_minutes, average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) + geom_point(size = 4, color = "lightblue") + 
+  theme(text = element_text(size=10)) + 
+  labs(x= "activity",y="Numerosity Performance") +
+ #geom_smooth(method = "lm", size = 2, color = "lightgray", se = FALSE) +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+  theme(plot.title = element_text(hjust = 0)) + scale_x_continuous(name="activity", limits=c(0, 155)) +
+  scale_y_continuous(name="numerosity performance", limits=c(0, 0.8)) +
+  theme(axis.text.x = element_text(size=25), axis.text.y = element_text(size=25))
+plot1
+
+```
+
+
+
+
+
+#FIGURE 3A
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+df.num$detour_trial_1_did_fish_solve_barrier_problem<-as.character(df.num$detour_trial_1_did_fish_solve_barrier_problem)
+
+
+plot1 <- ggplot(df.num, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_performance_across_all_9_testing_trials_using_T30_to_T50_data, color = sex.x)) + 
+  geom_boxplot(lwd=1)+ 
+  labs(x= "detour solve category",y="Numerosity Performance") + theme(axis.text.y = element_text(size = 14)) + theme(axis.text.x = element_text(size = 14)) +
+  theme(legend.position="top") +
+  scale_color_manual(values=c("maroon", "lightblue")) +
+  scale_fill_manual(name="Sex",labels=c("Female", "Male")) +
+  scale_y_continuous(name="numerosity performance", limits=c(0, 0.8)) +
+  geom_point(position = position_jitterdodge(jitter.width = 0.1))
+plot1
+
+
+```
+
+#FIGURE 3B
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+mod<-lm(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.full$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier * df.full$sex.x)
+df.full$sex.x<-as.character(df.full$sex.x)
+
+malecorr <- cor.test(x=df.full.males$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier, y=df.full.males$average_performance_across_all_9_testing_trials_using_T30_to_T50_data, method = 'spearman')
+femalecorr <- cor.test(x=df.full.females$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier, y=df.full.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data, method = 'spearman')
+
+#p value of interaction
+number <- df.full%>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% nrow
+p_value_look_at_last_one <- summary(mod)
+r_squared <- summary(mod)$r.squared
+
+
+plot1 <- ggplot(df.full, aes(x = detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier, y = average_performance_across_all_9_testing_trials_using_T30_to_T50_data, color = sex.x)) + geom_point(size = 4) + 
+  #geom_smooth(method = "lm", size = 2, se = FALSE) +
+  theme(text = element_text(size=10)) + 
+  #annotate("text", x=30, y=0.33, parse = TRUE, label= glue::glue("{as.character(rsquaredtxt)}"), size = 5, color = "gray39", hjust = 0) + 
+  #annotate("text", x=32, y=0.32, label= glue::glue("= {round(r_squared,4)}"), size = 5, color = "gray39", hjust = 0) + 
+  #annotate("text", x=30, y=0.25, label= glue::glue("p = {round(p_value,4)}
+#n = {number}"), size = 5, color = "gray39", hjust = 0) + 
+  labs(x= "detour latency to solve",y="numerosity learning performance") +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+ # ggtitle ("females") +
+  theme(plot.title = element_text(hjust = 0)) + 
+  scale_color_manual(values=c("maroon", "lightblue"))+
+  scale_y_continuous(name="numerosity performance", limits=c(0, 0.8)) 
+plot1
+
+```
+
+#Figure 3B OLD
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+mod<- lm(df.full.males$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.full.males$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier, na.rm = TRUE)
+summary(mod)
+
+number <- df.full.males %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier)) %>% nrow
+p_value <- summary(mod)$coefficients[8]
+r_squared <- summary(mod)$r.squared
+
+plot2 <- ggplot(df.full.males, aes(detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier, average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) +
+  geom_point(size = 4, color = "lightblue") + 
+  theme(text = element_text(size=10)) + 
+  labs(x= "detour latency to solve",y="Numerosity Performance") + 
+ geom_smooth(method = "lm", size = 2, color = "black", fill = NA) +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) +
+  theme(plot.title = element_text(hjust = 0))+ 
+  scale_y_continuous(name="numerosity performance", limits=c(0, 0.8)) +
+  theme(axis.text.x = element_text(size=25), axis.text.y = element_text(size=25))
+plot2
+
+```
+
+#FIGURE 3C OLD
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+mod<- lm(df.full.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.full.females$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier, na.rm = TRUE)
+summary(mod)
+
+number <- df.full.females %>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier)) %>% nrow
+p_value <- summary(mod)$coefficients[8]
+r_squared <- summary(mod)$r.squared
+
+plot2 <- ggplot(df.full.females, aes(detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier, average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) +
+  geom_point(size = 4, color = "maroon") + 
+  theme(text = element_text(size=10)) + 
+  labs(x= "detour latency to solve",y="Numerosity Performance") + 
+ geom_smooth(method = "lm", size = 2, color = "black", fill = "gray87") +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) +
+  theme(plot.title = element_text(hjust = 0))+ 
+  scale_y_continuous(name="numerosity performance", limits=c(0, 0.8)) +
+  theme(axis.text.x = element_text(size=25), axis.text.y = element_text(size=25))
+plot2
+
+```
+
+
+#STATS FOR TABLE 1
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+
+#Here's how to get a pearson's r, aka pearson's correlation coefficient.
+#res <- cor.test(my_data$wt, my_data$mpg, method = "pearson")
+
+mod<- lm(df.full.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.full.females$standard_length, na.rm = TRUE)
+summary(mod)
+res <- cor.test(df.full.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data, df.full.females$standard_length, method = "pearson")
+
+
+mod<- lm(df.full.males$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.full.males$standard_length, na.rm = TRUE)
+summary(mod)
+res <- cor.test(df.full.males$average_performance_across_all_9_testing_trials_using_T30_to_T50_data, df.full.males$standard_length, method = "pearson")
+
+mod<- lm(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.full$standard_length, na.rm = TRUE)
+summary(mod)
+res <- cor.test(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data, df.full$standard_length, method = "pearson")
+
+
+
+t.test(df.full.females$standard_length~df.full.females$did_fish_have_a_median_above_60)
+cohen.d(df.full.females$standard_length,df.full.females$did_fish_have_a_median_above_60, na.rm = TRUE)
+
+t.test(df.full.males$standard_length~df.full.males$did_fish_have_a_median_above_60)
+cohen.d(df.full.males$standard_length,df.full.males$did_fish_have_a_median_above_60, na.rm = TRUE)
+
+t.test(df.full$standard_length~df.full$did_fish_have_a_median_above_60)
+cohen.d(df.full$standard_length,df.full$did_fish_have_a_median_above_60, na.rm = TRUE)
+
+
+t.test(df.full.females$standard_length~df.full.females$detour_trial_1_did_fish_solve_barrier_problem)
+cohen.d(df.full.females$standard_length,df.full.females$detour_trial_1_did_fish_solve_barrier_problem, na.rm = TRUE)
+
+t.test(df.full.males$standard_length~df.full.males$detour_trial_1_did_fish_solve_barrier_problem)
+cohen.d(df.full.males$standard_length,df.full.males$detour_trial_1_did_fish_solve_barrier_problem, na.rm = TRUE)
+
+t.test(df.full$standard_length~df.full$detour_trial_1_did_fish_solve_barrier_problem)
+cohen.d(df.full$standard_length,df.full$detour_trial_1_did_fish_solve_barrier_problem, na.rm = TRUE)
+
+
+mod<- lm(df.full.females$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier ~ df.full.females$standard_length, na.rm = TRUE)
+summary(mod)
+res <- cor.test(df.full.females$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier, df.full.females$standard_length, method = "pearson")
+
+
+mod<- lm(df.full.males$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier ~ df.full.males$standard_length, na.rm = TRUE)
+summary(mod)
+res <- cor.test(df.full.males$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier, df.full.males$standard_length, method = "pearson")
+
+mod<- lm(df.full$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier ~ df.full$standard_length, na.rm = TRUE)
+summary(mod)
+res <- cor.test(df.full$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier, df.full$standard_length, method = "pearson")
+
+
+
+mod<- lm(df.full.females$time_to_barrier_contact_minus_start_time ~ df.full.females$standard_length, na.rm = TRUE)
+summary(mod)
+res <- cor.test(df.full.females$time_to_barrier_contact_minus_start_time,df.full.females$standard_length, method = "pearson")
+
+mod<- lm(df.full.males$time_to_barrier_contact_minus_start_time ~ df.full.males$standard_length, na.rm = TRUE)
+summary(mod)
+res <- cor.test(df.full.males$time_to_barrier_contact_minus_start_time,df.full.males$standard_length, method = "pearson")
+
+mod<- lm(df.full$time_to_barrier_contact_minus_start_time ~ df.full$standard_length, na.rm = TRUE)
+summary(mod)
+res <- cor.test(df.full$time_to_barrier_contact_minus_start_time,df.full$standard_length, method = "pearson")
+
+
+
+t.test(df.full.females$standard_length~df.full.females$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive)
+cohen.d(df.full.females$standard_length,df.full.females$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive, na.rm = TRUE)
+
+t.test(df.full.males$standard_length~df.full.males$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive)
+cohen.d(df.full.males$standard_length,df.full.males$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive, na.rm = TRUE)
+
+t.test(df.full$standard_length~df.full$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive)
+cohen.d(df.full$standard_length,df.full$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive, na.rm = TRUE)
+
+
+
+mod<- lm(df.full.females$unique_zones_entered_full_4_minutes ~ df.full.females$standard_length, na.rm = TRUE)
+summary(mod)
+res <- cor.test(df.full.females$unique_zones_entered_full_4_minutes,df.full.females$standard_length, method = "pearson")
+
+mod<- lm(df.full.males$unique_zones_entered_full_4_minutes ~ df.full.males$standard_length, na.rm = TRUE)
+summary(mod)
+res <- cor.test(df.full.males$unique_zones_entered_full_4_minutes,df.full.males$standard_length, method = "pearson")
+
+mod<- lm(df.full$unique_zones_entered_full_4_minutes ~ df.full$standard_length, na.rm = TRUE)
+summary(mod)
+res <- cor.test(df.full$unique_zones_entered_full_4_minutes,df.full$standard_length, method = "pearson")
+
+
+mod<- lm(df.full.females$average_prop_time_center_full_4_minutes ~ df.full.females$standard_length, na.rm = TRUE)
+summary(mod)
+res <- cor.test(df.full.females$average_prop_time_center_full_4_minutes,df.full.females$standard_length, method = "pearson")
+
+mod<- lm(df.full.males$average_prop_time_center_full_4_minutes ~ df.full.males$standard_length, na.rm = TRUE)
+summary(mod)
+res <- cor.test(df.full.males$average_prop_time_center_full_4_minutes,df.full.males$standard_length, method = "pearson")
+
+mod<- lm(df.full$average_prop_time_center_full_4_minutes ~ df.full$standard_length, na.rm = TRUE)
+summary(mod)
+res <- cor.test(df.full$average_prop_time_center_full_4_minutes,df.full$standard_length, method = "pearson")
+
+
+
+
+mod<- lm(df.full.females$totalthigmo_full_4_minutes ~ df.full.females$standard_length, na.rm = TRUE)
+summary(mod)
+res <- cor.test(df.full.females$totalthigmo_full_4_minutes,df.full.females$standard_length, method = "pearson")
+
+mod<- lm(df.full.males$totalthigmo_full_4_minutes ~ df.full.males$standard_length, na.rm = TRUE)
+summary(mod)
+res <- cor.test(df.full.males$totalthigmo_full_4_minutes,df.full.males$standard_length, method = "pearson")
+
+mod<- lm(df.full$totalthigmo_full_4_minutes ~ df.full$standard_length, na.rm = TRUE)
+summary(mod)
+res <- cor.test(df.full$totalthigmo_full_4_minutes,df.full$standard_length, method = "pearson")
+
+
+
+mod<- lm(df.full.females$average_number_of_entries_full_4_minutes ~ df.full.females$standard_length, na.rm = TRUE)
+summary(mod)
+res <- cor.test(df.full.females$average_number_of_entries_full_4_minutes,df.full.females$standard_length, method = "pearson")
+
+mod<- lm(df.full.males$average_number_of_entries_full_4_minutes ~ df.full.males$standard_length, na.rm = TRUE)
+summary(mod)
+res <- cor.test(df.full.males$average_number_of_entries_full_4_minutes,df.full.males$standard_length, method = "pearson")
+
+mod<- lm(df.full$average_number_of_entries_full_4_minutes ~ df.full$standard_length, na.rm = TRUE)
+summary(mod)
+res <- cor.test(df.full$average_number_of_entries_full_4_minutes,df.full$standard_length, method = "pearson")
+
+
+
+mod<- lm(df.full.females$average_reaction_time ~ df.full.females$standard_length, na.rm = TRUE)
+summary(mod)
+res <- cor.test(df.full.females$average_reaction_time,df.full.females$standard_length, method = "pearson")
+
+mod<- lm(df.full.males$average_reaction_time ~ df.full.males$standard_length, na.rm = TRUE)
+summary(mod)
+res <- cor.test(df.full.males$average_reaction_time,df.full.males$standard_length, method = "pearson")
+
+mod<- lm(df.full$average_reaction_time ~ df.full$standard_length, na.rm = TRUE)
+summary(mod)
+res <- cor.test(df.full$average_reaction_time,df.full$standard_length, method = "pearson")
+
+```
+
+
+
+
+
+
+
+
