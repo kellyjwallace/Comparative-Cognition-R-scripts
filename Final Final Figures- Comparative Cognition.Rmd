@@ -92,7 +92,6 @@ chip<-chi$p.value
 #This is Fisher's exact Test, an alternative that can hendle small numbers in each cell (i.e. when we have only one male learner)
 
 
-
 #female solvers = w
 #male solvers = x
 #female nonsolvers = y
@@ -104,8 +103,6 @@ ggplot(df.full, aes(did_fish_have_a_median_above_60, fill = sex.x))+
   geom_histogram(binwidth = 0.5) + 
   labs(x= "Numerosity Learning Category",y="Number of individuals") +  
   scale_x_discrete(breaks=c(0, 1)) +
-  annotate("text", x=-0.48, y=16, label= glue::glue("non-learners"), size = 7, color = "black", hjust = 0) +
-  annotate("text", x=0.71, y=26, label= glue::glue("learners"), size = 7, color = "black", hjust = 0) +
   theme(plot.title = element_text(hjust = 0)) +
   annotate("text", x=-0.06, y=9, label= glue::glue(z), size = 7, color = "white", hjust = 0)+
   annotate("text", x=-0.06, y=2, label= glue::glue(y), size = 7, color = "white", hjust = 0) +
@@ -113,6 +110,7 @@ ggplot(df.full, aes(did_fish_have_a_median_above_60, fill = sex.x))+
   annotate("text", x=0.88, y=2, label= glue::glue(w), size = 7, color = "white", hjust = 0) +
   scale_color_manual(values=c("maroon", "lightblue")) +
   theme(legend.position="left") + 
+  ylim(0,30) +
   #guides(fill=guide_legend(title= "Sex")) +
   scale_fill_manual(values=c("maroon", "lightblue"),name="Sex",labels=c("  Female", "  Male")) #+ 
  # annotate("text",x = -1, y = 4, parse = TRUE, label= glue::glue("{as.character(chisquaredtxt)}"), size = 7, color = "black", hjust = 0) +
@@ -154,16 +152,14 @@ ggplot(df.full, aes(detour_trial_1_did_fish_solve_barrier_problem, fill = sex.x)
   geom_histogram(binwidth = 0.5) + 
   labs(x= "Detour Learning Category",y="Number of individuals") +  
   scale_x_discrete(breaks=c(0, 1)) +
-  annotate("text", x=-0.48, y=28, label= glue::glue("nonsolvers"), size = 7, color = "black", hjust = 0) +
-  annotate("text", x=0.75, y=30, label= glue::glue("solvers"), size = 7, color = "black", hjust = 0) +
   theme(plot.title = element_text(hjust = 0)) +
   annotate("text", x=-0.1, y=14, label= glue::glue(z), size = 7, color = "white", hjust = 0)+
   annotate("text", x=-0.1, y=2, label= glue::glue(y), size = 7, color = "white", hjust = 0) +
   annotate("text", x=0.88, y=15, label= glue::glue(x), size = 7, color = "white", hjust = 0)+
   annotate("text", x=0.88, y=2, label= glue::glue(w), size = 7, color = "white", hjust = 0) +
   scale_color_manual(values=c("maroon", "lightblue")) +
-  theme(legend.position="left") + 
-  #guides(fill=guide_legend(title= "Sex")) +
+  theme(legend.position="left") +  
+  ylim(0,30) +
   scale_fill_manual(values=c("maroon", "lightblue"),name="Sex",labels=c("  female", "  male")) #+ 
  # annotate("text",x = -1, y = 4, parse = TRUE, label= glue::glue("{as.character(chisquaredtxt)}"), size = 7, color = "black", hjust = 0) +
  # annotate("text",x = -0.7, y = 3.86, parse = TRUE, label= glue::glue("{round(chip,3)}"), size = 7, color = "black", hjust = 0) +
@@ -209,8 +205,7 @@ ggplot(df.shuttle, aes(did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_c
   geom_histogram(binwidth = 0.5) + 
   labs(x= "Shuttlebox Learning Category",y="Number of individuals") +  
   scale_x_discrete(breaks=c(0, 1)) +
-  annotate("text", x=-0.48, y=21, label= glue::glue("non-learners"), size = 7, color = "black", hjust = 0) +
-  annotate("text", x=0.71, y=10, label= glue::glue("learners"), size = 7, color = "black", hjust = 0) +
+  ylim(0,30) +
   theme(plot.title = element_text(hjust = 0)) +
   annotate("text", x=-0.09, y=11, label= glue::glue(z), size = 7, color = "white", hjust = 0)+
   annotate("text", x=-0.06, y=1.5, label= glue::glue(y), size = 7, color = "white", hjust = 0) +

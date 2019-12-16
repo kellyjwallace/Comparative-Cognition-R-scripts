@@ -1130,7 +1130,7 @@ p + geom_point(size = 4, color = "red") +
   ggtitle ("Does average number of entries predict average performance (T30 to T50) FEMALE ONLY?") +
   geom_smooth(method = "lm")
 
-
+res <- cor.test(df.full.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data, df.full.females$average_number_of_entries_full_4_minutes, method = "pearson")
 
 ```
 
@@ -1205,6 +1205,8 @@ p + geom_point(size = 4, color = "red") +
   ggtitle ("Does aaverage number of unique zones visited predict average performance (T30 to T50)
            FEMALE ONLY?") +
   geom_smooth(method = "lm")
+
+res <- cor.test(df.full.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data, df.full.females$unique_zones_entered_full_4_minutes, method = "pearson")
 
 
 
@@ -2938,6 +2940,8 @@ p + geom_point(size = 4, color = "red") +
   ggtitle ("Does average reaction time predict average performance (T30 to T50)?FEMALES") +
   geom_smooth(method = "lm")
 
+res <- cor.test(df.full.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data, df.full.females$average_reaction_time, method = "pearson")
+
 
 ```
 
@@ -3607,6 +3611,9 @@ p + geom_point(size = 4, color = "red") +
   ggtitle ("Does size/age predict average boldness? 
            female only") +
   geom_smooth(method = "lm")
+
+
+res <- cor.test(df.full.females$average_prop_time_center_full_4_minutes, df.full.females$standard_length, method = "pearson")
 
 
 
@@ -6194,6 +6201,41 @@ p
 ```
 
 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Do the three ratios differ in their median performance per fish?
+
+df<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Comparative Cognition R Scripts/median_performances_by_ratio_numerosity.csv", col_names = TRUE, col_types = NULL)
+df$ratio<-as.character(df$ratio)
+
+fit <- aov(performance ~ ratio, data=df) 
+p_value_ANOVA<- summary(fit)[[1]][["Pr(>F)"]][[1]]
+
+
+
+#Does sex and solve interaction predict activity?
+
+p <- ggplot(df, aes(x=ratio, y=performance)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle ('Does performance differ by ratio') +
+  geom_text(x=2, y=0.75, label= glue::glue("p (ANOVA) = {round(p_value_ANOVA,4)}"), size = 6, color = "black")
+p
+
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Getting pearson's correlation coefficient (r) 
+
+mod<- lm(df.full.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.full.females$average_reaction_time, na.rm = TRUE)
+summary(mod)
+res <- cor.test(df.full.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data, df.full.females$average_reaction_time, method = "pearson")
+
+
+```
+
+
+
 #############TEMPLATE
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -6242,6 +6284,11 @@ p + geom_point(size = 4, color = "red") +
 
 
 ```
+
+
+
+
+
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
