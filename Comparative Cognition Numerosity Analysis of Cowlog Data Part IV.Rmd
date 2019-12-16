@@ -1,0 +1,1556 @@
+---
+title: "Comparative Cognition Numerosity Analysis of Cowlog Data Part IV"
+author: "Kelly Wallace"
+date: "April 11, 2018"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## This is the fouth part of the the analysis of the comparative cognition data. 
+
+This starts by just looking at the shuttlebox data. The output from the "where's the fish" program Luke developed (shuttlebox_hand_track.py) is combined with a spreadsheet that lists what the correct side is for a given frame
+
+The first thing we'll do is for each shuttlebox video, we'll get a graph of "distance form the correct stimuli" during each "gap"
+
+
+```{r, echo=FALSE, message=FALSE}
+library(ggplot2)
+library(dplyr)
+library(rmarkdown)
+library(knitr)
+library(readr)
+library(utils)
+library(EnvStats)
+library(hqmisc)
+
+#Note- Garret, Gabriel, and Griffin shuttlebox videos too hard to score, no data
+
+setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets/")
+
+file_list<- list.files("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets")
+
+
+shuttleleft<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Shuttlebox_Tracking_L_framesofinterest.csv", col_names = TRUE, col_types = NULL)
+#View(shuttleleft)
+
+shuttleright<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Shuttlebox_Tracking_R_framesofinterest.csv", col_names = TRUE, col_types = NULL)
+#View(shuttleright)
+
+test_column <- vector(length = length(file_list))
+df.sum <- data.frame(fish_name = test_column)
+
+
+for(i in 1:length(file_list)){
+  setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets")
+  
+  df<- read_csv(file_list[i], col_names = TRUE, col_types = NULL)
+  
+  fishname <- strsplit(file_list[i],'_')[[1]][4]
+  startside <- strsplit(file_list[i],'_')[[1]][5]
+  giveup <- strsplit(file_list[i],'_')[[1]][6] #this is the last presentation before the fish just camped out on one side for the rest of the trial. Kelly just eyeballed this using an individual graph for each fish's trial (distance from correct side). 
+  giveup2 <- strsplit(file_list[i],'_')[[1]][8] #this is the more restricted version of giveup- this is the last tgap before 3 sequential gaps where the fish did not move. This was judged by the proportion of time on the correct side, if it went 0-100-0 or 100-0-100
+  resolution <- strsplit(file_list[i],'_')[[1]][7]
+  
+  #converting all the non-1280 resolutions to 1280 as far as x distance goes
+  if(resolution == 800){
+  df$x <- df$x *1.6}
+  if (resolution == 640){
+  df$x <- df$x *2}
+  max(df$x, na.rm = TRUE)
+  
+  if(startside == "L"){
+    df.full<- full_join(df,shuttleleft, by = 'frame_number')}
+  else if(startside == "R"){
+    df.full<- full_join(df,shuttleright, by = 'frame_number')}
+  
+  df.full
+  df.full<-df.full %>% mutate(distance_from_correct = abs(correct_x_pixel - x))
+  df.full.stim<-df.full %>% filter(type == 'stim')
+  df.full.gap<-df.full %>% filter(type == 'gap')
+  
+  df.full.gap1<-df.full.gap %>% filter(is.inrange(presentation, range = c(1,3))) %>% mutate(binned_presentation = 1)
+  df.full.gap2<-df.full.gap %>% filter(is.inrange(presentation, range = c(4,6))) %>% mutate(binned_presentation = 2)
+  df.full.gap3<-df.full.gap %>% filter(is.inrange(presentation, range = c(7,9))) %>% mutate(binned_presentation = 3)
+  df.full.gap4<-df.full.gap %>% filter(is.inrange(presentation, range = c(10,12))) %>% mutate(binned_presentation = 4)
+  df.full.gap5<-df.full.gap %>% filter(is.inrange(presentation, range = c(13,15))) %>% mutate(binned_presentation = 5)
+  df.full.gap6<-df.full.gap %>% filter(is.inrange(presentation, range = c(16,18))) %>% mutate(binned_presentation = 6)
+  df.full.gap7<-df.full.gap %>% filter(is.inrange(presentation, range = c(19,21))) %>% mutate(binned_presentation = 7)
+  df.full.gap8<-df.full.gap %>% filter(is.inrange(presentation, range = c(22,24))) %>% mutate(binned_presentation = 8)
+  df.full.gap9<-df.full.gap %>% filter(is.inrange(presentation, range = c(25,27))) %>% mutate(binned_presentation = 9)
+  df.full.gap10<-df.full.gap %>% filter(is.inrange(presentation, range = c(28,30))) %>% mutate(binned_presentation = 10)
+  
+  
+df.full.gap<-do.call("rbind", list(df.full.gap1, df.full.gap2, df.full.gap3, df.full.gap4, df.full.gap5, df.full.gap6, df.full.gap7, df.full.gap8, df.full.gap9, df.full.gap10))
+  
+  df.full.stim1<-df.full.stim %>% filter(is.inrange(presentation, range = c(1,3))) %>% mutate(binned_presentation = 1)
+  df.full.stim2<-df.full.stim %>% filter(is.inrange(presentation, range = c(4,6))) %>% mutate(binned_presentation = 2)
+  df.full.stim3<-df.full.stim %>% filter(is.inrange(presentation, range = c(7,9))) %>% mutate(binned_presentation = 3)
+  df.full.stim4<-df.full.stim %>% filter(is.inrange(presentation, range = c(10,12))) %>% mutate(binned_presentation = 4)
+  df.full.stim5<-df.full.stim %>% filter(is.inrange(presentation, range = c(13,15))) %>% mutate(binned_presentation = 5)
+  df.full.stim6<-df.full.stim %>% filter(is.inrange(presentation, range = c(16,18))) %>% mutate(binned_presentation = 6)
+  df.full.stim7<-df.full.stim %>% filter(is.inrange(presentation, range = c(19,21))) %>% mutate(binned_presentation = 7)
+  df.full.stim8<-df.full.stim %>% filter(is.inrange(presentation, range = c(22,24))) %>% mutate(binned_presentation = 8)
+  df.full.stim9<-df.full.stim %>% filter(is.inrange(presentation, range = c(25,27))) %>% mutate(binned_presentation = 9)
+  df.full.stim10<-df.full.stim %>% filter(is.inrange(presentation, range = c(28,30))) %>% mutate(binned_presentation = 10)
+  
+  
+df.full.stim<-do.call("rbind", list(df.full.stim1, df.full.stim2, df.full.stim3, df.full.stim4, df.full.stim5, df.full.stim6, df.full.stim7, df.full.stim8, df.full.stim9, df.full.stim10))
+  
+  #This section is getting the proportion of time on the correct side for every presentation (first for gaps and then for stimuli)
+  test_column_prop_gap <- vector(length = length(unique(df.full.gap$presentation)))
+  df.prop.gap<-data.frame(presentation = test_column_prop_gap)
+  
+  for(j in 1:length(unique(df.full.gap$presentation))){
+    jnum<-as.numeric(j)
+    df.prop.gap$presentation[j] <-jnum
+    nrow<-df.full.gap %>% filter(presentation == jnum) %>% nrow()
+    correct_nrow<-df.full.gap %>% filter(presentation == jnum) %>% filter(distance_from_correct < 640) %>% nrow()
+    df.prop.gap$proportion_time_correct_during_gap[j]<-correct_nrow/nrow
+  }
+  
+  test_column_prop_stim <- vector(length = length(unique(df.full.stim$presentation)))
+  df.prop.stim<-data.frame(presentation = test_column_prop_stim)
+  
+  for(j in 1:length(unique(df.full.stim$presentation))){
+    jnum<-as.numeric(j)
+    df.prop.stim$presentation[j] <-jnum
+    nrow<-df.full.stim %>% filter(presentation == jnum) %>% nrow()
+    correct_nrow<-df.full.stim %>% filter(presentation == jnum) %>% filter(distance_from_correct < 640) %>% nrow()
+    df.prop.stim$proportion_time_correct_during_stim[j]<-correct_nrow/nrow
+  }
+  
+  mean_prop_time_correct_during_gap<-mean(df.prop.gap$proportion_time_correct_during_gap)
+  mean_prop_time_correct_during_stim<-mean(df.prop.stim$proportion_time_correct_during_stim)
+  
+  df.prop.gap<-df.prop.gap%>% filter(is.na(presentation) == FALSE)
+  df.prop.stim<-df.prop.stim%>% filter(is.na(presentation) == FALSE)
+
+  mod<- lm(df.prop.gap$proportion_time_correct_during_gap ~ df.prop.gap$presentation)
+  modsum<-summary(mod)
+  modsum<-modsum$coefficients
+  gap_prop_slope<-modsum[2]
+  
+  mod<- lm(df.prop.stim$proportion_time_correct_during_stim ~ df.prop.stim$presentation)
+  modsum<-summary(mod)
+  modsum<-modsum$coefficients
+  stim_prop_slope<-modsum[2]
+
+  
+#same thing BINNED- This section is getting the proportion of time on the correct side for every BINNED presentation (first for gaps and then for stimuli)
+  test_column_prop_bin_gap <- vector(length = length(unique(df.full.gap$binned_presentation)))
+  df.prop.bin.gap<-data.frame(binned_presentation = test_column_prop_bin_gap)
+  
+  for(j in 1:length(unique(df.full.gap$binned_presentation))){
+    jnum<-as.numeric(j)
+    df.prop.bin.gap$binned_presentation[j] <-jnum
+    nrow<-df.full.gap %>% filter(binned_presentation == jnum) %>% nrow()
+    correct_nrow<-df.full.gap %>% filter(binned_presentation == jnum) %>% filter(distance_from_correct < 640) %>% nrow()
+    df.prop.bin.gap$proportion_time_correct_during_gap[j]<-correct_nrow/nrow
+  }
+  
+  test_column_prop_bin_stim <- vector(length = length(unique(df.full.stim$binned_presentation)))
+  df.prop.bin.stim<-data.frame(binned_presentation = test_column_prop_bin_stim)
+  
+  for(j in 1:length(unique(df.full.stim$binned_presentation))){
+    jnum<-as.numeric(j)
+    df.prop.bin.stim$binned_presentation[j] <-jnum
+    nrow<-df.full.stim %>% filter(binned_presentation == jnum) %>% nrow()
+    correct_nrow<-df.full.stim %>% filter(binned_presentation == jnum) %>% filter(distance_from_correct < 640) %>% nrow()
+    df.prop.bin.stim$proportion_time_correct_during_stim[j]<-correct_nrow/nrow
+  }
+  
+  mean_binned_prop_time_correct_during_gap<-mean(df.prop.bin.gap$proportion_time_correct_during_gap)
+  mean_binned_prop_time_correct_during_stim<-mean(df.prop.bin.stim$proportion_time_correct_during_stim)
+  
+  df.prop.bin.gap<-df.prop.bin.gap%>% filter(is.na(binned_presentation) == FALSE)
+  df.prop.bin.stim<-df.prop.bin.stim%>% filter(is.na(binned_presentation) == FALSE)
+
+  mod<- lm(df.prop.bin.gap$proportion_time_correct_during_gap ~ df.prop.bin.gap$binned_presentation)
+  modsum<-summary(mod)
+  modsum<-modsum$coefficients
+  gap_prop_binned_slope<-modsum[2]
+  
+  mod<- lm(df.prop.bin.stim$proportion_time_correct_during_stim ~ df.prop.bin.stim$binned_presentation)
+  modsum<-summary(mod)
+  modsum<-modsum$coefficients
+  stim_prop_binned_slope<-modsum[2]
+  
+  #now on to easier stuff- getting the mean distance from the correct side during the stims and gaps
+  mean_distance_from_correct_during_stims <- mean(df.full.stim$distance_from_correct, na.rm = TRUE)
+  mean_distance_from_correct_during_gaps <- mean(df.full.gap$distance_from_correct, na.rm = TRUE)
+  
+
+#compare first 5 gaps to last 5 gaps
+  giveup2<- as.numeric(giveup2)
+  giveup2minus4<-giveup2 - 4
+  
+  if(giveup2 > 9){
+    df.full.first5gap<-df.full.gap %>% filter(is.inrange(presentation, range = c(1,5)))
+    df.full.last5gap<-df.full.gap %>% filter(is.inrange(presentation, range = c(giveup2minus4, giveup2)))
+    df.prop.first5gap<-df.prop.gap %>% filter(is.inrange(presentation, range = c(1,5)))
+    df.prop.last5gap<-df.prop.gap %>% filter(is.inrange(presentation, range = c(giveup2minus4, giveup2)))
+
+    comp_5v5_avg_dist <- mean(df.full.first5gap$distance_from_correct) - mean(df.full.last5gap$distance_from_correct)
+    comp_5v5_avg_prop_correct <- mean(df.prop.first5gap$proportion_time_correct_during_gap) - mean(df.prop.last5gap$proportion_time_correct_during_gap)}
+  else if(giveup2<=9){
+    comp_5v5_avg_dist <- NA
+    comp_5v5_avg_prop_correct <- NA}
+
+ #now let's look at the slope of the line of the distance from correct durign the gaps and see if it decreases over time
+  #if wilcox test less than 0.05 then shuttlebox_did_learn = 1, else if >0.05 = 0, else NA
+  
+  mod<- lm(df.full.gap$distance_from_correct ~ df.full.gap$presentation)
+  modsum<-summary(mod)
+  modsum<-modsum$coefficients
+  slope_avg_dist<-modsum[2]
+  wilcox<- wilcox.test(df.full.gap$distance_from_correct, mu = 640)
+  wilcox_p_value_avg_dist<-wilcox$p.value
+  
+  binned_mod<- lm(df.full.gap$distance_from_correct ~ df.full.gap$binned_presentation)
+  binned_modsum<-summary(binned_mod)
+  binned_modsum<-binned_modsum$coefficients
+  binned_slope_avg_dist<-binned_modsum[2]
+  binned_wilcox<- wilcox.test(df.full.gap$distance_from_correct, mu = 640)
+  binned_wilcox_p_value_avg_dist<-binned_wilcox$p.value
+  
+  mod<- lm(df.prop.gap$proportion_time_correct_during_gap ~ df.prop.gap$presentation)
+  modsum<-summary(mod)
+  modsum<-modsum$coefficients
+  slope_prop_correct<-modsum[2]
+  wilcox<- wilcox.test(df.prop.gap$proportion_time_correct_during_gap, mu = 0.5)
+  wilcox_p_value_prop_correct<-wilcox$p.value
+  
+  binned_mod<- lm(df.prop.bin.gap$proportion_time_correct_during_gap ~ df.prop.bin.gap$binned_presentation)
+  binned_modsum<-summary(binned_mod)
+  binned_modsum<-binned_modsum$coefficients
+  binned_slope_prop_correct<-binned_modsum[2]
+  binned_wilcox<- wilcox.test(df.prop.bin.gap$proportion_time_correct_during_gap, mu = 0.5)
+  binned_wilcox_p_value_prop_correct<-binned_wilcox$p.value
+
+
+  #now let's put it all together
+df.sum$fish_name[i] <-fishname
+df.sum$shuttlebox_start_side[i] <-startside
+df.sum$presentation_when_fish_gave_up[i] <-giveup2
+df.sum$shuttlebox_average_distance_from_correct_stimulus_during_stimulus[i]<-mean_distance_from_correct_during_stims
+df.sum$shuttlebox_average_distance_from_correct_stimulus_during_gaps[i]<-mean_distance_from_correct_during_gaps
+df.sum$difference_avg_dist_from_correct_first_5_gaps_minus_last_5_gaps[i] <- comp_5v5_avg_dist #so a more positive number is better
+df.sum$difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps[i] <- comp_5v5_avg_prop_correct #so a more negative number
+
+df.sum$shuttlebox_slope_using_avg_dist_from_correct[i]<- slope_avg_dist
+df.sum$shuttlebox_wilcox_test_using_avg_dist_from_correct[i]<-wilcox_p_value_avg_dist
+df.sum$binned_shuttlebox_slope_using_avg_dist_from_correct[i]<- binned_slope_avg_dist
+df.sum$binned_shuttlebox_wilcox_test_using_avg_dist_from_correct[i]<-binned_wilcox_p_value_avg_dist
+
+df.sum$shuttlebox_slope_using_proportion_time_correct_during_gap[i]<- slope_prop_correct
+df.sum$shuttlebox_wilcox_test_using_proportion_time_correct_during_gap[i]<-wilcox_p_value_prop_correct
+df.sum$binned_shuttlebox_slope_using_proportion_time_correct_during_gap[i]<- binned_slope_prop_correct
+df.sum$binned_shuttlebox_wilcox_test_using_proportion_time_correct_during_gap[i]<-binned_wilcox_p_value_prop_correct
+
+df.sum$shuttlebox_average_proportion_of_time_on_correct_side_during_gaps[i]<- mean_prop_time_correct_during_gap
+df.sum$shuttlebox_average_proportion_of_time_on_correct_side_during_stimulus[i]<- mean_prop_time_correct_during_stim
+df.sum$shuttlebox_proportion_of_time_on_correct_side_during_gaps_slope_across_presentations[i]<-gap_prop_slope
+df.sum$shuttlebox_proportion_of_time_on_correct_side_during_stimulus_slope_across_presentations[i]<-stim_prop_slope
+
+df.sum$binned_shuttlebox_average_proportion_of_time_on_correct_side_during_gaps[i]<- mean_binned_prop_time_correct_during_gap
+df.sum$binned_shuttlebox_average_proportion_of_time_on_the_correct_side_during_stimulus[i]<- mean_binned_prop_time_correct_during_stim
+df.sum$binned_shuttlebox_proportion_of_time_on_correct_side_during_gaps_slope_across_presentations[i]<- gap_prop_binned_slope
+df.sum$binned_shuttlebox_proportion_of_time_on_correct_side_during_stimulus_slope_across_presentations[i]<- stim_prop_binned_slope
+
+if(df.sum$shuttlebox_wilcox_test_using_avg_dist_from_correct[i] <0.05){
+    df.sum$did_fish_solve_shuttlebox_using_avg_dist_from_correct[i]<- 1}
+  else if(df.sum$shuttlebox_wilcox_test_using_avg_dist_from_correct[i] >=0.05){
+    df.sum$did_fish_solve_shuttlebox_using_avg_dist_from_correct[i]<- 0}
+  else{
+    df.sum$did_fish_solve_shuttlebox_using_avg_dist_from_correct[i]<- NA}
+
+if(df.sum$binned_shuttlebox_wilcox_test_using_avg_dist_from_correct[i] <0.05){
+    df.sum$binned_did_fish_solve_shuttlebox_using_avg_dist_from_correct[i]<- 1}
+  else if(df.sum$binned_shuttlebox_wilcox_test_using_avg_dist_from_correct[i] >=0.05){
+    df.sum$binned_did_fish_solve_shuttlebox_using_avg_dist_from_correct[i]<- 0}
+  else{
+    df.sum$binned_did_fish_solve_shuttlebox_using_avg_dist_from_correct[i]<- NA}
+  
+if(df.sum$shuttlebox_wilcox_test_using_proportion_time_correct_during_gap[i] <0.05){
+    df.sum$did_fish_solve_shuttlebox_using_proportion_time_correct_during_gap[i]<- 1}
+  else if(df.sum$shuttlebox_wilcox_test_using_proportion_time_correct_during_gap[i] >=0.05){
+    df.sum$did_fish_solve_shuttlebox_using_proportion_time_correct_during_gap[i]<- 0}
+  else{
+    df.sum$did_fish_solve_shuttlebox_using_proportion_time_correct_during_gap[i]<- NA}
+
+if(df.sum$binned_shuttlebox_wilcox_test_using_proportion_time_correct_during_gap[i] <0.05){
+    df.sum$binned_did_fish_solve_shuttlebox_using_proportion_time_correct_during_gap[i]<- 1}
+  else if(df.sum$binned_shuttlebox_wilcox_test_using_proportion_time_correct_during_gap[i] >=0.05){
+    df.sum$binned_did_fish_solve_shuttlebox_using_proportion_time_correct_during_gap[i]<- 0}
+  else{
+    df.sum$binned_did_fish_solve_shuttlebox_using_proportion_time_correct_during_gap[i]<- NA}
+}
+
+```
+
+
+
+
+```{r, echo=FALSE, message=FALSE}
+#same thing as before but now only looking at the last 10 seconds of the gap
+#will make a df.sum.10sec, add that in to the df.total at the end
+#place this after the mutate distance from correct:
+  #df.full<-df.full%>%filter(last_10_secs_of_gap == 1) #THIS IS WHAT CHANGES THE WHOLE THING TO FILTER BY LAST 30 SECS
+library(ggplot2)
+library(dplyr)
+library(rmarkdown)
+library(knitr)
+library(readr)
+library(utils)
+library(EnvStats)
+library(hqmisc)
+
+setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets/")
+
+file_list<- list.files("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets")
+
+
+shuttleleft<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Shuttlebox_Tracking_L_framesofinterest.csv", col_names = TRUE, col_types = NULL)
+#View(shuttleleft)
+
+shuttleright<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Shuttlebox_Tracking_R_framesofinterest.csv", col_names = TRUE, col_types = NULL)
+#View(shuttleright)
+
+test_column <- vector(length = length(file_list))
+df.sum.10sec <- data.frame(fish_name = test_column)
+
+df.sum <- data.frame(fish_name = test_column)
+
+
+for(i in 1:length(file_list)){
+  setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets")
+  
+  df<- read_csv(file_list[i], col_names = TRUE, col_types = NULL)
+  
+  fishname <- strsplit(file_list[i],'_')[[1]][4]
+  startside <- strsplit(file_list[i],'_')[[1]][5]
+  giveup <- strsplit(file_list[i],'_')[[1]][6]
+  giveup2 <- strsplit(file_list[i],'_')[[1]][8] ##this is the more restricted version of giveup- this is the last tgap before 5 sequential gaps where the fish did not move. This was judged by the proportion of time on the correct side, if it went 0-100-0 or 100-0-100
+  resolution <- strsplit(file_list[i],'_')[[1]][7]
+  
+  #converting all the non-1280 resolutions to 1280 as far as x distance goes
+  if(resolution == 800){
+  df$x <- df$x *1.6}
+  if (resolution == 640){
+  df$x <- df$x *2}
+  max(df$x, na.rm = TRUE)
+  
+  if(startside == "L"){
+    df.full<- full_join(df,shuttleleft, by = 'frame_number')}
+  if(startside == "R"){
+    df.full<- full_join(df,shuttleright, by = 'frame_number')}
+  
+  df.full
+  df.full<-df.full %>% mutate(distance_from_correct = abs(correct_x_pixel - x))
+  df.full<-df.full%>%filter(last_10_secs_of_gap == 1) #THIS IS WHAT CHANGES THE WHOLE THING TO FILTER BY LAST 10 SECS
+  
+  df.full.stim<-df.full %>% filter(type == 'stim')
+  df.full.gap<-df.full %>% filter(type == 'gap')
+  
+  df.full.gap1<-df.full.gap %>% filter(is.inrange(presentation, range = c(1,3)))
+  df.full.gap2<-df.full.gap %>% filter(is.inrange(presentation, range = c(4,6)))
+  df.full.gap3<-df.full.gap %>% filter(is.inrange(presentation, range = c(7,9)))
+  df.full.gap4<-df.full.gap %>% filter(is.inrange(presentation, range = c(10,12)))
+  df.full.gap5<-df.full.gap %>% filter(is.inrange(presentation, range = c(13,15)))
+  df.full.gap6<-df.full.gap %>% filter(is.inrange(presentation, range = c(16,18)))
+  df.full.gap7<-df.full.gap %>% filter(is.inrange(presentation, range = c(19,21)))
+  df.full.gap8<-df.full.gap %>% filter(is.inrange(presentation, range = c(22,24)))
+  df.full.gap9<-df.full.gap %>% filter(is.inrange(presentation, range = c(25,27)))
+  df.full.gap10<-df.full.gap %>% filter(is.inrange(presentation, range = c(28,30)))
+  
+  
+df.full.gap<-do.call("rbind", list(df.full.gap1, df.full.gap2, df.full.gap3, df.full.gap4, df.full.gap5, df.full.gap6, df.full.gap7, df.full.gap8, df.full.gap9, df.full.gap10))
+  
+  df.full.stim1<-df.full.stim %>% filter(is.inrange(presentation, range = c(1,3)))
+  df.full.stim2<-df.full.stim %>% filter(is.inrange(presentation, range = c(4,6)))
+  df.full.stim3<-df.full.stim %>% filter(is.inrange(presentation, range = c(7,9)))
+  df.full.stim4<-df.full.stim %>% filter(is.inrange(presentation, range = c(10,12)))
+  df.full.stim5<-df.full.stim %>% filter(is.inrange(presentation, range = c(13,15)))
+  df.full.stim6<-df.full.stim %>% filter(is.inrange(presentation, range = c(16,18)))
+  df.full.stim7<-df.full.stim %>% filter(is.inrange(presentation, range = c(19,21)))
+  df.full.stim8<-df.full.stim %>% filter(is.inrange(presentation, range = c(22,24)))
+  df.full.stim9<-df.full.stim %>% filter(is.inrange(presentation, range = c(25,27)))
+  df.full.stim10<-df.full.stim %>% filter(is.inrange(presentation, range = c(28,30)))
+  
+df.full.stim<-do.call("rbind", list(df.full.stim1, df.full.stim2, df.full.stim3, df.full.stim4, df.full.stim5, df.full.stim6, df.full.stim7, df.full.stim8, df.full.stim9, df.full.stim10))
+  
+  #This section is getting the proportion of time on the correct side for every presentation (first for gaps and then for stimuli)
+  test_column_prop_gap <- vector(length = length(unique(df.full.gap$presentation)))
+  df.prop.gap<-data.frame(presentation = test_column_prop_gap)
+  
+  for(j in 1:length(unique(df.full.gap$presentation))){
+    jnum<-as.numeric(j)
+    df.prop.gap$presentation[j] <-jnum
+    nrow<-df.full.gap %>% filter(presentation == jnum) %>% nrow()
+    correct_nrow<-df.full.gap %>% filter(presentation == jnum) %>% filter(distance_from_correct < 640) %>% nrow()
+    df.prop.gap$proportion_time_correct_during_gap[j]<-correct_nrow/nrow
+  }
+  
+  #test_column_prop_stim <- vector(length = length(unique(df.full.stim$presentation)))
+  #df.prop.stim<-data.frame(presentation = test_column_prop_stim)
+  
+  #for(j in 1:length(unique(df.full.stim$presentation))){
+  #  jnum<-as.numeric(j)
+  #  df.prop.stim$presentation[j] <-jnum
+  #  nrow<-df.full.stim %>% filter(presentation == jnum) %>% nrow()
+  #  correct_nrow<-df.full.stim %>% filter(presentation == jnum) %>% filter(distance_from_correct < 640) %>% nrow()
+  #  df.prop.stim$proportion_time_correct_during_stim[j]<-correct_nrow/nrow
+  #}
+  
+  mean_prop_time_correct_during_gap<-mean(df.prop.gap$proportion_time_correct_during_gap)
+  #mean_prop_time_correct_during_stim<-mean(df.prop.stim$proportion_time_correct_during_stim)
+  
+  df.prop.gap<-df.prop.gap%>% filter(is.na(presentation) == FALSE)
+  #df.prop.stim<-df.prop.stim%>% filter(is.na(presentation) == FALSE)
+    
+  mod<- lm(df.prop.gap$proportion_time_correct_during_gap ~ df.prop.gap$presentation)
+  modsum<-summary(mod)
+  modsum<-modsum$coefficients
+  gap_prop_slope<-modsum[2]
+  
+  #mod<- lm(df.prop.stim$proportion_time_correct_during_stim ~ df.prop.stim$presentation)
+  #modsum<-summary(mod)
+  #modsum<-modsum$coefficients
+  #stim_prop_slope<-modsum[2]
+  
+  #now on to easier stuff- getting the mean distance from the correct side during the stims and gaps
+  #mean_distance_from_correct_during_stims <- mean(df.full.stim$distance_from_correct, na.rm = TRUE)
+  mean_distance_from_correct_during_gaps <- mean(df.full.gap$distance_from_correct, na.rm = TRUE)
+  
+
+#compare first 5 gaps to last 5 gaps
+  giveup2<- as.numeric(giveup2)
+  giveup2minus4<-giveup2 - 4
+  
+  if(giveup2 > 9){
+    df.full.first5gap<-df.full.gap %>% filter(is.inrange(presentation, range = c(1,5)))
+    df.full.last5gap<-df.full.gap %>% filter(is.inrange(presentation, range = c(giveup2minus4, giveup2)))
+    df.prop.first5gap<-df.prop.gap %>% filter(is.inrange(presentation, range = c(1,5)))
+    df.prop.last5gap<-df.prop.gap %>% filter(is.inrange(presentation, range = c(giveup2minus4, giveup2)))
+
+    comp_5v5_avg_dist <- mean(df.full.first5gap$distance_from_correct) - mean(df.full.last5gap$distance_from_correct)
+    comp_5v5_avg_prop_correct <- mean(df.prop.first5gap$proportion_time_correct_during_gap) - mean(df.prop.last5gap$proportion_time_correct_during_gap)}
+  if(giveup2<=9){
+    comp_5v5_avg_dist <- NA
+    comp_5v5_avg_prop_correct <- NA}
+
+ #now let's look at the slope of the line of the distance from correct durign the gaps and see if it decreases over time
+  #if wilcox test less than 0.05 then shuttlebox_did_learn = 1, else if >0.05 = 0, else NA
+  
+  mod<- lm(df.full.gap$distance_from_correct ~ df.full.gap$presentation)
+  modsum<-summary(mod)
+  modsum<-modsum$coefficients
+  slope_avg_dist<-modsum[2]
+  wilcox<- wilcox.test(df.full.gap$distance_from_correct, mu = 640)
+  wilcox_p_value_avg_dist<-wilcox$p.value
+  
+
+  
+  mod<- lm(df.prop.gap$proportion_time_correct_during_gap ~ df.prop.gap$presentation)
+  modsum<-summary(mod)
+  modsum<-modsum$coefficients
+  slope_prop_correct<-modsum[2]
+  wilcox<- wilcox.test(df.prop.gap$proportion_time_correct_during_gap, mu = 0.3)
+  wilcox_p_value_prop_correct<-wilcox$p.value
+
+  #now let's put it all together
+df.sum.10sec$fish_name[i] <-fishname
+df.sum.10sec$resolution[i] <-resolution
+df.sum.10sec$shuttlebox_start_side[i] <-startside
+df.sum.10sec$presentation_when_fish_gave_up_3_ITI[i] <-giveup2
+#df.sum.10sec$shuttlebox_start_side[i] <-startside
+#df.sum.10sec$presentation_when_fish_gave_up[i] <-giveup2
+#df.sum.10sec$shuttlebox_average_distance_from_correct_stimulus_during_stimulus[i]<-mean_distance_from_correct_during_stims
+df.sum.10sec$last10secdata_shuttlebox_average_distance_from_correct_stimulus_during_gaps[i]<-mean_distance_from_correct_during_gaps
+df.sum.10sec$last10secdata_difference_avg_dist_from_correct_first_5_gaps_minus_last_5_gaps[i] <- comp_5v5_avg_dist #so a more positive number is better
+df.sum.10sec$last10secdata_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps[i] <- comp_5v5_avg_prop_correct #so a more negative number is better
+
+df.sum.10sec$last10secdata_shuttlebox_slope_using_avg_dist_from_correct[i]<- slope_avg_dist
+df.sum.10sec$last10secdata_shuttlebox_wilcox_test_using_avg_dist_from_correct[i]<-wilcox_p_value_avg_dist
+
+df.sum.10sec$last10secdata_shuttlebox_average_proportion_of_time_on_correct_side_during_gaps[i]<- mean_prop_time_correct_during_gap
+#df.sum.10sec$shuttlebox_average_proportion_of_time_on_correct_side_during_stimulus[i]<- mean_prop_time_correct_during_stim
+df.sum.10sec$last10secdata_shuttlebox_proportion_of_time_on_correct_side_during_gaps_slope_across_presentations[i]<-gap_prop_slope
+#df.sum.10sec$shuttlebox_proportion_of_time_on_correct_side_during_stimulus_slope_across_presentations[i]<-stim_prop_slope
+
+df.sum.10sec$last10secdata_shuttlebox_slope_using_proportion_time_correct_during_gap[i]<- slope_prop_correct
+df.sum.10sec$last10secdata_shuttlebox_wilcox_test_using_proportion_time_correct_during_gap[i]<-wilcox_p_value_prop_correct
+
+
+if(df.sum.10sec$last10secdata_shuttlebox_wilcox_test_using_avg_dist_from_correct[i] <0.05){
+    df.sum.10sec$last10secdata_did_fish_solve_shuttlebox_using_avg_dist_from_correct[i]<- 1
+    } else if(df.sum.10sec$last10secdata_shuttlebox_wilcox_test_using_avg_dist_from_correct[i] >=0.05){
+    df.sum.10sec$last10secdata_did_fish_solve_shuttlebox_using_avg_dist_from_correct[i]<- 0
+    } else if(is.na(df.sum.10sec$last10secdata_shuttlebox_wilcox_test_using_avg_dist_from_correct[i]) == TRUE){
+    df.sum.10sec$last10secdata_did_fish_solve_shuttlebox_using_avg_dist_from_correct[i]<- NA}
+
+
+if(df.sum.10sec$last10secdata_shuttlebox_wilcox_test_using_proportion_time_correct_during_gap[i] <0.05){
+    df.sum.10sec$last10secdata_did_fish_solve_shuttlebox_using_proportion_time_correct_during_gap[i]<- 1
+    } else if(df.sum.10sec$last10secdata_shuttlebox_wilcox_test_using_proportion_time_correct_during_gap[i] >=0.05){
+    df.sum.10sec$last10secdata_did_fish_solve_shuttlebox_using_proportion_time_correct_during_gap[i]<- 0
+    } else if(is.na(df.sum.10sec$last10secdata_shuttlebox_wilcox_test_using_avg_dist_from_correct[i]) == TRUE){
+    df.sum.10sec$last10secdata_did_fish_solve_shuttlebox_using_avg_dist_from_correct[i]<- NA}
+
+#this will get anything that's at least a decrease in distance from correct of at least 20%
+if(is.na(df.sum.10sec$last10secdata_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps[i]) == TRUE){
+  df.sum.10sec$last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent[i] <-NA 
+  } else if(df.sum.10sec$last10secdata_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps[i]<= -0.199){
+  df.sum.10sec$last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent[i]<- 1 
+  } else if(df.sum.10sec$last10secdata_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps[i]>-0.199){
+  df.sum.10sec$last10secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent[i]<- 0 }
+
+#note 256 is 20% of 1280 so this is asking if their average distance decreased by 20% (two hundred and fifty six pixels)
+if(is.na(df.sum.10sec$last10secdata_difference_avg_dist_from_correct_first_5_gaps_minus_last_5_gaps[i])== TRUE){
+  df.sum.10sec$last10secdata_was_difference_avg_dist_from_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent[i]<-NA
+  } else if(df.sum.10sec$last10secdata_difference_avg_dist_from_correct_first_5_gaps_minus_last_5_gaps[i] >= 256){
+  df.sum.10sec$last10secdata_was_difference_avg_dist_from_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent[i]<- 1
+  } else if(df.sum.10sec$last10secdata_difference_avg_dist_from_correct_first_5_gaps_minus_last_5_gaps[i] < 256){df.sum.10sec$last10secdata_was_difference_avg_dist_from_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent[i]<- 0}
+}
+
+setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/")
+write_csv(df.sum.10sec, "shuttlebox_10sec_data_3_ITI_cutoff_comparing_first_and_last_5_june_8_2018.csv")
+
+```
+
+
+#last 30 seconds!!!!!!!!!!
+!!!!!!!!!!
+!!!!!!!!!!
+!!!!!!!!!!
+!!!!!!!!!!
+
+
+```{r, echo=FALSE, message=FALSE}
+#same thing as before but now only looking at the last 30 seconds of the gap
+#will make a df.sum.30sec, add that in to the df.total at the end
+#place this after the mutate distance from correct:
+  #df.full<-df.full%>%filter(last_30_secs_of_gap == 1) #THIS IS WHAT CHANGES THE WHOLE THING TO FILTER BY LAST 30 SECS
+library(ggplot2)
+library(dplyr)
+library(rmarkdown)
+library(knitr)
+library(readr)
+library(utils)
+library(EnvStats)
+library(hqmisc)
+
+setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets/")
+
+file_list<- list.files("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets")
+
+
+shuttleleft<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Shuttlebox_Tracking_L_framesofinterest.csv", col_names = TRUE, col_types = NULL)
+#View(shuttleleft)
+
+shuttleright<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Shuttlebox_Tracking_R_framesofinterest.csv", col_names = TRUE, col_types = NULL)
+#View(shuttleright)
+
+test_column <- vector(length = length(file_list))
+df.sum.30sec <- data.frame(fish_name = test_column)
+
+df.sum <- data.frame(fish_name = test_column)
+
+
+for(i in 1:length(file_list)){
+  setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets")
+  
+  df<- read_csv(file_list[i], col_names = TRUE, col_types = NULL)
+  
+  fishname <- strsplit(file_list[i],'_')[[1]][4]
+  startside <- strsplit(file_list[i],'_')[[1]][5]
+  giveup <- strsplit(file_list[i],'_')[[1]][6]
+  giveup2 <- strsplit(file_list[i],'_')[[1]][8] ##this is the more restricted version of giveup- this is the last tgap before 5 sequential gaps where the fish did not move. This was judged by the proportion of time on the correct side, if it went 0-300-0 or 300-0-300
+  resolution <- strsplit(file_list[i],'_')[[1]][7]
+  
+  #converting all the non-1280 resolutions to 1280 as far as x distance goes
+  if(resolution == 800){
+  df$x <- df$x *1.6}
+  if (resolution == 640){
+  df$x <- df$x *2}
+  max(df$x, na.rm = TRUE)
+  
+  if(startside == "L"){
+    df.full<- full_join(df,shuttleleft, by = 'frame_number')}
+  if(startside == "R"){
+    df.full<- full_join(df,shuttleright, by = 'frame_number')}
+  
+  df.full
+  df.full<-df.full %>% mutate(distance_from_correct = abs(correct_x_pixel - x))
+  df.full<-df.full%>%filter(last_30_secs_of_gap == 1) #THIS IS WHAT CHANGES THE WHOLE THING TO FILTER BY LAST 30 SECS
+  
+  df.full.stim<-df.full %>% filter(type == 'stim')
+  df.full.gap<-df.full %>% filter(type == 'gap')
+  
+  df.full.gap1<-df.full.gap %>% filter(is.inrange(presentation, range = c(1,3)))
+  df.full.gap2<-df.full.gap %>% filter(is.inrange(presentation, range = c(4,6)))
+  df.full.gap3<-df.full.gap %>% filter(is.inrange(presentation, range = c(7,9)))
+  df.full.gap4<-df.full.gap %>% filter(is.inrange(presentation, range = c(10,12)))
+  df.full.gap5<-df.full.gap %>% filter(is.inrange(presentation, range = c(13,15)))
+  df.full.gap6<-df.full.gap %>% filter(is.inrange(presentation, range = c(16,18)))
+  df.full.gap7<-df.full.gap %>% filter(is.inrange(presentation, range = c(19,21)))
+  df.full.gap8<-df.full.gap %>% filter(is.inrange(presentation, range = c(22,24)))
+  df.full.gap9<-df.full.gap %>% filter(is.inrange(presentation, range = c(25,27)))
+  df.full.gap10<-df.full.gap %>% filter(is.inrange(presentation, range = c(28,30)))
+  
+  
+df.full.gap<-do.call("rbind", list(df.full.gap1, df.full.gap2, df.full.gap3, df.full.gap4, df.full.gap5, df.full.gap6, df.full.gap7, df.full.gap8, df.full.gap9, df.full.gap10))
+  
+  df.full.stim1<-df.full.stim %>% filter(is.inrange(presentation, range = c(1,3)))
+  df.full.stim2<-df.full.stim %>% filter(is.inrange(presentation, range = c(4,6)))
+  df.full.stim3<-df.full.stim %>% filter(is.inrange(presentation, range = c(7,9)))
+  df.full.stim4<-df.full.stim %>% filter(is.inrange(presentation, range = c(10,12)))
+  df.full.stim5<-df.full.stim %>% filter(is.inrange(presentation, range = c(13,15)))
+  df.full.stim6<-df.full.stim %>% filter(is.inrange(presentation, range = c(16,18)))
+  df.full.stim7<-df.full.stim %>% filter(is.inrange(presentation, range = c(19,21)))
+  df.full.stim8<-df.full.stim %>% filter(is.inrange(presentation, range = c(22,24)))
+  df.full.stim9<-df.full.stim %>% filter(is.inrange(presentation, range = c(25,27)))
+  df.full.stim10<-df.full.stim %>% filter(is.inrange(presentation, range = c(28,30)))
+  
+df.full.stim<-do.call("rbind", list(df.full.stim1, df.full.stim2, df.full.stim3, df.full.stim4, df.full.stim5, df.full.stim6, df.full.stim7, df.full.stim8, df.full.stim9, df.full.stim10))
+  
+  #This section is getting the proportion of time on the correct side for every presentation (first for gaps and then for stimuli)
+  test_column_prop_gap <- vector(length = length(unique(df.full.gap$presentation)))
+  df.prop.gap<-data.frame(presentation = test_column_prop_gap)
+  
+  for(j in 1:length(unique(df.full.gap$presentation))){
+    jnum<-as.numeric(j)
+    df.prop.gap$presentation[j] <-jnum
+    nrow<-df.full.gap %>% filter(presentation == jnum) %>% nrow()
+    correct_nrow<-df.full.gap %>% filter(presentation == jnum) %>% filter(distance_from_correct < 640) %>% nrow()
+    df.prop.gap$proportion_time_correct_during_gap[j]<-correct_nrow/nrow
+  }
+  
+  #test_column_prop_stim <- vector(length = length(unique(df.full.stim$presentation)))
+  #df.prop.stim<-data.frame(presentation = test_column_prop_stim)
+  
+  #for(j in 1:length(unique(df.full.stim$presentation))){
+  #  jnum<-as.numeric(j)
+  #  df.prop.stim$presentation[j] <-jnum
+  #  nrow<-df.full.stim %>% filter(presentation == jnum) %>% nrow()
+  #  correct_nrow<-df.full.stim %>% filter(presentation == jnum) %>% filter(distance_from_correct < 640) %>% nrow()
+  #  df.prop.stim$proportion_time_correct_during_stim[j]<-correct_nrow/nrow
+  #}
+  
+  mean_prop_time_correct_during_gap<-mean(df.prop.gap$proportion_time_correct_during_gap)
+  #mean_prop_time_correct_during_stim<-mean(df.prop.stim$proportion_time_correct_during_stim)
+  
+  df.prop.gap<-df.prop.gap%>% filter(is.na(presentation) == FALSE)
+  #df.prop.stim<-df.prop.stim%>% filter(is.na(presentation) == FALSE)
+    
+  mod<- lm(df.prop.gap$proportion_time_correct_during_gap ~ df.prop.gap$presentation)
+  modsum<-summary(mod)
+  modsum<-modsum$coefficients
+  gap_prop_slope<-modsum[2]
+  
+  #mod<- lm(df.prop.stim$proportion_time_correct_during_stim ~ df.prop.stim$presentation)
+  #modsum<-summary(mod)
+  #modsum<-modsum$coefficients
+  #stim_prop_slope<-modsum[2]
+  
+  #now on to easier stuff- getting the mean distance from the correct side during the stims and gaps
+  #mean_distance_from_correct_during_stims <- mean(df.full.stim$distance_from_correct, na.rm = TRUE)
+  mean_distance_from_correct_during_gaps <- mean(df.full.gap$distance_from_correct, na.rm = TRUE)
+  
+
+#compare first 5 gaps to last 5 gaps
+  giveup2<- as.numeric(giveup2)
+  giveup2minus4<-giveup2 - 4
+  
+  if(giveup2 > 9){
+    df.full.first5gap<-df.full.gap %>% filter(is.inrange(presentation, range = c(1,5)))
+    df.full.last5gap<-df.full.gap %>% filter(is.inrange(presentation, range = c(giveup2minus2, giveup2)))
+    df.prop.first5gap<-df.prop.gap %>% filter(is.inrange(presentation, range = c(1,5)))
+    df.prop.last5gap<-df.prop.gap %>% filter(is.inrange(presentation, range = c(giveup2minus2, giveup2)))
+
+    comp_5v5_avg_dist <- mean(df.full.first5gap$distance_from_correct) - mean(df.full.last5gap$distance_from_correct)
+    comp_5v5_avg_prop_correct <- mean(df.prop.first5gap$proportion_time_correct_during_gap) - mean(df.prop.last5gap$proportion_time_correct_during_gap)}
+  if(giveup2<=9){
+    comp_5v5_avg_dist <- NA
+    comp_5v5_avg_prop_correct <- NA}
+
+ #now let's look at the slope of the line of the distance from correct durign the gaps and see if it decreases over time
+  #if wilcox test less than 0.05 then shuttlebox_did_learn = 1, else if >0.05 = 0, else NA
+  
+  mod<- lm(df.full.gap$distance_from_correct ~ df.full.gap$presentation)
+  modsum<-summary(mod)
+  modsum<-modsum$coefficients
+  slope_avg_dist<-modsum[2]
+  wilcox<- wilcox.test(df.full.gap$distance_from_correct, mu = 640)
+  wilcox_p_value_avg_dist<-wilcox$p.value
+  
+
+  
+  mod<- lm(df.prop.gap$proportion_time_correct_during_gap ~ df.prop.gap$presentation)
+  modsum<-summary(mod)
+  modsum<-modsum$coefficients
+  slope_prop_correct<-modsum[2]
+  wilcox<- wilcox.test(df.prop.gap$proportion_time_correct_during_gap, mu = 0.3)
+  wilcox_p_value_prop_correct<-wilcox$p.value
+
+  #now let's put it all together
+df.sum.30sec$fish_name[i] <-fishname
+df.sum.30sec$resolution[i] <-resolution
+df.sum.30sec$shuttlebox_start_side[i] <-startside
+df.sum.30sec$presentation_when_fish_gave_up_3_ITI[i] <-giveup2
+#df.sum.30sec$shuttlebox_start_side[i] <-startside
+#df.sum.30sec$presentation_when_fish_gave_up[i] <-giveup2
+#df.sum.30sec$shuttlebox_average_distance_from_correct_stimulus_during_stimulus[i]<-mean_distance_from_correct_during_stims
+df.sum.30sec$last30secdata_shuttlebox_average_distance_from_correct_stimulus_during_gaps[i]<-mean_distance_from_correct_during_gaps
+df.sum.30sec$last30secdata_difference_avg_dist_from_correct_first_5_gaps_minus_last_5_gaps[i] <- comp_5v5_avg_dist #so a more positive number is better
+df.sum.30sec$last30secdata_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps[i] <- comp_5v5_avg_prop_correct #so a more negative number is better
+
+df.sum.30sec$last30secdata_shuttlebox_slope_using_avg_dist_from_correct[i]<- slope_avg_dist
+df.sum.30sec$last30secdata_shuttlebox_wilcox_test_using_avg_dist_from_correct[i]<-wilcox_p_value_avg_dist
+
+df.sum.30sec$last30secdata_shuttlebox_average_proportion_of_time_on_correct_side_during_gaps[i]<- mean_prop_time_correct_during_gap
+#df.sum.30sec$shuttlebox_average_proportion_of_time_on_correct_side_during_stimulus[i]<- mean_prop_time_correct_during_stim
+df.sum.30sec$last30secdata_shuttlebox_proportion_of_time_on_correct_side_during_gaps_slope_across_presentations[i]<-gap_prop_slope
+#df.sum.30sec$shuttlebox_proportion_of_time_on_correct_side_during_stimulus_slope_across_presentations[i]<-stim_prop_slope
+
+df.sum.30sec$last30secdata_shuttlebox_slope_using_proportion_time_correct_during_gap[i]<- slope_prop_correct
+df.sum.30sec$last30secdata_shuttlebox_wilcox_test_using_proportion_time_correct_during_gap[i]<-wilcox_p_value_prop_correct
+
+
+if(df.sum.30sec$last30secdata_shuttlebox_wilcox_test_using_avg_dist_from_correct[i] <0.05){
+    df.sum.30sec$last30secdata_did_fish_solve_shuttlebox_using_avg_dist_from_correct[i]<- 1
+    } else if(df.sum.30sec$last30secdata_shuttlebox_wilcox_test_using_avg_dist_from_correct[i] >=0.05){
+    df.sum.30sec$last30secdata_did_fish_solve_shuttlebox_using_avg_dist_from_correct[i]<- 0
+    } else if(is.na(df.sum.30sec$last30secdata_shuttlebox_wilcox_test_using_avg_dist_from_correct[i]) == TRUE){
+    df.sum.30sec$last30secdata_did_fish_solve_shuttlebox_using_avg_dist_from_correct[i]<- NA}
+
+
+if(df.sum.30sec$last30secdata_shuttlebox_wilcox_test_using_proportion_time_correct_during_gap[i] <0.05){
+    df.sum.30sec$last30secdata_did_fish_solve_shuttlebox_using_proportion_time_correct_during_gap[i]<- 1
+    } else if(df.sum.30sec$last30secdata_shuttlebox_wilcox_test_using_proportion_time_correct_during_gap[i] >=0.05){
+    df.sum.30sec$last30secdata_did_fish_solve_shuttlebox_using_proportion_time_correct_during_gap[i]<- 0
+    } else if(is.na(df.sum.30sec$last30secdata_shuttlebox_wilcox_test_using_avg_dist_from_correct[i]) == TRUE){
+    df.sum.30sec$last30secdata_did_fish_solve_shuttlebox_using_avg_dist_from_correct[i]<- NA}
+
+#this will get anything that's at least a decrease in distance from correct of at least 20%
+if(is.na(df.sum.30sec$last30secdata_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps[i]) == TRUE){
+  df.sum.30sec$last30secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent[i] <-NA 
+  } else if(df.sum.30sec$last30secdata_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps[i]<= -0.199){
+  df.sum.30sec$last30secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent[i]<- 1 
+  } else if(df.sum.30sec$last30secdata_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps[i]>-0.199){
+  df.sum.30sec$last30secdata_was_difference_avg_prop_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent[i]<- 0 }
+
+#note 256 is 20% of 1280 so this is asking if their average distance decreased by 20% (two hundred and fifty six pixels)
+if(is.na(df.sum.30sec$last30secdata_difference_avg_dist_from_correct_first_5_gaps_minus_last_5_gaps[i])== TRUE){
+  df.sum.30sec$last30secdata_was_difference_avg_dist_from_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent[i]<-NA
+  } else if(df.sum.30sec$last30secdata_difference_avg_dist_from_correct_first_5_gaps_minus_last_5_gaps[i] >= 256){
+  df.sum.30sec$last30secdata_was_difference_avg_dist_from_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent[i]<- 1
+  } else if(df.sum.30sec$last30secdata_difference_avg_dist_from_correct_first_5_gaps_minus_last_5_gaps[i] < 256){df.sum.30sec$last30secdata_was_difference_avg_dist_from_correct_first_5_gaps_minus_last_5_gaps_at_least_20_percent[i]<- 0}
+}
+
+setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/")
+write_csv(df.sum.30sec, "shuttlebox_30sec_data_3_ITI_cutoff_june_8_2018.csv")
+
+```
+
+
+
+
+```{r, echo=FALSE, message=FALSE}
+df.total<- full_join(df.sum,df.sum.10sec, by = 'fish_name')
+setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/")
+write_csv(df.total, "shuttlebox_data_may_24_2018.csv")
+
+```
+
+
+
+
+
+
+###############
+###############
+###############
+###############
+###############
+###############
+###############
+###############
+###############
+###############
+###############
+###############
+###############
+###############
+###############
+For this part I'm trying to recreate the Pather and Gerlai figure
+
+```{r, echo=FALSE, message=FALSE}
+
+file_list<- list.files("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets")
+shuttleleft<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Shuttlebox_Tracking_L_framesofinterest.csv", col_names = TRUE, col_types = NULL)
+#View(shuttleleft)
+
+shuttleright<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Shuttlebox_Tracking_R_framesofinterest.csv", col_names = TRUE, col_types = NULL)
+#View(shuttleright)
+
+test_column <- vector(length = length(file_list))
+df.graph <- data.frame(fish_name = test_column)
+df.graph$prop_time_correct_during_gap1 <-  test_column
+df.graph$prop_time_correct_during_stim1 <-  test_column
+df.graph$prop_time_correct_during_gap2 <-  test_column
+df.graph$prop_time_correct_during_stim2 <-  test_column
+df.graph$prop_time_correct_during_gap3 <-  test_column
+df.graph$prop_time_correct_during_stim3 <-  test_column
+df.graph$prop_time_correct_during_gap4 <-  test_column
+df.graph$prop_time_correct_during_stim4 <-  test_column
+df.graph$prop_time_correct_during_gap5 <-  test_column
+df.graph$prop_time_correct_during_stim5 <-  test_column
+df.graph$prop_time_correct_during_gap6 <-  test_column
+df.graph$prop_time_correct_during_stim6 <-  test_column
+df.graph$prop_time_correct_during_gap7 <-  test_column
+df.graph$prop_time_correct_during_stim7 <-  test_column
+df.graph$prop_time_correct_during_gap8 <-  test_column
+df.graph$prop_time_correct_during_stim8 <-  test_column
+df.graph$prop_time_correct_during_gap9 <-  test_column
+df.graph$prop_time_correct_during_stim9 <-  test_column
+df.graph$prop_time_correct_during_gap10 <-  test_column
+df.graph$prop_time_correct_during_stim10 <-  test_column
+df.graph$prop_time_correct_during_gap11 <-  test_column
+df.graph$prop_time_correct_during_stim11 <-  test_column
+df.graph$prop_time_correct_during_gap12 <-  test_column
+df.graph$prop_time_correct_during_stim12 <-  test_column
+df.graph$prop_time_correct_during_gap13 <-  test_column
+df.graph$prop_time_correct_during_stim13 <-  test_column
+df.graph$prop_time_correct_during_gap14 <-  test_column
+df.graph$prop_time_correct_during_stim14 <-  test_column
+df.graph$prop_time_correct_during_gap15 <-  test_column
+df.graph$prop_time_correct_during_stim15 <-  test_column
+df.graph$prop_time_correct_during_gap16 <-  test_column
+df.graph$prop_time_correct_during_stim16 <-  test_column
+df.graph$prop_time_correct_during_gap17 <-  test_column
+df.graph$prop_time_correct_during_stim17 <-  test_column
+df.graph$prop_time_correct_during_gap18 <-  test_column
+df.graph$prop_time_correct_during_stim18 <-  test_column
+df.graph$prop_time_correct_during_gap19 <-  test_column
+df.graph$prop_time_correct_during_stim19 <-  test_column
+df.graph$prop_time_correct_during_gap20 <-  test_column
+df.graph$prop_time_correct_during_stim20 <-  test_column
+df.graph$prop_time_correct_during_gap21 <-  test_column
+df.graph$prop_time_correct_during_stim21 <-  test_column
+df.graph$prop_time_correct_during_gap22 <-  test_column
+df.graph$prop_time_correct_during_stim22 <-  test_column
+df.graph$prop_time_correct_during_gap23 <-  test_column
+df.graph$prop_time_correct_during_stim23 <-  test_column
+df.graph$prop_time_correct_during_gap24 <-  test_column
+df.graph$prop_time_correct_during_stim24 <-  test_column
+df.graph$prop_time_correct_during_gap25 <-  test_column
+df.graph$prop_time_correct_during_stim25 <-  test_column
+df.graph$prop_time_correct_during_gap26 <-  test_column
+df.graph$prop_time_correct_during_stim26 <-  test_column
+df.graph$prop_time_correct_during_gap27 <-  test_column
+df.graph$prop_time_correct_during_stim27 <-  test_column
+df.graph$prop_time_correct_during_gap28 <-  test_column
+df.graph$prop_time_correct_during_stim28 <-  test_column
+df.graph$prop_time_correct_during_gap29 <-  test_column
+df.graph$prop_time_correct_during_stim29 <-  test_column
+df.graph$prop_time_correct_during_gap30 <-  test_column
+df.graph$prop_time_correct_during_stim30 <-  test_column
+
+for(i in 1:length(file_list)){
+  setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets")
+  
+  df<- read_csv(file_list[i], col_names = TRUE, col_types = NULL)
+  
+  fishname <- strsplit(file_list[i],'_')[[1]][4]
+  startside <- strsplit(file_list[i],'_')[[1]][5]
+  giveup2 <- strsplit(file_list[i],'_')[[1]][8] ##this is the more restricted version of giveup- this is the last tgap before 3 sequential gaps where the fish did not move. This was judged by the proportion of time on the correct side, if it went 0-100-0 or 100-0-100
+  resolution <- strsplit(file_list[i],'_')[[1]][7]
+  
+  #converting all the non-1280 resolutions to 1280 as far as x distance goes
+  if(resolution == 800){
+  df$x <- df$x *1.6}
+  if (resolution == 640){
+  df$x <- df$x *2}
+  max(df$x, na.rm = TRUE)
+  
+  if(startside == "L"){
+    df.full<- full_join(df,shuttleleft, by = 'frame_number')}
+  else if(startside == "R"){
+    df.full<- full_join(df,shuttleright, by = 'frame_number')}
+  
+  df.full
+  df.full<-df.full %>% mutate(distance_from_correct = abs(correct_x_pixel - x))
+  df.full.filtered<-df.full%>%filter(last_10_secs_of_gap == 1) #THIS IS WHAT CHANGES THE WHOLE THING TO FILTER BY LAST 10 SECS
+  
+  df.full.stim<-df.full %>% filter(type == 'stim')
+  df.full.gap<-df.full.filtered %>% filter(type == 'gap')
+  
+
+  #This section is getting the proportion of time on the correct side for every presentation (first for gaps and then for stimuli)
+  test_column_prop_gap <- vector(length = length(unique(df.full.gap$presentation)))
+  df.prop.gap<-data.frame(presentation = test_column_prop_gap)
+  
+  for(j in 1:length(unique(df.full.gap$presentation))){
+    jnum<-as.numeric(j)
+    df.prop.gap$presentation[j] <-jnum
+    nrow<-df.full.gap %>% filter(presentation == jnum) %>% nrow()
+    correct_nrow<-df.full.gap %>% filter(presentation == jnum) %>% filter(distance_from_correct < 640) %>% nrow()
+    df.prop.gap$proportion_time_correct_during_gap[j]<-correct_nrow/nrow
+  }
+  
+  test_column_prop_stim <- vector(length = length(unique(df.full.stim$presentation)))
+  df.prop.stim<-data.frame(presentation = test_column_prop_stim)
+  
+    for(j in 1:length(unique(df.full.stim$presentation))){
+    jnum<-as.numeric(j)
+    df.prop.stim$presentation[j] <-jnum
+    nrow<-df.full.stim %>% filter(presentation == jnum) %>% nrow()
+    correct_nrow<-df.full.stim %>% filter(presentation == jnum) %>% filter(distance_from_correct < 640) %>% nrow()
+    df.prop.stim$proportion_time_correct_during_stim[j]<-correct_nrow/nrow
+  }
+  
+  df.graph$fish_name[i]<-fishname
+  df.graph$prop_time_correct_during_gap1[i]<-df.prop.gap$proportion_time_correct_during_gap[1]
+  df.graph$prop_time_correct_during_gap2[i]<-df.prop.gap$proportion_time_correct_during_gap[2]
+  df.graph$prop_time_correct_during_gap3[i]<-df.prop.gap$proportion_time_correct_during_gap[3]
+  df.graph$prop_time_correct_during_gap4[i]<-df.prop.gap$proportion_time_correct_during_gap[4]
+  df.graph$prop_time_correct_during_gap5[i]<-df.prop.gap$proportion_time_correct_during_gap[5]
+  df.graph$prop_time_correct_during_gap6[i]<-df.prop.gap$proportion_time_correct_during_gap[6]
+  df.graph$prop_time_correct_during_gap7[i]<-df.prop.gap$proportion_time_correct_during_gap[7]
+  df.graph$prop_time_correct_during_gap8[i]<-df.prop.gap$proportion_time_correct_during_gap[8]
+  df.graph$prop_time_correct_during_gap9[i]<-df.prop.gap$proportion_time_correct_during_gap[9]
+  df.graph$prop_time_correct_during_gap10[i]<-df.prop.gap$proportion_time_correct_during_gap[10]
+  df.graph$prop_time_correct_during_gap11[i]<-df.prop.gap$proportion_time_correct_during_gap[11]
+  df.graph$prop_time_correct_during_gap12[i]<-df.prop.gap$proportion_time_correct_during_gap[12]
+  df.graph$prop_time_correct_during_gap13[i]<-df.prop.gap$proportion_time_correct_during_gap[13]
+  df.graph$prop_time_correct_during_gap14[i]<-df.prop.gap$proportion_time_correct_during_gap[14]
+  df.graph$prop_time_correct_during_gap15[i]<-df.prop.gap$proportion_time_correct_during_gap[15]
+  df.graph$prop_time_correct_during_gap16[i]<-df.prop.gap$proportion_time_correct_during_gap[16]
+  df.graph$prop_time_correct_during_gap17[i]<-df.prop.gap$proportion_time_correct_during_gap[17]
+  df.graph$prop_time_correct_during_gap18[i]<-df.prop.gap$proportion_time_correct_during_gap[18]
+  df.graph$prop_time_correct_during_gap19[i]<-df.prop.gap$proportion_time_correct_during_gap[19]
+  df.graph$prop_time_correct_during_gap20[i]<-df.prop.gap$proportion_time_correct_during_gap[20]
+  df.graph$prop_time_correct_during_gap21[i]<-df.prop.gap$proportion_time_correct_during_gap[21]
+  df.graph$prop_time_correct_during_gap22[i]<-df.prop.gap$proportion_time_correct_during_gap[22]
+  df.graph$prop_time_correct_during_gap23[i]<-df.prop.gap$proportion_time_correct_during_gap[23]
+  df.graph$prop_time_correct_during_gap24[i]<-df.prop.gap$proportion_time_correct_during_gap[24]
+  df.graph$prop_time_correct_during_gap25[i]<-df.prop.gap$proportion_time_correct_during_gap[25]
+  df.graph$prop_time_correct_during_gap26[i]<-df.prop.gap$proportion_time_correct_during_gap[26]
+  df.graph$prop_time_correct_during_gap27[i]<-df.prop.gap$proportion_time_correct_during_gap[27]
+  df.graph$prop_time_correct_during_gap28[i]<-df.prop.gap$proportion_time_correct_during_gap[28]
+  df.graph$prop_time_correct_during_gap29[i]<-df.prop.gap$proportion_time_correct_during_gap[29]
+  df.graph$prop_time_correct_during_gap30[i]<-df.prop.gap$proportion_time_correct_during_gap[30]
+  df.graph$prop_time_correct_during_stim1[i]<-df.prop.stim$proportion_time_correct_during_stim[1]
+  df.graph$prop_time_correct_during_stim2[i]<-df.prop.stim$proportion_time_correct_during_stim[2]
+  df.graph$prop_time_correct_during_stim3[i]<-df.prop.stim$proportion_time_correct_during_stim[3]
+  df.graph$prop_time_correct_during_stim4[i]<-df.prop.stim$proportion_time_correct_during_stim[4]
+  df.graph$prop_time_correct_during_stim5[i]<-df.prop.stim$proportion_time_correct_during_stim[5]
+  df.graph$prop_time_correct_during_stim6[i]<-df.prop.stim$proportion_time_correct_during_stim[6]
+  df.graph$prop_time_correct_during_stim7[i]<-df.prop.stim$proportion_time_correct_during_stim[7]
+  df.graph$prop_time_correct_during_stim8[i]<-df.prop.stim$proportion_time_correct_during_stim[8]
+  df.graph$prop_time_correct_during_stim9[i]<-df.prop.stim$proportion_time_correct_during_stim[9]
+  df.graph$prop_time_correct_during_stim10[i]<-df.prop.stim$proportion_time_correct_during_stim[10]
+  df.graph$prop_time_correct_during_stim11[i]<-df.prop.stim$proportion_time_correct_during_stim[11]
+  df.graph$prop_time_correct_during_stim12[i]<-df.prop.stim$proportion_time_correct_during_stim[12]
+  df.graph$prop_time_correct_during_stim13[i]<-df.prop.stim$proportion_time_correct_during_stim[13]
+  df.graph$prop_time_correct_during_stim14[i]<-df.prop.stim$proportion_time_correct_during_stim[14]
+  df.graph$prop_time_correct_during_stim15[i]<-df.prop.stim$proportion_time_correct_during_stim[15]
+  df.graph$prop_time_correct_during_stim16[i]<-df.prop.stim$proportion_time_correct_during_stim[16]
+  df.graph$prop_time_correct_during_stim17[i]<-df.prop.stim$proportion_time_correct_during_stim[17]
+  df.graph$prop_time_correct_during_stim18[i]<-df.prop.stim$proportion_time_correct_during_stim[18]
+  df.graph$prop_time_correct_during_stim19[i]<-df.prop.stim$proportion_time_correct_during_stim[19]
+  df.graph$prop_time_correct_during_stim20[i]<-df.prop.stim$proportion_time_correct_during_stim[20]
+  df.graph$prop_time_correct_during_stim21[i]<-df.prop.stim$proportion_time_correct_during_stim[21]
+  df.graph$prop_time_correct_during_stim22[i]<-df.prop.stim$proportion_time_correct_during_stim[22]
+  df.graph$prop_time_correct_during_stim23[i]<-df.prop.stim$proportion_time_correct_during_stim[23]
+  df.graph$prop_time_correct_during_stim24[i]<-df.prop.stim$proportion_time_correct_during_stim[24]
+  df.graph$prop_time_correct_during_stim25[i]<-df.prop.stim$proportion_time_correct_during_stim[25]
+  df.graph$prop_time_correct_during_stim26[i]<-df.prop.stim$proportion_time_correct_during_stim[26]
+  df.graph$prop_time_correct_during_stim27[i]<-df.prop.stim$proportion_time_correct_during_stim[27]
+  df.graph$prop_time_correct_during_stim28[i]<-df.prop.stim$proportion_time_correct_during_stim[28]
+  df.graph$prop_time_correct_during_stim29[i]<-df.prop.stim$proportion_time_correct_during_stim[29]
+  df.graph$prop_time_correct_during_stim30[i]<-df.prop.stim$proportion_time_correct_during_stim[30]
+}
+
+df.graph$prop_time_correct_during_binnedgap1<-vector(length = 51)
+for(i in 1:51){
+df.graph$prop_time_correct_during_binnedgap1[i]<-mean(c(df.graph$prop_time_correct_during_gap1[i],df.graph$prop_time_correct_during_gap2[i], df.graph$prop_time_correct_during_gap3[i]))
+df.graph$prop_time_correct_during_binnedgap2[i]<-mean(c(df.graph$prop_time_correct_during_gap4[i],df.graph$prop_time_correct_during_gap5[i], df.graph$prop_time_correct_during_gap6[i]))
+df.graph$prop_time_correct_during_binnedgap3[i]<-mean(c(df.graph$prop_time_correct_during_gap7[i],df.graph$prop_time_correct_during_gap8[i], df.graph$prop_time_correct_during_gap9[i]))
+df.graph$prop_time_correct_during_binnedgap4[i]<-mean(c(df.graph$prop_time_correct_during_gap10[i],df.graph$prop_time_correct_during_gap11[i], df.graph$prop_time_correct_during_gap12[i]))
+df.graph$prop_time_correct_during_binnedgap5[i]<-mean(c(df.graph$prop_time_correct_during_gap13[i],df.graph$prop_time_correct_during_gap14[i], df.graph$prop_time_correct_during_gap15[i]))
+df.graph$prop_time_correct_during_binnedgap6[i]<-mean(c(df.graph$prop_time_correct_during_gap16[i],df.graph$prop_time_correct_during_gap17[i], df.graph$prop_time_correct_during_gap18[i]))
+df.graph$prop_time_correct_during_binnedgap7[i]<-mean(c(df.graph$prop_time_correct_during_gap19[i],df.graph$prop_time_correct_during_gap20[i], df.graph$prop_time_correct_during_gap21[i]))
+df.graph$prop_time_correct_during_binnedgap8[i]<-mean(c(df.graph$prop_time_correct_during_gap22[i],df.graph$prop_time_correct_during_gap23[i], df.graph$prop_time_correct_during_gap24[i]))
+df.graph$prop_time_correct_during_binnedgap9[i]<-mean(c(df.graph$prop_time_correct_during_gap25[i],df.graph$prop_time_correct_during_gap26[i], df.graph$prop_time_correct_during_gap27[i]))
+df.graph$prop_time_correct_during_binnedgap10[i]<-mean(c(df.graph$prop_time_correct_during_gap28[i],df.graph$prop_time_correct_during_gap29[i], df.graph$prop_time_correct_during_gap30[i]))
+df.graph$prop_time_correct_during_binnedstim1[i]<-mean(c(df.graph$prop_time_correct_during_stim1[i],df.graph$prop_time_correct_during_stim2[i], df.graph$prop_time_correct_during_stim3[i]))
+df.graph$prop_time_correct_during_binnedstim2[i]<-mean(c(df.graph$prop_time_correct_during_stim4[i],df.graph$prop_time_correct_during_stim5[i], df.graph$prop_time_correct_during_stim6[i]))
+df.graph$prop_time_correct_during_binnedstim3[i]<-mean(c(df.graph$prop_time_correct_during_stim7[i],df.graph$prop_time_correct_during_stim8[i], df.graph$prop_time_correct_during_stim9[i]))
+df.graph$prop_time_correct_during_binnedstim4[i]<-mean(c(df.graph$prop_time_correct_during_stim10[i],df.graph$prop_time_correct_during_stim11[i], df.graph$prop_time_correct_during_stim12[i]))
+df.graph$prop_time_correct_during_binnedstim5[i]<-mean(c(df.graph$prop_time_correct_during_stim13[i],df.graph$prop_time_correct_during_stim14[i], df.graph$prop_time_correct_during_stim15[i]))
+df.graph$prop_time_correct_during_binnedstim6[i]<-mean(c(df.graph$prop_time_correct_during_stim16[i],df.graph$prop_time_correct_during_stim17[i], df.graph$prop_time_correct_during_stim18[i]))
+df.graph$prop_time_correct_during_binnedstim7[i]<-mean(c(df.graph$prop_time_correct_during_stim19[i],df.graph$prop_time_correct_during_stim20[i], df.graph$prop_time_correct_during_stim21[i]))
+df.graph$prop_time_correct_during_binnedstim8[i]<-mean(c(df.graph$prop_time_correct_during_stim22[i],df.graph$prop_time_correct_during_stim23[i], df.graph$prop_time_correct_during_stim24[i]))
+df.graph$prop_time_correct_during_binnedstim9[i]<-mean(c(df.graph$prop_time_correct_during_stim25[i],df.graph$prop_time_correct_during_stim26[i], df.graph$prop_time_correct_during_stim27[i]))
+df.graph$prop_time_correct_during_binnedstim10[i]<-mean(c(df.graph$prop_time_correct_during_stim28[i],df.graph$prop_time_correct_during_stim29[i], df.graph$prop_time_correct_during_stim30[i]))
+}
+
+tcolumn <- vector(length = 30)
+df.sum.graph<-data.frame(presentation = tcolumn)
+for(i in 1:30){
+df.sum.graph$presentation[i] <- i
+}
+df.sum.graph$gap_prop_correct <-tcolumn
+df.sum.graph$gap_prop_correct[1] <- mean(df.graph$prop_time_correct_during_gap1)
+df.sum.graph$gap_prop_correct[2] <- mean(df.graph$prop_time_correct_during_gap2)
+df.sum.graph$gap_prop_correct[3] <- mean(df.graph$prop_time_correct_during_gap3)
+df.sum.graph$gap_prop_correct[4] <- mean(df.graph$prop_time_correct_during_gap4)
+df.sum.graph$gap_prop_correct[5] <- mean(df.graph$prop_time_correct_during_gap5)
+df.sum.graph$gap_prop_correct[6] <- mean(df.graph$prop_time_correct_during_gap6)
+df.sum.graph$gap_prop_correct[7] <- mean(df.graph$prop_time_correct_during_gap7)
+df.sum.graph$gap_prop_correct[8] <- mean(df.graph$prop_time_correct_during_gap8)
+df.sum.graph$gap_prop_correct[9] <- mean(df.graph$prop_time_correct_during_gap9)
+df.sum.graph$gap_prop_correct[10] <- mean(df.graph$prop_time_correct_during_gap10)
+df.sum.graph$gap_prop_correct[11] <- mean(df.graph$prop_time_correct_during_gap11)
+df.sum.graph$gap_prop_correct[12] <- mean(df.graph$prop_time_correct_during_gap12)
+df.sum.graph$gap_prop_correct[13] <- mean(df.graph$prop_time_correct_during_gap13)
+df.sum.graph$gap_prop_correct[14] <- mean(df.graph$prop_time_correct_during_gap14)
+df.sum.graph$gap_prop_correct[15] <- mean(df.graph$prop_time_correct_during_gap15)
+df.sum.graph$gap_prop_correct[16] <- mean(df.graph$prop_time_correct_during_gap16)
+df.sum.graph$gap_prop_correct[17] <- mean(df.graph$prop_time_correct_during_gap17)
+df.sum.graph$gap_prop_correct[18] <- mean(df.graph$prop_time_correct_during_gap18)
+df.sum.graph$gap_prop_correct[19] <- mean(df.graph$prop_time_correct_during_gap19)
+df.sum.graph$gap_prop_correct[20] <- mean(df.graph$prop_time_correct_during_gap20)
+df.sum.graph$gap_prop_correct[21] <- mean(df.graph$prop_time_correct_during_gap21)
+df.sum.graph$gap_prop_correct[22] <- mean(df.graph$prop_time_correct_during_gap22)
+df.sum.graph$gap_prop_correct[23] <- mean(df.graph$prop_time_correct_during_gap23)
+df.sum.graph$gap_prop_correct[24] <- mean(df.graph$prop_time_correct_during_gap24)
+df.sum.graph$gap_prop_correct[25] <- mean(df.graph$prop_time_correct_during_gap25)
+df.sum.graph$gap_prop_correct[26] <- mean(df.graph$prop_time_correct_during_gap26)
+df.sum.graph$gap_prop_correct[27] <- mean(df.graph$prop_time_correct_during_gap27)
+df.sum.graph$gap_prop_correct[28] <- mean(df.graph$prop_time_correct_during_gap28)
+df.sum.graph$gap_prop_correct[29] <- mean(df.graph$prop_time_correct_during_gap29)
+df.sum.graph$gap_prop_correct[30] <- mean(df.graph$prop_time_correct_during_gap30)
+
+df.sum.graph$stim_prop_correct <-tcolumn
+df.sum.graph$stim_prop_correct[1] <- mean(df.graph$prop_time_correct_during_stim1)
+df.sum.graph$stim_prop_correct[2] <- mean(df.graph$prop_time_correct_during_stim2)
+df.sum.graph$stim_prop_correct[3] <- mean(df.graph$prop_time_correct_during_stim3)
+df.sum.graph$stim_prop_correct[4] <- mean(df.graph$prop_time_correct_during_stim4)
+df.sum.graph$stim_prop_correct[5] <- mean(df.graph$prop_time_correct_during_stim5)
+df.sum.graph$stim_prop_correct[6] <- mean(df.graph$prop_time_correct_during_stim6)
+df.sum.graph$stim_prop_correct[7] <- mean(df.graph$prop_time_correct_during_stim7)
+df.sum.graph$stim_prop_correct[8] <- mean(df.graph$prop_time_correct_during_stim8)
+df.sum.graph$stim_prop_correct[9] <- mean(df.graph$prop_time_correct_during_stim9)
+df.sum.graph$stim_prop_correct[10] <- mean(df.graph$prop_time_correct_during_stim10)
+df.sum.graph$stim_prop_correct[11] <- mean(df.graph$prop_time_correct_during_stim11)
+df.sum.graph$stim_prop_correct[12] <- mean(df.graph$prop_time_correct_during_stim12)
+df.sum.graph$stim_prop_correct[13] <- mean(df.graph$prop_time_correct_during_stim13)
+df.sum.graph$stim_prop_correct[14] <- mean(df.graph$prop_time_correct_during_stim14)
+df.sum.graph$stim_prop_correct[15] <- mean(df.graph$prop_time_correct_during_stim15)
+df.sum.graph$stim_prop_correct[16] <- mean(df.graph$prop_time_correct_during_stim16)
+df.sum.graph$stim_prop_correct[17] <- mean(df.graph$prop_time_correct_during_stim17)
+df.sum.graph$stim_prop_correct[18] <- mean(df.graph$prop_time_correct_during_stim18)
+df.sum.graph$stim_prop_correct[19] <- mean(df.graph$prop_time_correct_during_stim19)
+df.sum.graph$stim_prop_correct[20] <- mean(df.graph$prop_time_correct_during_stim20)
+df.sum.graph$stim_prop_correct[21] <- mean(df.graph$prop_time_correct_during_stim21)
+df.sum.graph$stim_prop_correct[22] <- mean(df.graph$prop_time_correct_during_stim22)
+df.sum.graph$stim_prop_correct[23] <- mean(df.graph$prop_time_correct_during_stim23)
+df.sum.graph$stim_prop_correct[24] <- mean(df.graph$prop_time_correct_during_stim24)
+df.sum.graph$stim_prop_correct[25] <- mean(df.graph$prop_time_correct_during_stim25)
+df.sum.graph$stim_prop_correct[26] <- mean(df.graph$prop_time_correct_during_stim26)
+df.sum.graph$stim_prop_correct[27] <- mean(df.graph$prop_time_correct_during_stim27)
+df.sum.graph$stim_prop_correct[28] <- mean(df.graph$prop_time_correct_during_stim28)
+df.sum.graph$stim_prop_correct[29] <- mean(df.graph$prop_time_correct_during_stim29)
+df.sum.graph$stim_prop_correct[30] <- mean(df.graph$prop_time_correct_during_stim30)
+
+tencolumn <- vector(length = 10)
+df.sum.bingraph<-data.frame(presentation = tencolumn)
+for(i in 1:10){
+df.sum.bingraph$presentation[i] <- i
+}
+df.sum.bingraph$binned_gap_prop_correct <-tencolumn
+df.sum.bingraph$binned_gap_prop_correct[1] <- mean(df.graph$prop_time_correct_during_binnedgap1)
+df.sum.bingraph$binned_gap_prop_correct[2] <- mean(df.graph$prop_time_correct_during_binnedgap2)
+df.sum.bingraph$binned_gap_prop_correct[3] <- mean(df.graph$prop_time_correct_during_binnedgap3)
+df.sum.bingraph$binned_gap_prop_correct[4] <- mean(df.graph$prop_time_correct_during_binnedgap4)
+df.sum.bingraph$binned_gap_prop_correct[5] <- mean(df.graph$prop_time_correct_during_binnedgap5)
+df.sum.bingraph$binned_gap_prop_correct[6] <- mean(df.graph$prop_time_correct_during_binnedgap6)
+df.sum.bingraph$binned_gap_prop_correct[7] <- mean(df.graph$prop_time_correct_during_binnedgap7)
+df.sum.bingraph$binned_gap_prop_correct[8] <- mean(df.graph$prop_time_correct_during_binnedgap8)
+df.sum.bingraph$binned_gap_prop_correct[9] <- mean(df.graph$prop_time_correct_during_binnedgap9)
+df.sum.bingraph$binned_gap_prop_correct[10] <- mean(df.graph$prop_time_correct_during_binnedgap10)
+
+df.sum.bingraph$binned_stim_prop_correct <-tencolumn
+df.sum.bingraph$binned_stim_prop_correct[1] <- mean(df.graph$prop_time_correct_during_binnedstim1)
+df.sum.bingraph$binned_stim_prop_correct[2] <- mean(df.graph$prop_time_correct_during_binnedstim2)
+df.sum.bingraph$binned_stim_prop_correct[3] <- mean(df.graph$prop_time_correct_during_binnedstim3)
+df.sum.bingraph$binned_stim_prop_correct[4] <- mean(df.graph$prop_time_correct_during_binnedstim4)
+df.sum.bingraph$binned_stim_prop_correct[5] <- mean(df.graph$prop_time_correct_during_binnedstim5)
+df.sum.bingraph$binned_stim_prop_correct[6] <- mean(df.graph$prop_time_correct_during_binnedstim6)
+df.sum.bingraph$binned_stim_prop_correct[7] <- mean(df.graph$prop_time_correct_during_binnedstim7)
+df.sum.bingraph$binned_stim_prop_correct[8] <- mean(df.graph$prop_time_correct_during_binnedstim8)
+df.sum.bingraph$binned_stim_prop_correct[9] <- mean(df.graph$prop_time_correct_during_binnedstim9)
+df.sum.bingraph$binned_stim_prop_correct[10] <- mean(df.graph$prop_time_correct_during_binnedstim10)
+
+df.sum.graph<-mutate(df.sum.graph,gap_prop_incorrect = 1 - gap_prop_correct)
+df.sum.graph<-mutate(df.sum.graph,stim_prop_incorrect = 1 - stim_prop_correct)
+
+df.sum.bingraph<-mutate(df.sum.bingraph,binned_gap_prop_incorrect = 1 - binned_gap_prop_correct)
+df.sum.bingraph<-mutate(df.sum.bingraph,binned_stim_prop_incorrect = 1 - binned_stim_prop_correct)
+
+p <- ggplot(df.sum.graph, aes(presentation, stim_prop_incorrect))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  geom_smooth(method = "lm")
+
+p <- ggplot(df.sum.graph, aes(presentation, gap_prop_incorrect))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  geom_smooth(method = "lm")
+
+p <- ggplot(df.sum.bingraph, aes(presentation, binned_stim_prop_incorrect))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  geom_smooth(method = "lm")
+
+p <- ggplot(df.sum.bingraph, aes(presentation, binned_gap_prop_incorrect))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  geom_smooth(method = "lm")
+
+
+
+
+
+```
+
+
+
+
+
+CAN STOP RUNNING HERE, after this is filtered before the 23rd presentation and how to run individual fish data to get a view of that trial. 
+
+
+
+
+#should change this to 22 because now with all the data the average time to give up is the 22nd presentation not 23rd
+
+#NOW WE'RE GONNA DO THE SAME THING- just filtering anything out after presentation twenty-three because that's on average when fish stop participating in the shuttlebox and "camp out"
+
+
+```{r, echo=FALSE, message=FALSE}
+
+
+for(i in 1:length(file_list)){
+  setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets")
+  
+  df<- read_csv(file_list[i], col_names = TRUE, col_types = NULL)
+  
+  fishname <- strsplit(file_list[i],'_')[[1]][4]
+  startside <- strsplit(file_list[i],'_')[[1]][5]
+  
+  if(startside == "L"){
+    df.full<- full_join(df,shuttleleft, by = 'frame_number')}
+  else if(startside == "R"){
+    df.full<- full_join(df,shuttleright, by = 'frame_number')}
+  
+  df.full
+  df.full<-df.full %>% mutate(distance_from_correct = abs(correct_x_pixel - x))
+  df.full.stim<-df.full %>% filter(type == 'stim')%>% filter(presentation < 24)
+  df.full.gap<-df.full %>% filter(type == 'gap') %>% filter(presentation < 24)
+  
+  df.full.gap1<-df.full.gap %>% filter(is.inrange(presentation, range = c(1,3))) %>% mutate(binned_presentation = 1)
+  df.full.gap2<-df.full.gap %>% filter(is.inrange(presentation, range = c(4,6))) %>% mutate(binned_presentation = 2)
+  df.full.gap3<-df.full.gap %>% filter(is.inrange(presentation, range = c(7,9))) %>% mutate(binned_presentation = 3)
+  df.full.gap4<-df.full.gap %>% filter(is.inrange(presentation, range = c(10,12))) %>% mutate(binned_presentation = 4)
+  df.full.gap5<-df.full.gap %>% filter(is.inrange(presentation, range = c(13,15))) %>% mutate(binned_presentation = 5)
+  df.full.gap6<-df.full.gap %>% filter(is.inrange(presentation, range = c(16,18))) %>% mutate(binned_presentation = 6)
+  df.full.gap7<-df.full.gap %>% filter(is.inrange(presentation, range = c(19,21))) %>% mutate(binned_presentation = 7)
+  df.full.gap8<-df.full.gap %>% filter(is.inrange(presentation, range = c(22,23))) %>% mutate(binned_presentation = 8)
+
+  df.full.gap<-do.call("rbind", list(df.full.gap1, df.full.gap2, df.full.gap3, df.full.gap4, df.full.gap5, df.full.gap6, df.full.gap7, df.full.gap8))
+  
+  df.full.stim1<-df.full.stim %>% filter(is.inrange(presentation, range = c(1,3))) %>% mutate(binned_presentation = 1)
+  df.full.stim2<-df.full.stim %>% filter(is.inrange(presentation, range = c(4,6))) %>% mutate(binned_presentation = 2)
+  df.full.stim3<-df.full.stim %>% filter(is.inrange(presentation, range = c(7,9))) %>% mutate(binned_presentation = 3)
+  df.full.stim4<-df.full.stim %>% filter(is.inrange(presentation, range = c(10,12))) %>% mutate(binned_presentation = 4)
+  df.full.stim5<-df.full.stim %>% filter(is.inrange(presentation, range = c(13,15))) %>% mutate(binned_presentation = 5)
+  df.full.stim6<-df.full.stim %>% filter(is.inrange(presentation, range = c(16,18))) %>% mutate(binned_presentation = 6)
+  df.full.stim7<-df.full.stim %>% filter(is.inrange(presentation, range = c(19,21))) %>% mutate(binned_presentation = 7)
+  df.full.stim8<-df.full.stim %>% filter(is.inrange(presentation, range = c(22,23))) %>% mutate(binned_presentation = 8)
+
+  
+  df.full.stim<-do.call("rbind", list(df.full.stim1, df.full.stim2, df.full.stim3, df.full.stim4, df.full.stim5, df.full.stim6, df.full.stim7, df.full.stim8))
+  
+```
+  
+  
+
+```{r, echo=FALSE, message=FALSE}
+#same thing BINNED- This section is getting the proportion of time on the correct side for every BINNED presentation (first for gaps and then for stimuli)
+  df.sum.23 <- data.frame(fish_name = test_column)
+
+test_column_prop_bin_gap <- vector(length = length(unique(df.full.gap$binned_presentation)))
+  df.prop.bin.gap<-data.frame(binned_presentation = test_column_prop_bin_gap)
+  
+  for(j in 1:length(unique(df.full.gap$binned_presentation))){
+    jnum<-as.numeric(j)
+    df.prop.bin.gap$binned_presentation[j] <-jnum
+    nrow<-df.full.gap %>% filter(binned_presentation == jnum) %>% nrow()
+    correct_nrow<-df.full.gap %>% filter(binned_presentation == jnum) %>% filter(distance_from_correct < 640) %>% nrow()
+    df.prop.bin.gap$proportion_time_correct_during_gap[j]<-correct_nrow/nrow
+  }
+  
+  test_column_prop_bin_stim <- vector(length = length(unique(df.full.stim$binned_presentation)))
+  df.prop.bin.stim<-data.frame(binned_presentation = test_column_prop_bin_stim)
+  
+  for(j in 1:length(unique(df.full.stim$binned_presentation))){
+    jnum<-as.numeric(j)
+    df.prop.bin.stim$binned_presentation[j] <-jnum
+    nrow<-df.full.stim %>% filter(binned_presentation == jnum) %>% nrow()
+    correct_nrow<-df.full.stim %>% filter(binned_presentation == jnum) %>% filter(distance_from_correct < 640) %>% nrow()
+    df.prop.bin.stim$proportion_time_correct_during_stim[j]<-correct_nrow/nrow
+  }
+  
+  mean_binned_prop_time_correct_during_gap<-mean(df.prop.bin.gap$proportion_time_correct_during_gap)
+  mean_binned_prop_time_correct_during_stim<-mean(df.prop.bin.stim$proportion_time_correct_during_stim)
+  
+  df.prop.bin.gap<-df.prop.bin.gap%>% filter(is.na(binned_presentation) == FALSE)
+  df.prop.bin.stim<-df.prop.bin.stim%>% filter(is.na(binned_presentation) == FALSE)
+
+  mod<- lm(df.prop.bin.gap$proportion_time_correct_during_gap ~ df.prop.bin.gap$binned_presentation)
+  modsum<-summary(mod)
+  modsum<-modsum$coefficients
+  gap_prop_binned_slope<-modsum[2]
+  
+  mod<- lm(df.prop.bin.stim$proportion_time_correct_during_stim ~ df.prop.bin.stim$binned_presentation)
+  modsum<-summary(mod)
+  modsum<-modsum$coefficients
+  stim_prop_binned_slope<-modsum[2]
+  
+  #now on to easier stuff- getting the mean distance from the correct side during th estims and gaps
+  mean_distance_from_correct_during_stims <- mean(df.full.stim$distance_from_correct, na.rm = TRUE)
+  mean_distance_from_correct_during_gaps <- mean(df.full.gap$distance_from_correct, na.rm = TRUE)
+  
+  mod<- lm(df.full.gap$distance_from_correct ~ df.full.gap$presentation)
+  modsum<-summary(mod)
+  modsum<-modsum$coefficients
+  slope<-modsum[2]
+  wilcox<- wilcox.test(df.full.gap$distance_from_correct, mu = 640)
+  wilcox_p_value<-wilcox$p.value
+  
+  #if wilcox test less than 0.05 then shuttlebox_did_learn = 1, else if >0.05 = 0, else NA
+  
+  binned_mod<- lm(df.full.gap$distance_from_correct ~ df.full.gap$binned_presentation)
+  binned_modsum<-summary(binned_mod)
+  binned_modsum<-binned_modsum$coefficients
+  binned_slope<-binned_modsum[2]
+  binned_wilcox<- wilcox.test(df.full.gap$distance_from_correct, mu = 640)
+  binned_wilcox_p_value<-binned_wilcox$p.value
+
+  #now let's put it all together
+df.sum.23$fish_name[i] <-fishname
+df.sum.23$twentythree_filtered_shuttlebox_average_distance_from_correct_stimulus_during_stimulus[i]<-mean_distance_from_correct_during_stims
+df.sum.23$twentythree_filtered_shuttlebox_average_distance_from_correct_stimulus_during_gaps[i]<-mean_distance_from_correct_during_gaps
+df.sum.23$twentythree_filtered_shuttlebox_slope[i]<- slope
+df.sum.23$twentythree_filtered_shuttlebox_wilcox_test[i]<-wilcox_p_value
+df.sum.23$twentythree_filtered_binned_shuttlebox_slope[i]<- binned_slope
+df.sum.23$twentythree_filtered_binned_shuttlebox_wilcox_test[i]<-binned_wilcox_p_value
+df.sum.23$twentythree_filtered_shuttlebox_average_proportion_of_time_on_correct_side_during_gaps[i]<- mean_prop_time_correct_during_gap
+df.sum.23$twentythree_filtered_shuttlebox_average_proportion_of_time_on_correct_side_during_stimulus[i]<- mean_prop_time_correct_during_stim
+df.sum.23$twentythree_filtered_shuttlebox_proportion_of_time_on_correct_side_during_gaps_slope_across_presentations[i]<-gap_prop_slope
+df.sum.23$twentythree_filtered_shuttlebox_proportion_of_time_on_correct_side_during_stimulus_slope_across_presentations[i]<-stim_prop_slope
+
+df.sum.23$twentythree_filtered_binned_shuttlebox_average_proportion_of_time_on_correct_side_during_gaps[i]<- mean_binned_prop_time_correct_during_gap
+df.sum.23$twentythree_filtered_binned_shuttlebox_average_proportion_of_time_on_the_correct_side_during_stimulus[i]<- mean_binned_prop_time_correct_during_stim
+df.sum.23$twentythree_filtered_binned_shuttlebox_proportion_of_time_on_correct_side_during_gaps_slope_across_presentations[i]<- gap_prop_binned_slope
+df.sum.23$twentythree_filtered_binned_shuttlebox_proportion_of_time_on_correct_side_during_stimulus_slope_across_presentations[i]<- stim_prop_binned_slope
+
+if(df.sum.23$twentythree_filtered_shuttlebox_wilcox_test[i] <0.05){
+    df.sum.23$did_fish_solve_shuttlebox[i]<- 1}
+  else if(df.sum.23$twentythree_filtered_shuttlebox_wilcox_test[i] >=0.05){
+    df.sum.23$did_fish_solve_shuttlebox[i]<- 0}
+  else{
+    df.sum.23$did_fish_solve_shuttlebox[i]<- NA}
+
+if(df.sum.23$twentythree_filtered_binned_shuttlebox_wilcox_test[i] <0.05){
+    df.sum.23$binned_did_fish_solve_shuttlebox[i]<- 1}
+  else if(df.sum.23$twentythree_filtered_binned_shuttlebox_wilcox_test[i] >=0.05){
+    df.sum.23$binned_did_fish_solve_shuttlebox[i]<- 0}
+  else{
+    df.sum.23$binned_did_fish_solve_shuttlebox[i]<- NA}
+}
+
+
+df.total<- full_join(df.sum,df.sum.23, by = 'fish_name')
+setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/")
+write_csv(df.total, "shuttlebox_data_april_25_2018.csv")
+
+```
+
+
+#This section is going to find the average proportion of time and distance from the correct screen, the difference from up above is this is sorting using only data before each fish "givesup" rather than all 30 presentations. 
+
+Note: prop time in front of stim DURING STIM when using everyone's all 30 peresntations is 48%
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+library(ggplot2)
+library(dplyr)
+library(rmarkdown)
+library(knitr)
+library(readr)
+library(utils)
+library(EnvStats)
+library(hqmisc)
+
+#Note- Garret, Gabriel, and Griffin shuttlebox videos too hard to score, no data
+
+setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets/")
+
+file_list<- list.files("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets")
+
+
+shuttleleft<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Shuttlebox_Tracking_L_framesofinterest.csv", col_names = TRUE, col_types = NULL)
+#View(shuttleleft)
+
+shuttleright<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Shuttlebox_Tracking_R_framesofinterest.csv", col_names = TRUE, col_types = NULL)
+#View(shuttleright)
+
+test_column <- vector(length = length(file_list))
+df.mean <- data.frame(fish_name = test_column)
+file_list_filtered<- vector()
+for(i in 1:length(file_list)){
+  filename<- file_list[i]
+  
+  giveup2 <- strsplit(file_list[i],'_')[[1]][6]
+  giveup2<-as.numeric(giveup2)
+  if(giveup2 > 0){
+  file_list_filtered<- append(file_list_filtered, filename)}
+}
+
+for(i in 1:length(file_list_filtered)){
+  setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets")
+  
+  df<- read_csv(file_list_filtered[i], col_names = TRUE, col_types = NULL)
+  
+  fishname <- strsplit(file_list_filtered[i],'_')[[1]][4]
+  startside <- strsplit(file_list_filtered[i],'_')[[1]][5]
+  giveup2 <- strsplit(file_list_filtered[i],'_')[[1]][8] ##this is the more restricted version of giveup- this is the last tgap before 3 sequential gaps where the fish did not move. This was judged by the proportion of time on the correct side, if it went 0-100-0 or 100-0-100
+  giveup2<-as.numeric(giveup2)
+  resolution <- strsplit(file_list_filtered[i],'_')[[1]][7]
+  
+  #converting all the non-1280 resolutions to 1280 as far as x distance goes
+  if(resolution == 800){
+  df$x <- df$x *1.6}
+  if (resolution == 640){
+  df$x <- df$x *2}
+  max(df$x, na.rm = TRUE)
+  
+  if(startside == "L"){
+    df.full<- full_join(df,shuttleleft, by = 'frame_number')}
+  else if(startside == "R"){
+    df.full<- full_join(df,shuttleright, by = 'frame_number')}
+  
+  #filter out anything after giveup2
+  #get prop
+  
+  df.full<-df.full %>% filter(presentation <= giveup2)
+  df.full<-df.full %>% mutate(distance_from_correct = abs(correct_x_pixel - x))
+  df.full.stim<-df.full %>% filter(type == 'stim')
+  df.full.gap<-df.full %>% filter(type == 'gap')
+  
+  
+  test_column_prop_gap <- vector(length = length(unique(df.full.gap$presentation)))
+  df.prop.gap<-data.frame(presentation = test_column_prop_gap)
+  
+  for(j in 1:length(unique(df.full.gap$presentation))){
+    jnum<-as.numeric(j)
+    df.prop.gap$presentation[j] <-jnum
+    nrow<-df.full.gap %>% filter(presentation == jnum) %>% nrow()
+    correct_nrow<-df.full.gap %>% filter(presentation == jnum) %>% filter(distance_from_correct < 640) %>% nrow()
+    df.prop.gap$proportion_time_correct_during_gap[j]<-correct_nrow/nrow
+  }
+  
+  test_column_prop_stim <- vector(length = length(unique(df.full.stim$presentation)))
+  df.prop.stim<-data.frame(presentation = test_column_prop_stim)
+  
+  for(j in 1:length(unique(df.full.stim$presentation))){
+    jnum<-as.numeric(j)
+    df.prop.stim$presentation[j] <-jnum
+    nrow<-df.full.stim %>% filter(presentation == jnum) %>% nrow()
+    correct_nrow<-df.full.stim %>% filter(presentation == jnum) %>% filter(distance_from_correct < 640) %>% nrow()
+    df.prop.stim$proportion_time_correct_during_stim[j]<-correct_nrow/nrow
+  }
+  
+  mean_prop_time_correct_during_gap<-mean(df.prop.gap$proportion_time_correct_during_gap, na.rm = TRUE)
+  mean_prop_time_correct_during_stim<-mean(df.prop.stim$proportion_time_correct_during_stim, na.rm = TRUE)
+  
+
+  #now on to easier stuff- getting the mean distance from the correct side during the stims and gaps
+  mean_distance_from_correct_during_stims <- mean(df.full.stim$distance_from_correct, na.rm = TRUE)
+  mean_distance_from_correct_during_gaps <- mean(df.full.gap$distance_from_correct, na.rm = TRUE)
+  
+  
+  df.mean$fish_name[i] <- fishname
+  df.mean$mean_distance_from_correct_during_stims[i] <- mean_distance_from_correct_during_stims
+  df.mean$mean_distance_from_correct_during_gaps[i] <- mean_distance_from_correct_during_gaps
+  df.mean$mean_prop_time_correct_during_gap[i] <- mean_prop_time_correct_during_gap
+  df.mean$mean_prop_time_correct_during_stim[i] <- mean_prop_time_correct_during_stim
+ df.mean<-df.mean %>% filter(df.mean$fish_name != FALSE)
+}  
+  
+#mean distance during stims (now only looking before giveup2)
+mean(df.mean$mean_distance_from_correct_during_stims)
+
+#mean distance during gaps (now only looking before giveup2)
+mean(df.mean$mean_distance_from_correct_during_gaps)
+#mean prop time correct during stims (now only looking before giveup2)
+mean(df.mean$mean_prop_time_correct_during_stim)
+#mean prop time correct during gaps (now only looking before giveup2)
+mean(df.mean$mean_prop_time_correct_during_gap)
+  
+```  
+
+All the stuff after this was me playing around with one score sheet to try and visualize what is going on in the trial, we should not run these parts. 
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+#All the stuff after this was me playing around with one score sheet to try and visualize what is going on in the trial, we should not run these parts. 
+library(ggplot2)
+library(dplyr)
+library(rmarkdown)
+library(knitr)
+library(readr)
+library(utils)
+library(EnvStats)
+library(hqmisc)
+
+file_list<- list.files("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets")
+shuttleleft<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Shuttlebox_Tracking_L_framesofinterest.csv", col_names = TRUE, col_types = NULL)
+shuttleright<- read_csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Shuttlebox_Tracking_R_framesofinterest.csv", col_names = TRUE, col_types = NULL)
+
+i<-1
+ setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/score sheets")
+  df<- read_csv(file_list[i], col_names = TRUE, col_types = NULL)
+  fishname <- strsplit(file_list[i],'_')[[1]][4]
+  startside <- strsplit(file_list[i],'_')[[1]][5]
+  
+  if(startside == "L"){
+    df.full<- full_join(df,shuttleleft, by = 'frame_number')}
+  if(startside == "R"){
+    df.full<- full_join(df,shuttleright, by = 'frame_number')}
+  df.full<-df.full %>% mutate(distance_from_correct = abs(correct_x_pixel - x))
+  df.full.stim<-df.full %>% filter(type == 'stim')
+  df.full.gap<-df.full %>% filter(type == 'gap')
+
+  test_column_prop_gap <- vector(length = length(unique(df.full.gap$presentation)))
+  df.prop.gap<-data.frame(presentation = test_column_prop_gap)
+  
+  for(j in 1:length(unique(df.full.gap$presentation))){
+    jnum<-as.numeric(j)
+    df.prop.gap$presentation[j] <-jnum
+    nrow<-df.full.gap %>% filter(presentation == jnum) %>% nrow()
+    correct_nrow<-df.full.gap %>% filter(presentation == jnum) %>% filter(distance_from_correct < 640) %>% nrow()
+    df.prop.gap$proportion_time_correct_during_gap[j]<-correct_nrow/nrow
+  }
+
+#This is taking an average distance_from_correct for each gap/presentation
+df.gap.sum<-group_by(df.full.gap, presentation)%>% summarize(avg_dist_from_correct_by_pres = mean(distance_from_correct, na.rm = TRUE))
+#graph distance from screen during habituation and during stim  (sum across all presentations)
+
+p <- ggplot(df.prop.gap, aes(presentation, proportion_time_correct_during_gap))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  geom_smooth(method = "lm") +
+  geom_vline(xintercept =5)+
+  geom_vline(xintercept =10)+
+  geom_vline(xintercept =15)+
+  geom_vline(xintercept =20)+
+  geom_vline(xintercept =25)+
+  geom_vline(xintercept =30)+
+  ggtitle(fishname)
+
+
+
+
+p <- ggplot(df.gap.sum, aes(presentation, avg_dist_from_correct_by_pres))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  geom_smooth(method = "lm") +
+  geom_vline(xintercept =5)+
+  geom_vline(xintercept =10)+
+  geom_vline(xintercept =15)+
+  geom_vline(xintercept =20)+
+  geom_vline(xintercept =25)+
+  geom_vline(xintercept =30)+
+  ggtitle(fishname)
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#make summary dataframe with average distance from screen during stim times over presentations
+df.full.habit<-df.full %>% filter(type == 'habit')
+df.full.stim<-df.full %>% filter(type == 'stim')
+df.full.gap<-df.full %>% filter(type == 'gap')
+
+mean(df.full.stim$distance_from_correct, na.rm = TRUE)
+mean(df.full.gap$distance_from_correct, na.rm = TRUE)
+
+
+
+
+
+
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#graph distance from screen during habituation and during stim  (sum across all presentations)
+
+p <- ggplot(df.gap, aes(presentation, distance_from_correct))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  geom_smooth(method = "lm")
+
+mod<- lm(df.full.gap$distance_from_correct ~ df.full.gap$presentation)
+summary(mod)
+
+
+p_value <- mod %>% broom::tidy() %>% filter(term != "(Intercept)") %>% select(p.value) %>% unlist
+
+
+mean(df.full.gap$distance_from_correct)
+wilcox.test(df.full.gap$distance_from_correct, mu = 640)
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#graph distance from correct (mean of each gap) over all gaps
+p <- ggplot(df.full.gap.sum, aes(presentation, avg_dist_from_correct_by_pres))
+p + geom_point(size = 3) + 
+  theme(text = element_text(size=10)) + 
+  geom_smooth(method = "lm")
+
+mod<- lm(df.full.gap.sum$avg_dist_from_correct_by_pres ~ df.full.gap.sum$presentation)
+summary(mod)
+
+
+```
+
+
+
+
+
+

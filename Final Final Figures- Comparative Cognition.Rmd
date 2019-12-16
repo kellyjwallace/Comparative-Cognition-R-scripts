@@ -33,11 +33,11 @@ library(candisc)
 library(effsize)
 #font_import()
 
-shuttle<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Comparative Cognition Shuttlebox Data december 20 2018 30 seconds.csv")
+shuttle<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Comparative Cognition Shuttlebox Data december 2 2019 30 seconds.csv")
 
 det<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Detour/detour_data_for_R_April_5_2018.csv")
 
-num<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Comparative Cognition R Scripts/Numerosity Comparative Cognition Full Dataset July_20_2018.csv")
+num<-read.csv("Y:/Cummings Lab/Comparative Cognition/Comparative Cognition R Scripts/Numerosity Comparative Cognition Full Dataset December_02_2019.csv")
 
 df.full<- left_join(det,shuttle, by = 'fish_name')
 df.full<- left_join(df.full,num, by = 'fish_name')
@@ -52,12 +52,12 @@ df.full.males<- df.full %>% filter(sex.x == "M")
 
 
 #removing unnecessary columns from the dataset:
-drops <- c("sex.y","detour_trial_1_date_of_trial","detour_trial_1_time_of_trial","detour_trial_1_did_fish_solve_full_social_problem","detour_trial_1_full_problem_time_to_social_reward_minus_time_to_contact_barrier","detour_trial_1_time_from_barrier_contact_minus_time_to_end_of_alley","scorer","shuttlebox_start_side","presentation_when_fish_gave_up3","shuttlebox_average_proportion_of_time_on_correct_side_during_gaps","prop_within_10cm_during_stims_4_through_9","prop_within_10cm_during_all_stims","difference_avg_prop_correct_first_3_gaps_minus_last_3_gaps","difference_avg_prop_correct_first_three_gaps_minus_gap_6","difference_avg_prop_correct_first_three_gaps_minus_avg_gaps_456", "speed_of_learning_aka_which_presentation_20_percent_prop_increase_was_met","did_fish_meet_60_percent_3_consecutive_criterion","did_fish_meet_90_percent_2_consecutive_criterion", "speed_of_learning_60_percent_3_consecutive_criterion","speed_of_learning_90_percent_2_consecutive_criterion","did_fish_meet_within10cm_50_percent_3_consecutive_criterion","speed_of_learning_within10cm_50_percent_3_consecutive_criterion", "average_proportion_within_10cm_gaps_456", "proportion_time_on_left_third_across_gaps_4_through_9", "proportion_time_on_right_third_across_gaps_4_through_9","proportion_time_on_center_third_across_gaps_4_through_9","proportion_time_on_left_10cm_across_gaps_4_through_9", "proportion_time_on_right_10cm_across_gaps_4_through_9", "proportion_time_on_center_10cm_across_gaps_4_through_9", "proportion_time_on_left_10cm_across_stims_1_through_6","did_fish_solve_shuttlebox_using_prop_correct_increase_of_at_least_20_percent_first_3_vs_last_3", "did_fish_solve_shuttlebox_using_prop_correct_increase_of_at_least_20_percent_first_3_vs_456", "did_fish_solve_shuttlebox_using_prop_correct_increase_of_at_least_20_percent_first_3_vs_6", "did_fish_participate_criterion1", "did_fish_participate_criterion2", "did_fish_participate_criterion3","did_fish_participate_criterion4","did_fish_participate_criterion5", "did_fish_participate_criterion6","rank_speed_of_learning", "average_prop_time_thigmo_T0_to_T29", "average_prop_time_mirror_T0_to_T29", "average_number_of_entries_T0_to_T29", "average_number_of_entries_T30_to_T50","average_latency_enter_either_screen","average_performance_across_all_9_testing_trials_using_full_4_minutes_data","total_number_of_testing_trials_using_full_4_minutes_data", "total_number_of_testing_trials_using_T30_to_T50_data", "number_of_trials_on_0.50_ratio_using_full_4_minutes_data", "number_of_trials_on_0.67_ratio_using_full_4_minutes_data", "number_of_trials_on_0.75_ratio_using_full_4_minutes_data","number_of_trials_on_0.50_ratio_using_T30_to_T50_data", "number_of_trials_on_0.67_ratio_using_T30_to_T50_data", "number_of_trials_on_0.75_ratio_using_T30_to_T50_data", "median_performance_on_0.50_ratio_using_full_4_minutes_data", "median_performance_on_0.67_ratio_using_full_4_minutes_data","median_performance_on_0.75_ratio_using_full_4_minutes_data", "median_performance_on_0.50_ratio_using_T30_to_T50_data", "median_performance_on_0.67_ratio_using_T30_to_T50_data", "median_performance_on_0.75_ratio_using_T30_to_T50_data","number_of_medians_above_60_using_full_4_minutes_data", "number_of_medians_above_60_using_T30_to_T50_data", "number_of_medians_above_60_using_T30_to_T50_data_two_and_three_combined", "shapiro_wilk_test_p_value_using_full_4_minutes_data", "was_average_performance_significantly_different_from_0.5_full_4_minutes_p_value_of_either_t_test_or_wilcox", "shapiro_wilk_test_p_value_using_T30_to_T50_data", "was_average_performance_significantly_different_from_0.5_T30_to_T50_p_value_of_either_t_test_or_wilcox", "learning_category_according_to_etheredge_T30_to_T50", "learning_category_according_to_etheredge_full_4_minutes","average_latency_to_enter_incorrect_side", "average_latency_to_enter_correct_side_filtered_just_correct_choice",
+drops <- c("sex.y","detour_trial_1_date_of_trial","detour_trial_1_time_of_trial","detour_trial_1_did_fish_solve_full_social_problem","detour_trial_1_full_problem_time_to_social_reward_minus_time_to_contact_barrier","detour_trial_1_time_from_barrier_contact_minus_time_to_end_of_alley","scorer","shuttlebox_start_side","presentation_when_fish_gave_up3","shuttlebox_average_proportion_of_time_on_correct_side_during_gaps","prop_within_10cm_during_stims_4_through_9","prop_within_10cm_during_all_stims","difference_avg_prop_correct_first_3_gaps_minus_last_3_gaps","difference_avg_prop_correct_first_three_gaps_minus_gap_6","difference_avg_prop_correct_first_three_gaps_minus_avg_gaps_456", "speed_of_learning_aka_which_presentation_20_percent_prop_increase_was_met","did_fish_meet_60_percent_3_consecutive_criterion","did_fish_meet_90_percent_2_consecutive_criterion", "speed_of_learning_60_percent_3_consecutive_criterion","speed_of_learning_90_percent_2_consecutive_criterion","did_fish_meet_within10cm_50_percent_3_consecutive_criterion","speed_of_learning_within10cm_50_percent_3_consecutive_criterion", "average_proportion_within_10cm_gaps_456", "proportion_time_on_left_third_across_gaps_4_through_9", "proportion_time_on_right_third_across_gaps_4_through_9","proportion_time_on_center_third_across_gaps_4_through_9","proportion_time_on_left_10cm_across_gaps_4_through_9", "proportion_time_on_right_10cm_across_gaps_4_through_9", "proportion_time_on_center_10cm_across_gaps_4_through_9", "proportion_time_on_left_10cm_across_stims_1_through_6","sex.x", "did_fish_solve_shuttlebox_using_prop_correct_increase_of_at_least_20_percent_first_3_vs_456", "did_fish_solve_shuttlebox_using_prop_correct_increase_of_at_least_20_percent_first_3_vs_6", "did_fish_participate_criterion1", "did_fish_participate_criterion2", "did_fish_participate_criterion3","did_fish_participate_criterion4","did_fish_participate_criterion5", "did_fish_participate_criterion6","rank_speed_of_learning", "average_prop_time_thigmo_T0_to_T29", "average_prop_time_mirror_T0_to_T29", "average_number_of_entries_T0_to_T29", "average_number_of_entries_T30_to_T50","average_latency_enter_either_screen","average_performance_across_all_9_testing_trials_using_full_4_minutes_data","total_number_of_testing_trials_using_full_4_minutes_data", "total_number_of_testing_trials_using_T30_to_T50_data", "number_of_trials_on_0.50_ratio_using_full_4_minutes_data", "number_of_trials_on_0.67_ratio_using_full_4_minutes_data", "number_of_trials_on_0.75_ratio_using_full_4_minutes_data","number_of_trials_on_0.50_ratio_using_T30_to_T50_data", "number_of_trials_on_0.67_ratio_using_T30_to_T50_data", "number_of_trials_on_0.75_ratio_using_T30_to_T50_data", "median_performance_on_0.50_ratio_using_full_4_minutes_data", "median_performance_on_0.67_ratio_using_full_4_minutes_data","median_performance_on_0.75_ratio_using_full_4_minutes_data", "median_performance_on_0.50_ratio_using_T30_to_T50_data", "median_performance_on_0.67_ratio_using_T30_to_T50_data", "median_performance_on_0.75_ratio_using_T30_to_T50_data","number_of_medians_above_60_using_full_4_minutes_data", "number_of_medians_above_60_using_T30_to_T50_data", "number_of_medians_above_60_using_T30_to_T50_data_two_and_three_combined", "shapiro_wilk_test_p_value_using_full_4_minutes_data", "was_average_performance_significantly_different_from_0.5_full_4_minutes_p_value_of_either_t_test_or_wilcox", "shapiro_wilk_test_p_value_using_T30_to_T50_data", "was_average_performance_significantly_different_from_0.5_T30_to_T50_p_value_of_either_t_test_or_wilcox", "learning_category_according_to_etheredge_T30_to_T50", "learning_category_according_to_etheredge_full_4_minutes","average_latency_to_enter_incorrect_side", "average_latency_to_enter_correct_side_filtered_just_correct_choice",
 "number_of_trials_in_a_row_greater_than_60_percent_full_4_minutes","number_of_trials_in_a_row_greater_than_60_percent_T30_to_T50", "number_of_trials_in_a_row_correct_choice_first", "mean_of_median_performance_on_each_ratio_full_four_minutes_data", "mean_of_median_performance_on_each_ratio_T30_to_T50_data")
            
 df<-df.full[ , !(names(df.full) %in% drops)]
 
-df<-unite(df, numsolvesex, c(sex.x, did_fish_have_a_median_above_60), remove=FALSE)
+#df<-unite(df, numsolvesex, c(sex.x, did_fish_have_a_median_above_60), remove=FALSE)
 
 df.num <-df %>% filter(is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data) == FALSE)
 df.num<-df.num %>% filter(is.na(did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive) == FALSE)
@@ -72,8 +72,9 @@ df.num$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive<-as.n
 
 
 
-#FIGURE 1A
+#FIGURE 1A- original
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
 df.full.males$did_fish_have_a_median_above_60<-as.numeric(df.full.males$did_fish_have_a_median_above_60)
 df.full.females$did_fish_have_a_median_above_60<-as.numeric(df.full.females$did_fish_have_a_median_above_60)
 
@@ -119,6 +120,61 @@ ggplot(df.full, aes(did_fish_have_a_median_above_60, fill = sex.x))+
 
 
 ```
+
+
+
+#FIGURE 1A redone december 2019
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+df.full.males$did_fish_have_at_least_two_medians_above_80<-as.numeric(df.full.males$did_fish_have_at_least_two_medians_above_80)
+df.full.females$did_fish_have_at_least_two_medians_above_80<-as.numeric(df.full.females$did_fish_have_at_least_two_medians_above_80)
+
+#to get the numbers I ran this code:
+w<-nrow(df.full.males%>%filter(did_fish_have_at_least_two_medians_above_80 == 1))
+x<-nrow(df.full.females%>%filter(did_fish_have_at_least_two_medians_above_80 == 1))
+y<-nrow(df.full.males%>%filter(did_fish_have_at_least_two_medians_above_80 == 0))
+z<-nrow(df.full.females%>%filter(did_fish_have_at_least_two_medians_above_80 == 0))
+
+solvers = c(w,x)
+nonsolvers = c(y,z)
+numsolvesex<-data.frame(solvers,nonsolvers)
+chi<-chisq.test(numsolvesex)
+chip<-chi$p.value
+
+#This is Fisher's exact Test, an alternative that can hendle small numbers in each cell (i.e. when we have only one male learner)
+
+
+#female solvers = w
+#male solvers = x
+#female nonsolvers = y
+#male nonsolvers = z
+
+df.full$did_fish_have_at_least_two_medians_above_80<-as.numeric(df.full$did_fish_have_at_least_two_medians_above_80)
+
+ggplot(df.full, aes(did_fish_have_at_least_two_medians_above_80, fill = sex.x))+
+  geom_histogram(binwidth = 0.5) + 
+  labs(x= "Numerosity Learning Category",y="Number of individuals") +  
+  scale_x_discrete(breaks=c(0, 1)) +
+  theme(plot.title = element_text(hjust = 0)) +
+  annotate("text", x=-0.08, y=17, label= glue::glue(z), size = 7, color = "white", hjust = 0)+
+  annotate("text", x=-0.08, y=2, label= glue::glue(y), size = 7, color = "white", hjust = 0) +
+  annotate("text", x=0.95, y=4.5, label= glue::glue(x), size = 7, color = "white", hjust = 0)+
+  annotate("text", x=0.95, y=1.5, label= glue::glue(w), size = 7, color = "white", hjust = 0) +
+  scale_color_manual(values=c("maroon", "lightblue")) +
+  theme(legend.position="left") + 
+  ylim(0,30) +
+  #guides(fill=guide_legend(title= "Sex")) +
+  scale_fill_manual(values=c("maroon", "lightblue"),name="Sex",labels=c("  Female", "  Male")) #+ 
+ # annotate("text",x = -1, y = 4, parse = TRUE, label= glue::glue("{as.character(chisquaredtxt)}"), size = 7, color = "black", hjust = 0) +
+ # annotate("text",x = -0.7, y = 3.86, parse = TRUE, label= glue::glue("{round(chip,3)}"), size = 7, color = "black", hjust = 0) +
+ # annotate("text",x = -2, y = -1, parse = TRUE, label= glue::glue("Fisher_exact_test_p_{round(fishp,3)}"), size = 7, color = "black", hjust = 0)
+
+
+```
+
+
+
+
+
 
 #FIGURE 1B
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -223,6 +279,306 @@ ggplot(df.shuttle, aes(did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_c
 
 
 
+#FIGURE 1C - relaxed criterion #4 (entered both between 4-9 i.e. made a transit) learning criterion still 50% 3 consecutive times
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+df.full.males$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive<- as.numeric(df.full.males$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive)
+df.full.females$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive<- as.numeric(df.full.females$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive)
+
+df.full.males$did_fish_participate_criterion7<-as.numeric(df.full.males$did_fish_participate_criterion7)
+df.full.females$did_fish_participate_criterion7<-as.numeric(df.full.females$did_fish_participate_criterion7)
+
+#to get the numbers I ran this code:
+w.df<-df.full.males%>%filter(did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive == 1) %>% filter(did_fish_participate_criterion4 == 1) #%>% filter(presentation_when_fish_gave_up4 >3)
+w<- nrow(w.df)
+x.df<-df.full.females%>%filter(did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive == 1)  %>% filter(did_fish_participate_criterion4 == 1) #%>% filter(presentation_when_fish_gave_up4 >3)
+x<- nrow(x.df)
+y.df<-df.full.males%>%filter(did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive == 0)%>% filter(did_fish_participate_criterion4 == 1) #%>% filter(presentation_when_fish_gave_up4 >3)
+y<- nrow(y.df)
+z.df<-df.full.females%>%filter(did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive == 0) %>% filter(did_fish_participate_criterion4 == 1) #%>% filter(presentation_when_fish_gave_up4 >3)
+z<- nrow(z.df)
+
+solvers = c(w,x)
+nonsolvers = c(y,z)
+shuttleboxsolvesex<-data.frame(solvers,nonsolvers)
+chi<-chisq.test(shuttleboxsolvesex)
+chip<-chi$p.value
+
+#This is Fisher's exact Test, an alternative that can hendle small numbers in each cell (i.e. when we have only one male learner)
+fish<-fisher.test(shuttleboxsolvesex)
+fishp<-fish$p.value
+
+df.shuttle<-df.full  %>% filter(did_fish_participate_criterion4 == 1) #%>% filter(presentation_when_fish_gave_up4 >3)
+
+
+df.shuttle$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive<-as.numeric(df.shuttle$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive)
+
+ggplot(df.shuttle, aes(did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive, fill = sex.x))+
+  geom_histogram(binwidth = 0.5) + 
+  labs(x= "Shuttlebox Learning Category",y="Number of individuals") +  
+  scale_x_discrete(breaks=c(0, 1)) +
+  #ylim(0,30) +
+  theme(plot.title = element_text(hjust = 0)) +
+  annotate("text", x=-0.09, y=22, label= glue::glue(z), size = 7, color = "white", hjust = 0)+
+  annotate("text", x=-0.09, y=2, label= glue::glue(y), size = 7, color = "white", hjust = 0) +
+  annotate("text", x=0.96, y=2, label= glue::glue(x), size = 7, color = "white", hjust = 0)+
+  scale_color_manual(values=c("maroon", "lightblue")) +
+  theme(legend.position="left") + 
+  scale_fill_manual(values=c("maroon", "lightblue"),name="Sex",labels=c("  Female", "  Male")) #+ 
+ # annotate("text",x = -1, y = 4, parse = TRUE, label= glue::glue("{as.character(chisquaredtxt)}"), size = 7, color = "black", hjust = 0) +
+ # annotate("text",x = -0.7, y = 3.86, parse = TRUE, label= glue::glue("{round(chip,3)}"), size = 7, color = "black", hjust = 0) +
+ # annotate("text",x = -2, y = -1, parse = TRUE, label= glue::glue("Fisher_exact_test_p_{round(fishp,3)}"), size = 7, color = "black", hjust = 0)
+
+
+```
+
+
+
+
+
+
+
+#FIGURE 1C- UPDATED DECEMBER 2019 no participation criterion
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+df.full.males$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive<- as.numeric(df.full.males$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive)
+df.full.females$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive<- as.numeric(df.full.females$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive)
+
+df.full.males$did_fish_participate_criterion7<-as.numeric(df.full.males$did_fish_participate_criterion7)
+df.full.females$did_fish_participate_criterion7<-as.numeric(df.full.females$did_fish_participate_criterion7)
+
+#to get the numbers I ran this code:
+w.df<-df.full.males%>%filter(did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive == 1)
+w<- nrow(w.df)
+x.df<-df.full.females%>%filter(did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive == 1)
+x<- nrow(x.df)
+y.df<-df.full.males%>%filter(did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive == 0)
+y<- nrow(y.df)
+z.df<-df.full.females%>%filter(did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive == 0)
+z<- nrow(z.df)
+
+solvers = c(w,x)
+nonsolvers = c(y,z)
+shuttleboxsolvesex<-data.frame(solvers,nonsolvers)
+chi<-chisq.test(shuttleboxsolvesex)
+chip<-chi$p.value
+
+#This is Fisher's exact Test, an alternative that can hendle small numbers in each cell (i.e. when we have only one male learner)
+fish<-fisher.test(shuttleboxsolvesex)
+fishp<-fish$p.value
+
+df.shuttle<-df.full  %>% filter(did_fish_participate_criterion7 == 1) %>% filter(presentation_when_fish_gave_up4 >3)
+
+
+df.shuttle$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive<-as.numeric(df.shuttle$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive)
+
+ggplot(df.shuttle, aes(did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive, fill = sex.x))+
+  geom_histogram(binwidth = 0.5) + 
+  labs(x= "Shuttlebox Learning Category",y="Number of individuals") +  
+  scale_x_discrete(breaks=c(0, 1)) +
+  ylim(0,30) +
+  theme(plot.title = element_text(hjust = 0)) +
+  annotate("text", x=-0.09, y=11, label= glue::glue(z), size = 7, color = "white", hjust = 0)+
+  annotate("text", x=-0.06, y=1.5, label= glue::glue(y), size = 7, color = "white", hjust = 0) +
+  annotate("text", x=0.96, y=1.5, label= glue::glue(x), size = 7, color = "white", hjust = 0)+
+  scale_color_manual(values=c("maroon", "lightblue")) +
+  theme(legend.position="left") + 
+  #guides(fill=guide_legend(title= "Sex")) +
+  scale_fill_manual(values=c("maroon", "lightblue"),name="Sex",labels=c("  Female", "  Male")) #+ 
+ # annotate("text",x = -1, y = 4, parse = TRUE, label= glue::glue("{as.character(chisquaredtxt)}"), size = 7, color = "black", hjust = 0) +
+ # annotate("text",x = -0.7, y = 3.86, parse = TRUE, label= glue::glue("{round(chip,3)}"), size = 7, color = "black", hjust = 0) +
+ # annotate("text",x = -2, y = -1, parse = TRUE, label= glue::glue("Fisher_exact_test_p_{round(fishp,3)}"), size = 7, color = "black", hjust = 0)
+
+```
+
+
+
+
+#FIGURE 1C- UPDATED DECEMBER 2019 more relaxed participation criterion - ALSO NOTE USING 50% overall - NOT of screen time
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+df.full.males$did_fish_meet_within10cm_50_percent_3_consecutive_criterion<- as.numeric(df.full.males$did_fish_meet_within10cm_50_percent_3_consecutive_criterion)
+df.full.females$did_fish_meet_within10cm_50_percent_3_consecutive_criterion<- as.numeric(df.full.females$did_fish_meet_within10cm_50_percent_3_consecutive_criterion)
+
+df.full.males$did_fish_participate_criterion7<-as.numeric(df.full.males$did_fish_participate_criterion7)
+df.full.females$did_fish_participate_criterion7<-as.numeric(df.full.females$did_fish_participate_criterion7)
+
+#to get the numbers I ran this code:
+w.df<-df.full.males%>%filter(did_fish_meet_within10cm_50_percent_3_consecutive_criterion == 1) %>% filter(did_fish_participate_criterion4 == 1)
+w<- nrow(w.df) 
+x.df<-df.full.females%>%filter(did_fish_meet_within10cm_50_percent_3_consecutive_criterion == 1)%>%  filter(did_fish_participate_criterion4 == 1)
+x<- nrow(x.df)
+y.df<-df.full.males%>%filter(did_fish_meet_within10cm_50_percent_3_consecutive_criterion == 0)%>%  filter(did_fish_participate_criterion4 == 1)
+y<- nrow(y.df)
+z.df<-df.full.females%>%filter(did_fish_meet_within10cm_50_percent_3_consecutive_criterion == 0)%>%  filter(did_fish_participate_criterion4 == 1)
+z<- nrow(z.df)
+
+solvers = c(w,x)
+nonsolvers = c(y,z)
+shuttleboxsolvesex<-data.frame(solvers,nonsolvers)
+chi<-chisq.test(shuttleboxsolvesex)
+chip<-chi$p.value
+
+#This is Fisher's exact Test, an alternative that can hendle small numbers in each cell (i.e. when we have only one male learner)
+fish<-fisher.test(shuttleboxsolvesex)
+fishp<-fish$p.value
+
+df.shuttle<-df.full  %>% filter(did_fish_participate_criterion7 == 1) %>% filter(presentation_when_fish_gave_up4 >3)
+
+
+df.shuttle$did_fish_meet_within10cm_50_percent_3_consecutive_criterion<-as.numeric(df.shuttle$did_fish_meet_within10cm_50_percent_3_consecutive_criterion)
+
+ggplot(df.shuttle, aes(did_fish_meet_within10cm_50_percent_3_consecutive_criterion, fill = sex.x))+
+  geom_histogram(binwidth = 0.5) + 
+  labs(x= "Shuttlebox Learning Category",y="Number of individuals") +  
+  scale_x_discrete(breaks=c(0, 1)) +
+  ylim(0,30) +
+  theme(plot.title = element_text(hjust = 0)) +
+  annotate("text", x=-0.09, y=11, label= glue::glue(z), size = 7, color = "white", hjust = 0)+
+  annotate("text", x=-0.06, y=1.5, label= glue::glue(y), size = 7, color = "white", hjust = 0) +
+  annotate("text", x=0.96, y=1.5, label= glue::glue(x), size = 7, color = "white", hjust = 0)+
+  scale_color_manual(values=c("maroon", "lightblue")) +
+  theme(legend.position="left") + 
+  #guides(fill=guide_legend(title= "Sex")) +
+  scale_fill_manual(values=c("maroon", "lightblue"),name="Sex",labels=c("  Female", "  Male")) #+ 
+ # annotate("text",x = -1, y = 4, parse = TRUE, label= glue::glue("{as.character(chisquaredtxt)}"), size = 7, color = "black", hjust = 0) +
+ # annotate("text",x = -0.7, y = 3.86, parse = TRUE, label= glue::glue("{round(chip,3)}"), size = 7, color = "black", hjust = 0) +
+ # annotate("text",x = -2, y = -1, parse = TRUE, label= glue::glue("Fisher_exact_test_p_{round(fishp,3)}"), size = 7, color = "black", hjust = 0)
+
+```
+
+
+#FIGURE 1C- UPDATED DECEMBER 2019 more relaxed participation criterion - ALSO NOTE USING 80% overall - NOT of screen time (also removed giveup3)
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+df.full.males$did_fish_learn_OF_SCREEN_TIME_80_percent_within_10_cm_3_consecutive<- as.numeric(df.full.males$did_fish_learn_OF_SCREEN_TIME_80_percent_within_10_cm_3_consecutive)
+df.full.females$did_fish_learn_OF_SCREEN_TIME_80_percent_within_10_cm_3_consecutive<- as.numeric(df.full.females$did_fish_learn_OF_SCREEN_TIME_80_percent_within_10_cm_3_consecutive)
+
+df.full.males$did_fish_participate_criterion4<-as.numeric(df.full.males$did_fish_participate_criterion4)
+df.full.females$did_fish_participate_criterion4<-as.numeric(df.full.females$did_fish_participate_criterion4)
+
+#to get the numbers I ran this code:
+w.df<-df.full.males%>%filter(did_fish_learn_OF_SCREEN_TIME_80_percent_within_10_cm_3_consecutive == 1) %>% filter(did_fish_participate_criterion4 == 1)
+w<- nrow(w.df) 
+x.df<-df.full.females%>%filter(did_fish_learn_OF_SCREEN_TIME_80_percent_within_10_cm_3_consecutive == 1)%>%  filter(did_fish_participate_criterion4 == 1)
+x<- nrow(x.df)
+y.df<-df.full.males%>%filter(did_fish_learn_OF_SCREEN_TIME_80_percent_within_10_cm_3_consecutive == 0)%>%  filter(did_fish_participate_criterion4 == 1)
+y<- nrow(y.df)
+z.df<-df.full.females%>%filter(did_fish_learn_OF_SCREEN_TIME_80_percent_within_10_cm_3_consecutive == 0)%>%  filter(did_fish_participate_criterion4 == 1)
+z<- nrow(z.df)
+
+solvers = c(w,x)
+nonsolvers = c(y,z)
+shuttleboxsolvesex<-data.frame(solvers,nonsolvers)
+chi<-chisq.test(shuttleboxsolvesex)
+chip<-chi$p.value
+
+#This is Fisher's exact Test, an alternative that can hendle small numbers in each cell (i.e. when we have only one male learner)
+fish<-fisher.test(shuttleboxsolvesex)
+fishp<-fish$p.value
+
+
+
+df.full$did_fish_learn_OF_SCREEN_TIME_80_percent_within_10_cm_3_consecutive<-as.numeric(df.full$did_fish_learn_OF_SCREEN_TIME_80_percent_within_10_cm_3_consecutive)
+
+ggplot(df.full, aes(did_fish_learn_OF_SCREEN_TIME_80_percent_within_10_cm_3_consecutive, fill = sex.x))+
+  geom_histogram(binwidth = 0.5) + 
+  labs(x= "Shuttlebox Learning Category",y="Number of individuals") +  
+  scale_x_discrete(breaks=c(0, 1)) +
+  ylim(0,30) +
+  theme(plot.title = element_text(hjust = 0)) +
+  annotate("text", x=-0.09, y=11, label= glue::glue(z), size = 7, color = "white", hjust = 0)+
+  annotate("text", x=-0.06, y=1.5, label= glue::glue(y), size = 7, color = "white", hjust = 0) +
+  annotate("text", x=0.96, y=1.5, label= glue::glue(x), size = 7, color = "white", hjust = 0)+
+  scale_color_manual(values=c("maroon", "lightblue")) +
+  theme(legend.position="left") + 
+  scale_fill_manual(values=c("maroon", "lightblue"),name="Sex",labels=c("  Female", "  Male")) #+ 
+ # annotate("text",x = -1, y = 4, parse = TRUE, label= glue::glue("{as.character(chisquaredtxt)}"), size = 7, color = "black", hjust = 0) +
+ # annotate("text",x = -0.7, y = 3.86, parse = TRUE, label= glue::glue("{round(chip,3)}"), size = 7, color = "black", hjust = 0) +
+ # annotate("text",x = -2, y = -1, parse = TRUE, label= glue::glue("Fisher_exact_test_p_{round(fishp,3)}"), size = 7, color = "black", hjust = 0)
+
+```
+
+
+#FIGURE 2 - NEW DEC 2019
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#REACTION TIME
+mod<-lm(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.full$average_reaction_time * df.full$sex.x)
+df.full$sex.x<-as.character(df.full$sex.x)
+
+#p value of interaction
+number <- df.full%>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(average_reaction_time)) %>% nrow
+p_value_look_at_last_one <- summary(mod)
+r_squared <- summary(mod)$r.squared
+
+
+plot1 <- ggplot(df.full, aes(x = average_reaction_time, y = average_performance_across_all_9_testing_trials_using_T30_to_T50_data, color = sex.x)) + geom_point(size = 4) + 
+geom_smooth(method = "lm", size = 2, se = FALSE,fullrange=TRUE) +
+  theme(text = element_text(size=10)) +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+  theme(plot.title = element_text(hjust = 0)) + 
+  scale_color_manual(values=c("maroon", "lightblue"))+
+  geom_text(x=10, y=0.2, label= glue::glue("p (interaction)= manual 0.099"), size = 6, color = "black")
+plot1
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#EXPLORATION
+
+mod<-lm(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.full$unique_zones_entered_full_4_minutes * df.full$sex.x)
+df.full$sex.x<-as.character(df.full$sex.x)
+
+#p value of interaction
+number <- df.full%>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(unique_zones_entered_full_4_minutes)) %>% nrow
+p_value_look_at_last_one <- summary(mod)
+r_squared <- summary(mod)$r.squared
+
+
+
+plot1 <- ggplot(df.full, aes(x = unique_zones_entered_full_4_minutes, y = average_performance_across_all_9_testing_trials_using_T30_to_T50_data, color = sex.x)) + geom_point(size = 4) + 
+geom_smooth(method = "lm", size = 2, se = FALSE,fullrange=TRUE) +
+  theme(text = element_text(size=10)) +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+  theme(plot.title = element_text(hjust = 0)) + 
+  scale_color_manual(values=c("maroon", "lightblue"))+
+  geom_text(x=0.5, y=0.2, label= glue::glue("p (interaction)= manual 0.077"), size = 6, color = "black")
+plot1
+```
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#ACTIVITY
+mod<-lm(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.full$average_number_of_entries_full_4_minutes * df.full$sex.x)
+df.full$sex.x<-as.character(df.full$sex.x)
+
+#p value of interaction
+number <- df.full%>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% nrow
+p_value_look_at_last_one <- summary(mod)
+r_squared <- summary(mod)$r.squared
+
+
+
+plot1 <- ggplot(df.full, aes(x = average_number_of_entries_full_4_minutes, y = average_performance_across_all_9_testing_trials_using_T30_to_T50_data, color = sex.x)) + geom_point(size = 4) + 
+geom_smooth(method = "lm", size = 2, se = FALSE,fullrange=TRUE) +
+  theme(text = element_text(size=10)) +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+  theme(plot.title = element_text(hjust = 0)) + 
+  scale_color_manual(values=c("maroon", "lightblue"))+
+  geom_text(x=10, y=50, label= glue::glue("p (interaction) = 0.12"), size = 6, color = "black")
+plot1
+
+```
+
 
 
 
@@ -280,7 +636,7 @@ plot3 <- ggplot(df.full.females, aes(unique_zones_entered_full_4_minutes, averag
          theme(axis.line.y = element_line(color="gray", size = 1))+
          theme(axis.line.x = element_line(color="gray", size = 1))+ 
          theme(panel.background = element_blank()) + 
-  theme(plot.title = element_text(hjust = 0))+ scale_x_continuous(name="exploration", limits=c(0.5, 1)) +
+  theme(plot.title = element_text(hjust = 0))+ scale_x_continuous(name="exploration", limits=c(0.6, 1)) +
   scale_y_continuous(name="numerosity performance", limits=c(0, 0.8)) +
   theme(axis.text.x = element_text(size=25), axis.text.y = element_text(size=25))
 plot3
@@ -417,10 +773,10 @@ plot1
 
 #FIGURE 3A
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-df.num$detour_trial_1_did_fish_solve_barrier_problem<-as.character(df.num$detour_trial_1_did_fish_solve_barrier_problem)
+df.full$detour_trial_1_did_fish_solve_barrier_problem<-as.character(df.full$detour_trial_1_did_fish_solve_barrier_problem)
 
 
-plot1 <- ggplot(df.num, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_performance_across_all_9_testing_trials_using_T30_to_T50_data, color = sex.x)) + 
+plot1 <- ggplot(df.full, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=average_performance_across_all_9_testing_trials_using_T30_to_T50_data, color = sex.x)) + 
   geom_boxplot(lwd=1)+ 
   labs(x= "detour solve category",y="Numerosity Performance") + theme(axis.text.y = element_text(size = 14)) + theme(axis.text.x = element_text(size = 14)) +
   theme(legend.position="top") +
@@ -430,10 +786,16 @@ plot1 <- ggplot(df.num, aes(x=detour_trial_1_did_fish_solve_barrier_problem, y=a
   geom_point(position = position_jitterdodge(jitter.width = 0.1))
 plot1
 
+#New Deceber 2019- looking for an interaction effect
+aov1 <- aov(average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ detour_trial_1_did_fish_solve_barrier_problem*sex.x, data=df.full)
+summary(aov1)
+
 
 ```
 
-#FIGURE 3B
+
+
+#FIGURE 3B - removed december 2019
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 
 mod<-lm(df.full$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.full$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier * df.full$sex.x)
@@ -676,6 +1038,163 @@ res <- cor.test(df.full$average_reaction_time,df.full$standard_length, method = 
 
 
 
+
+
+
+#NEW DEC 2019 - MORE SHUTTLEBOX DATA ANALYSIS
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+df.full.shuttemp<-df.full %>% filter(did_fish_participate_criterion4 == 1)
+shapiro.test(df.full.shuttemp$difference_avg_prop_with10cm_first_three_gaps_minus_last_three_gaps_before_giveup4_last_30_secs_of_ISI_INVERTED)
+#if shapiro wilk is NOT significant, use a t test
+df.full.shuttemp$sex.x<-as.character(df.full.shuttemp$sex.x)
+
+test<-t.test(df.full.shuttemp$difference_avg_prop_with10cm_first_three_gaps_minus_last_three_gaps_before_giveup4_last_30_secs_of_ISI_INVERTED~df.full.shuttemp$sex.x)
+p_value_t<- test$p.value
+wilcox_test<-wilcox.test(df.full.shuttemp$difference_avg_prop_with10cm_first_three_gaps_minus_last_three_gaps_before_giveup4_last_30_secs_of_ISI_INVERTED~df.full.shuttemp$sex.x)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.shuttemp, aes(x=sex.x, y=difference_avg_prop_with10cm_first_three_gaps_minus_last_three_gaps_before_giveup4_last_30_secs_of_ISI_INVERTED)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle(' title') +
+  geom_text(x=1, y=0.2, label= glue::glue("p (t)= {round(p_value_t,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+df.full.shuttemp<-df.full %>% filter(did_fish_participate_criterion4 == 1)
+
+
+shapiro.test(df.full.shuttemp$difference_avg_prop_within10cm_first_three_gaps_minus_last_three_gaps_before_giveup4_last_30_secs_of_ISI_OFSCREENTIME_INVERTED)
+#if shapiro wilk is NOT significant, use a t test
+df.full.shuttemp$sex.x<-as.character(df.full.shuttemp$sex.x)
+
+test<-t.test(df.full.shuttemp$difference_avg_prop_within10cm_first_three_gaps_minus_last_three_gaps_before_giveup4_last_30_secs_of_ISI_OFSCREENTIME_INVERTED~df.full.shuttemp$sex.x)
+p_value_t<- test$p.value
+wilcox_test<-wilcox.test(df.full.shuttemp$difference_avg_prop_within10cm_first_three_gaps_minus_last_three_gaps_before_giveup4_last_30_secs_of_ISI_OFSCREENTIME_INVERTED~df.full.shuttemp$sex.x)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.shuttemp, aes(x=sex.x, y=difference_avg_prop_within10cm_first_three_gaps_minus_last_three_gaps_before_giveup4_last_30_secs_of_ISI_OFSCREENTIME_INVERTED)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle(' title') +
+  geom_text(x=1, y=0.2, label= glue::glue("p (t)= {round(p_value_t,4)}"), size = 6, color = "black")
+p
+
+
+```
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+df.full.shuttemp<-df.full %>% filter(did_fish_participate_criterion4 == 1)
+
+
+shapiro.test(df.full.shuttemp$difference_avg_prop_correct_first_three_gaps_minus_avg_gaps_456)
+#if shapiro wilk is NOT significant, use a t test
+df.full.shuttemp$sex.x<-as.character(df.full.shuttemp$sex.x)
+
+test<-t.test(df.full.shuttemp$difference_avg_prop_correct_first_three_gaps_minus_avg_gaps_456~df.full.shuttemp$sex.x)
+p_value_t<- test$p.value
+wilcox_test<-wilcox.test(df.full.shuttemp$difference_avg_prop_correct_first_three_gaps_minus_avg_gaps_456~df.full.shuttemp$sex.x)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.shuttemp, aes(x=sex.x, y=difference_avg_prop_correct_first_three_gaps_minus_avg_gaps_456)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle(' title') +
+  geom_text(x=1, y=0.2, label= glue::glue("p (t)= {round(p_value_t,4)}"), size = 6, color = "black")
+p
+
+```
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+df.full.shuttemp<-df.full %>% filter(did_fish_participate_criterion4 == 1)
+
+
+shapiro.test(df.full.shuttemp$difference_avg_prop_within10cm_123_minus_456_last_30_secs_of_ISI_OFSCREENTIME_INVERTED)
+#if shapiro wilk is NOT significant, use a t test
+df.full.shuttemp$sex.x<-as.character(df.full.shuttemp$sex.x)
+
+test<-t.test(df.full.shuttemp$difference_avg_prop_within10cm_123_minus_456_last_30_secs_of_ISI_OFSCREENTIME_INVERTED~df.full.shuttemp$sex.x)
+p_value_t<- test$p.value
+wilcox_test<-wilcox.test(df.full.shuttemp$difference_avg_prop_within10cm_123_minus_456_last_30_secs_of_ISI_OFSCREENTIME_INVERTED~df.full.shuttemp$sex.x)
+p_value_wilcox<-wilcox_test$p.value
+
+p <- ggplot(df.full.shuttemp, aes(x=sex.x, y=difference_avg_prop_within10cm_123_minus_456_last_30_secs_of_ISI_OFSCREENTIME_INVERTED)) + 
+  geom_boxplot()+ stat_n_text() +
+  ggtitle(' title') +
+  geom_text(x=1, y=0.2, label= glue::glue("p (t)= {round(p_value_t,4)}"), size = 6, color = "black")
+p
+
+```
+
+
+
+#PCA of just the three num behaviors, then compared to learning performance looking for sex diferences
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+df.full.continuous<-df.full%>%filter(is.na(average_reaction_time)==FALSE)
+df.full.continuous.pca <- prcomp(df.full.continuous[,c(75,78,74)], center = TRUE,scale. = TRUE)
+summary(df.full.continuous.pca)
+str(df.full.continuous.pca)
+
+autoplot(df.full.continuous.pca, data = df.full.continuous, colour = 'sex.x', size = 5, loadings = TRUE, loadings.colour = 'black',loadings.label = TRUE)
+
+
+#with elipses
+autoplot(df.full.continuous.pca, data = df.full.continuous, colour = 'sex.x', size = 5, loadings = TRUE, loadings.colour = 'black',loadings.label = TRUE, frame = TRUE, frame.type = 'norm')
+
+
+df.full.continuous.pca1<- as.data.frame(df.full.continuous.pca$x)
+df.full.continuous$PC1<-df.full.continuous.pca1$PC1
+
+
+mod<-lm(df.full.continuous$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.full.continuous$PC1 * df.full.continuous$sex.x)
+df.full.continuous$sex.x<-as.character(df.full.continuous$sex.x)
+
+#p value of interaction
+number <- df.full.continuous%>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(PC1)) %>% nrow
+p_value_look_at_last_one <- summary(mod)
+r_squared <- summary(mod)$r.squared
+
+plot1 <- ggplot(df.full.continuous, aes(x = PC1, y = average_performance_across_all_9_testing_trials_using_T30_to_T50_data, color = sex.x)) + geom_point(size = 4) + 
+geom_smooth(method = "lm", size = 2, se = FALSE,full.continuousrange=TRUE) +
+  theme(text = element_text(size=10)) +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+  theme(plot.title = element_text(hjust = 0)) + 
+  scale_color_manual(values=c("maroon", "lightblue"))+
+  geom_text(x=-1, y=0.3, label= glue::glue("p (interaction) = manual 0.037"), size = 6, color = "black")
+plot1
+
+
+
+#p value of just females PC1 (activity, exploration, reaction time) by numerosity performance:
+df.full.continuous.females<-df.full.continuous %>% filter(sex.x == "F")
+mod<-lm(df.full.continuous.females$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.full.continuous.females$PC1)
+number <- df.full.continuous.females%>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(PC1)) %>% nrow
+p_value <- summary(mod)$coefficients[8]
+r_squared <- summary(mod)$r.squared
+
+#p value of just males PC1 (activity, exploration, reaction time) by numerosity performance:
+df.full.continuous.males<-df.full.continuous %>% filter(sex.x == "M")
+mod<-lm(df.full.continuous.males$average_performance_across_all_9_testing_trials_using_T30_to_T50_data ~ df.full.continuous.males$PC1)
+number <- df.full.continuous.males%>% filter(!is.na(average_performance_across_all_9_testing_trials_using_T30_to_T50_data)) %>% filter(!is.na(PC1)) %>% nrow
+p_value <- summary(mod)$coefficients[8]
+r_squared <- summary(mod)$r.squared
+
+```
 
 
 

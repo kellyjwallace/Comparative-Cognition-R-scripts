@@ -178,7 +178,50 @@ else {
   did_fish_participate_criterion4 <- 0
 }
 
+# average number of transits during the entire task, stims and gaps
+df.participation.total <- df.full %>%filter(type == 'gap')
+df.participation.total<-df.participation.total %>% mutate(fish_location_third_of_tank = NA) 
+df.participation.total<-df.participation.total %>% mutate(fish_location_10cm = NA)
 
+for (a in 1:nrow(df.participation.total)){
+  if(is.na(df.participation.total$x[a]) == TRUE){
+    df.participation.total$fish_location_third_of_tank[a] <- NA}
+  else if(df.participation.total$x[a]<=427){
+    df.participation.total$fish_location_third_of_tank[a] <- 'left'}
+  else if(df.participation.total$x[a]>=783){
+    df.participation.total$fish_location_third_of_tank[a] <- 'right'}
+  else if(between(df.participation.total$x[a],428,782) == TRUE){
+    df.participation.total$fish_location_third_of_tank[a] <- 'center'} 
+}
+
+for (a in 1:nrow(df.participation.total)){
+  if(is.na(df.participation.total$x[a]) == TRUE){
+    df.participation.total$fish_location_10cm[a] <- NA}
+  else if(df.participation.total$x[a]<=246){
+    df.participation.total$fish_location_10cm[a] <- 'left'}
+  else if(df.participation.total$x[a]>=1034){
+    df.participation.total$fish_location_10cm[a] <- 'right'}
+  else if(between(df.participation.total$x[a],245,1033) == TRUE){
+    df.participation.total$fish_location_10cm[a] <- 'center'} 
+}
+
+df.transits<-data.frame(presentation = vector(length = 30), did_fish_transit_during_this_gap = vector(length = 30))
+for (m in 1:30){
+  df.transits$presentation[m] <- m
+if (nrow(df.participation.total %>%filter(presentation == m) %>%filter(fish_location_10cm == 'left')) >=1 & nrow(df.participation.total %>%filter(presentation == m) %>%filter(fish_location_10cm == 'right')) >= 1){df.transits$did_fish_transit_during_this_gap[m]<- 1}
+else{df.transits$did_fish_transit_during_this_gap[m]<- 0}
+}
+
+m<-1
+for (m in 1:29){ 
+if (nrow(df.participation.total %>%filter(presentation == m) %>%filter(fish_location_10cm == 'left')) >=1 & nrow(df.participation.total %>%filter(presentation == m+1) %>%filter(fish_location_10cm == 'right')) >= 1){df.transits$did_fish_transit_by_next_gap[m]<- 1} 
+else if (nrow(df.participation.total %>%filter(presentation == m) %>%filter(fish_location_10cm == 'right')) >=1 & nrow(df.participation.total %>%filter(presentation == m+1) %>%filter(fish_location_10cm == 'left')) >= 1){df.transits$did_fish_transit_by_next_gap[m]<- 1}
+else{df.transits$did_fish_transit_by_next_gap[m]<- 0}  
+}
+
+
+number_of_gaps_in_which_the_fish_transited_during_the_gap <- sum(df.transits$did_fish_transit_during_this_gap)
+number_of_gaps_in_which_the_fish_transited_between_two_sequential_gaps <- sum(df.transits$did_fish_transit_by_next_gap)
 
 ###############################gaps 1 through 6
 df.participation2 <- df.full %>%filter(type == 'stim') %>% filter(is.inrange(presentation, range = c(1,6)))
@@ -313,7 +356,14 @@ df.full.gap<-do.call("rbind", list(df.full.gap1, df.full.gap2, df.full.gap3, df.
     
     within10cm_nrow<-df.full.gap%>% filter(presentation == jnum) %>% filter(distance_from_correct < 246) %>% nrow()
     df.prop.gap$proportion_time_within10cm_during_gap[j]<-within10cm_nrow/nrow 
-      
+    
+    #new december 2019
+    within10cm_correct_screentime_nrow <-df.full.gap%>% filter(presentation == jnum) %>% filter(distance_from_correct < 246) %>% nrow()
+    screentime_nrow <-df.full.gap%>% filter(presentation == jnum) %>% filter(distance_from_correct <= 246 | distance_from_correct >=1034) %>% nrow()
+    
+    df.prop.gap$proportion_time_within10cm_during_gap_OFSCREENTIME[j]<-within10cm_correct_screentime_nrow/screentime_nrow 
+    
+    
     df.prop.gap$average_distance_during_gap[j] <- mean(df.full.gap.this.presentation$distance_from_correct)
   }
   
@@ -329,6 +379,7 @@ df.full.gap<-do.call("rbind", list(df.full.gap1, df.full.gap2, df.full.gap3, df.
   gap_prop_slope<-modsum[2]
   
   giveup3minus2 <- giveup3 - 2
+  giveup4minus2 <- giveup4 - 2
   
 
 
@@ -482,6 +533,47 @@ for(k in 1:giveup4){
     did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive <- 1}
   else{
     did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive <- 0}
+
+#added december 2019 now 80% 3 consecutive  
+    countscreen <-0
+  for(e in 1:nrow(df.screen)){
+    if(is.na(df.screen$prop_within_10cm_of_time_spent_at_screen[e]) == TRUE){
+     countscreen <- 0
+     df.screen$consecutive_gaps_above_of_screen_time_80[e]<- countscreen}
+  else if (df.screen$prop_within_10cm_of_time_spent_at_screen[e] > 0.8) {
+  countscreen<- countscreen + 1
+  df.screen$consecutive_gaps_above_of_screen_time_80[e]<- countscreen}
+  else{
+  countscreen <- 0
+  df.screen$consecutive_gaps_above_of_screen_time_80[e]<- countscreen}
+  }
+  
+  if (max(df.screen$consecutive_gaps_above_of_screen_time_80) >= 3){
+    did_fish_learn_OF_SCREEN_TIME_80_percent_within_10_cm_3_consecutive <- 1}
+  else{
+    did_fish_learn_OF_SCREEN_TIME_80_percent_within_10_cm_3_consecutive <- 0}
+    
+    
+    
+  #added december 19 now 50% 4 consecutive
+    countscreen <-0
+  for(e in 1:nrow(df.screen)){
+    if(is.na(df.screen$prop_within_10cm_of_time_spent_at_screen[e]) == TRUE){
+     countscreen <- 0
+     df.screen$consecutive_gaps_above_of_screen_time_50[e]<- countscreen}
+  else if (df.screen$prop_within_10cm_of_time_spent_at_screen[e] > 0.5) {
+  countscreen<- countscreen + 1
+  df.screen$consecutive_gaps_above_of_screen_time_50[e]<- countscreen}
+  else{
+  countscreen <- 0
+  df.screen$consecutive_gaps_above_of_screen_time_50[e]<- countscreen}
+  }
+  
+  if (max(df.screen$consecutive_gaps_above_of_screen_time_50) >= 4){
+    did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_4_consecutive <- 1}
+  else{
+    did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_4_consecutive <- 0}
+  
   
   
   
@@ -489,9 +581,10 @@ for(k in 1:giveup4){
   ###
    if(giveup4 > 3){
     df.full.first3gap<-df.full.gap %>% filter(is.inrange(presentation, range = c(1,3)))
-    df.full.last3gap<-df.full.gap %>% filter(is.inrange(presentation, range = c(giveup3minus2, giveup3)))
+    df.full.last3gap<-df.full.gap %>% filter(is.inrange(presentation, range = c(giveup4minus2, giveup4)))
+    
     df.prop.first3gap<-df.prop.gap %>% filter(is.inrange(presentation, range = c(1,3)))
-    df.prop.last3gap<-df.prop.gap %>% filter(is.inrange(presentation, range = c(giveup3minus2, giveup3)))
+    df.prop.last3gap<-df.prop.gap %>% filter(is.inrange(presentation, range = c(giveup4minus2, giveup4)))
     df.prop.gap6<-df.prop.gap %>% filter(presentation == 6)
     df.prop.gap456<-  df.prop.gap %>% filter(is.inrange(presentation, range = c(4,6)))
     df.prop.gap567<-  df.prop.gap %>% filter(is.inrange(presentation, range = c(5,7)))
@@ -574,6 +667,8 @@ for(k in 1:giveup4){
     
     
     average_proportion_within_10cm_gaps_456<-mean(df.prop.gap456$proportion_time_within10cm_during_gap)
+    comp123_v_456_avg_prop_within10cm_OFSCREENTIME <- mean(df.prop.first3gap$proportion_time_within10cm_during_gap_OFSCREENTIME, na.rm = TRUE) - mean(df.prop.gap456$proportion_time_within10cm_during_gap_OFSCREENTIME, na.rm = TRUE)
+    
     
     avg_dist_during_first_3_gaps<- mean(df.full.first3gap$distance_from_correct)
     comp_3v3_avg_dist <- mean(df.full.first3gap$distance_from_correct) - mean(df.full.last3gap$distance_from_correct)
@@ -583,6 +678,15 @@ for(k in 1:giveup4){
     comp_3v3_avg_prop_correct <- mean(df.prop.first3gap$proportion_time_correct_during_gap) - mean(df.prop.last3gap$proportion_time_correct_during_gap)
     comp_123_v_456_avg_prop_correct <- mean(df.prop.first3gap$proportion_time_correct_during_gap) - mean(df.prop.gap456$proportion_time_correct_during_gap)
     comp_123_v_6_avg_prop_correct <- mean(df.prop.first3gap$proportion_time_correct_during_gap) - df.prop.gap6$proportion_time_correct_during_gap
+    
+    comp_3v3_avg_prop_within_10cmlast_30_secs <-mean(df.prop.first3gap$proportion_time_within10cm_during_gap) - mean(df.prop.last3gap$proportion_time_within10cm_during_gap)
+    
+    comp_3v3_avg_prop_within_10cmlast_30_secs_OFSCREENTIME<-mean(df.prop.first3gap$proportion_time_within10cm_during_gap_OFSCREENTIME, na.rm = TRUE) - mean(df.prop.last3gap$proportion_time_within10cm_during_gap_OFSCREENTIME, na.rm = TRUE)
+    
+    comp_123_v_282930_within10cm_last_30_secs <- mean(df.prop.first3gap$proportion_time_within10cm_during_gap, na.rm = TRUE) - mean(df.prop.gap282930$proportion_time_within10cm_during_gap, na.rm = TRUE)
+      
+    comp_123_v_282930_within10cm_last_30_secs_OFSCREENTIME <- mean(df.prop.first3gap$proportion_time_within10cm_during_gap_OFSCREENTIME, na.rm = TRUE) - mean(df.prop.gap282930$proportion_time_within10cm_during_gap_OFSCREENTIME, na.rm = TRUE)
+    
 
  #here's where I'm going to do the ANOVA comparing the 6 relevant gaps (first 3 and last 3) PROP 
   #I'm also going to do a t test/shapiro where compare the first 3 to the last 3 PROP
@@ -640,6 +744,15 @@ df.sum$presentation_when_fish_gave_up4[i] <-giveup4
 df.sum$shuttlebox_average_proportion_of_time_on_correct_side_during_gaps[i]<- mean_prop_time_correct_during_gap
 df.sum$prop_within_10cm_during_stims_4_through_9[i]<-prop_within_10cm_during_stims_4_through_9
 df.sum$prop_within_10cm_during_all_stims[i]<-prop_within_10cm_during_all_stims
+
+
+
+#new dec 2019
+df.sum$prop_within_10cm_during_gaps_282930[i] <- mean(df.prop.gap282930$proportion_time_within10cm_during_gap, na.rm = TRUE)
+df.sum$prop_within_10cm_during_last_3_gaps_before_giveup4[i] <- mean(df.prop.last3gap$proportion_time_within10cm_during_gap, na.rm = TRUE)
+
+df.sum$prop_within_10cm_during_gaps_282930_OFSCREENTIME[i] <- mean(df.prop.gap282930$proportion_time_within10cm_during_gap_OFSCREENTIME, na.rm = TRUE)
+df.sum$prop_within_10cm_during_last_3_gaps_before_giveup4_OFSCREENTIME[i] <- mean(df.prop.last3gap$proportion_time_within10cm_during_gap_OFSCREENTIME, na.rm = TRUE)
 
 #df.sum$prop_shuttlebox_KRUSKAL_p_value_first_and_last_3_gaps[i]<- prop_p_value_kruskal
 #df.sum$prop_shuttlebox_TTEST_p_value_first_and_last_3_gaps[i]<- prop_p_value_t
@@ -716,6 +829,19 @@ df.sum$difference_avg_prop_correct_first_3_gaps_minus_last_3_gaps[i] <- comp_3v3
 df.sum$difference_avg_prop_correct_first_three_gaps_minus_gap_6[i] <- comp_123_v_6_avg_prop_correct
 df.sum$difference_avg_prop_correct_first_three_gaps_minus_avg_gaps_456[i] <- comp_123_v_456_avg_prop_correct
 
+#this one line new as of december 2019
+df.sum$difference_avg_prop_with10cm_first_three_gaps_minus_last_three_gaps_before_giveup4_last_30_secs_of_ISI[i]<-comp_3v3_avg_prop_within_10cmlast_30_secs
+df.sum$difference_avg_prop_within10cm_first_three_gaps_minus_last_three_gaps_before_giveup4_last_30_secs_of_ISI_OFSCREENTIME[i] <-comp_3v3_avg_prop_within_10cmlast_30_secs_OFSCREENTIME
+
+
+df.sum$difference_avg_prop_with10cm_first_three_gaps_minus_last_three_gaps_before_giveup4_last_30_secs_of_ISI_INVERTED[i]<-(comp_3v3_avg_prop_within_10cmlast_30_secs)*-1
+df.sum$difference_avg_prop_within10cm_first_three_gaps_minus_last_three_gaps_before_giveup4_last_30_secs_of_ISI_OFSCREENTIME_INVERTED[i] <-(comp_3v3_avg_prop_within_10cmlast_30_secs_OFSCREENTIME) *-1
+
+
+df.sum$difference_avg_prop_within10cm_first_three_gaps_minus_282930_last_30_secs_of_ISI[i]<- comp_123_v_282930_within10cm_last_30_secs
+df.sum$difference_avg_prop_within10cm_first_three_gaps_minus_282930_last_30_secs_of_ISI_OFSCREENTIME[i]<- comp_123_v_282930_within10cm_last_30_secs_OFSCREENTIME
+df.sum$difference_avg_prop_within10cm_123_minus_456_last_30_secs_of_ISI_OFSCREENTIME_INVERTED[i]<-(comp123_v_456_avg_prop_within10cm_OFSCREENTIME)*-1
+
 df.sum$speed_of_learning_aka_which_presentation_20_percent_prop_increase_was_met[i]<- prop_20percent_solvetrial
 
 df.sum$did_fish_meet_60_percent_3_consecutive_criterion[i]<- did_fish_meet_60_percent_3_consecutive_criterion
@@ -725,6 +851,7 @@ df.sum$speed_of_learning_90_percent_2_consecutive_criterion[i]<-speed_of_learnin
 df.sum$did_fish_meet_within10cm_50_percent_3_consecutive_criterion[i] <-did_fish_meet_within10cm_50_percent_3_consecutive_criterion
 df.sum$speed_of_learning_within10cm_50_percent_3_consecutive_criterion[i]<- speed_of_learning_within10cm_50_percent_3_consecutive_criterion
 df.sum$average_proportion_within_10cm_gaps_456[i]<-average_proportion_within_10cm_gaps_456
+
 
 df.sum$proportion_time_on_left_third_across_gaps_4_through_9[i]<-proportion_time_on_left_third_across_gaps_4_through_9
 df.sum$proportion_time_on_right_third_across_gaps_4_through_9[i]<-proportion_time_on_right_third_across_gaps_4_through_9
@@ -736,7 +863,8 @@ df.sum$proportion_time_on_center_10cm_across_gaps_4_through_9[i]<-proportion_tim
 
 df.sum$proportion_time_on_left_10cm_across_stims_1_through_6[i]<-proportion_time_on_left_10cm_across_stims_1_through_6
 df.sum$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive[i] <- did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive
-
+df.sum$did_fish_learn_OF_SCREEN_TIME_80_percent_within_10_cm_3_consecutive[i] <- did_fish_learn_OF_SCREEN_TIME_80_percent_within_10_cm_3_consecutive
+df.sum$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_4_consecutive[i] <- did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_4_consecutive
 #the last thing I want to do to assess performance categorically is highlight individuals who had a significant t test AND the performance INCREASED between the beginning and end (i.e. the average distance from correct shrank, and the proportion time on the correct side grew) 
 #   if(is.na(df.sum$dist_was_t_test_wilcox_significant[i])== TRUE){
 #    df.sum$did_fish_increase_avg_dist_performance_by_significant_amount_t_test_wilcox[i]<- NA}
@@ -780,6 +908,31 @@ if(is.na(df.sum$difference_avg_prop_correct_first_three_gaps_minus_gap_6[i]) == 
   else if(df.sum$difference_avg_prop_correct_first_three_gaps_minus_gap_6[i] > -0.2){
     df.sum$did_fish_solve_shuttlebox_using_prop_correct_increase_of_at_least_20_percent_first_3_vs_6[i]<- 0}
 
+
+#new_december_2019
+if(is.na(df.sum$difference_avg_prop_with10cm_first_three_gaps_minus_last_three_gaps_before_giveup4_last_30_secs_of_ISI[i]) == TRUE){
+    df.sum$did_fish_solve_shuttlebox_using_prop_10cm_increase_of_at_least_20_percent_first_3_vs_last_3_last_30sec[i]<- NA}
+  else if(df.sum$difference_avg_prop_with10cm_first_three_gaps_minus_last_three_gaps_before_giveup4_last_30_secs_of_ISI[i]<= -0.2){
+    df.sum$did_fish_solve_shuttlebox_using_prop_10cm_increase_of_at_least_20_percent_first_3_vs_last_3_last_30sec[i]<- 1}
+  else if(df.sum$difference_avg_prop_with10cm_first_three_gaps_minus_last_three_gaps_before_giveup4_last_30_secs_of_ISI[i] > -0.2){
+    df.sum$did_fish_solve_shuttlebox_using_prop_10cm_increase_of_at_least_20_percent_first_3_vs_last_3_last_30sec[i]<- 0}
+
+if(is.na(df.sum$difference_avg_prop_with10cm_first_three_gaps_minus_last_three_gaps_before_giveup4_last_30_secs_of_ISI[i]) == TRUE){
+    df.sum$did_fish_solve_shuttlebox_using_prop_10cm_increase_of_at_least_50_percent_first_3_vs_last_3_last_30sec[i]<- NA}
+  else if(df.sum$difference_avg_prop_with10cm_first_three_gaps_minus_last_three_gaps_before_giveup4_last_30_secs_of_ISI[i]<= -0.5){
+    df.sum$did_fish_solve_shuttlebox_using_prop_10cm_increase_of_at_least_50_percent_first_3_vs_last_3_last_30sec[i]<- 1}
+  else if(df.sum$difference_avg_prop_with10cm_first_three_gaps_minus_last_three_gaps_before_giveup4_last_30_secs_of_ISI[i] > -0.5){
+    df.sum$did_fish_solve_shuttlebox_using_prop_10cm_increase_of_at_least_50_percent_first_3_vs_last_3_last_30sec[i]<- 0}
+
+
+if(is.na(df.sum$difference_avg_prop_within10cm_first_three_gaps_minus_last_three_gaps_before_giveup4_last_30_secs_of_ISI_OFSCREENTIME[i]) == TRUE){
+    df.sum$did_fish_solve_shuttlebox_using_prop_10cm_increase_of_at_least_50_percent_first_3_vs_last_3_last_30sec_OFSCREENTIME[i]<- NA}
+  else if(df.sum$difference_avg_prop_within10cm_first_three_gaps_minus_last_three_gaps_before_giveup4_last_30_secs_of_ISI_OFSCREENTIME[i]<= -0.5){
+    df.sum$did_fish_solve_shuttlebox_using_prop_10cm_increase_of_at_least_50_percent_first_3_vs_last_3_last_30sec_OFSCREENTIME[i]<- 1}
+  else if(df.sum$difference_avg_prop_within10cm_first_three_gaps_minus_last_three_gaps_before_giveup4_last_30_secs_of_ISI_OFSCREENTIME[i] > -0.5){
+    df.sum$did_fish_solve_shuttlebox_using_prop_10cm_increase_of_at_least_50_percent_first_3_vs_last_3_last_30sec_OFSCREENTIME[i]<- 0}
+
+
 df.sum$did_fish_participate_criterion1[i]<-1
 
 if(df.sum$proportion_time_on_left_third_across_gaps_4_through_9[i] >= 0.9){
@@ -807,6 +960,9 @@ df.sum$did_fish_participate_criterion4[i] <-did_fish_participate_criterion4
 df.sum$did_fish_participate_criterion5[i] <-did_fish_participate_criterion5
 df.sum$did_fish_participate_criterion6[i] <-did_fish_participate_criterion6
 df.sum$did_fish_participate_criterion7[i] <-did_fish_participate_criterion7
+
+df.sum$number_of_gaps_in_which_the_fish_transited_during_the_gap[i] <- sum(df.transits$did_fish_transit_during_this_gap)
+df.sum$number_of_gaps_in_which_the_fish_transited_between_two_sequential_gaps[i] <- sum(df.transits$did_fish_transit_by_next_gap)
 
 #did distance from the screen decrease by ABSOLUTE 20% (i.e.256pixels)?
  # if(is.na(df.sum$difference_avg_dist_from_correct_first_3_gaps_minus_last_3_gaps[i]) == TRUE){
@@ -837,7 +993,7 @@ df.sum.30sec<- arrange(df.sum.30sec,speed_of_learning_aka_which_presentation_20_
 
 View(df.sum.30sec)
 setwd("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/")
-#write_csv(df.sum.30sec,'C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Comparative Cognition Shuttlebox Data december 20 2018 30 seconds.csv')
+write_csv(df.sum.30sec,'C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Comparative Cognition Shuttlebox Data december 2 2019 30 seconds.csv')
 
 ``` 
 
@@ -951,7 +1107,7 @@ df.full.30sec.males.detnonsolvers<- df.full.30sec.det.males %>% filter(detour_tr
 
 
 
-write_csv(df.full.30sec,'C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Comparative Cognition Shuttlebox Data December 20 2018 30 seconds with detour and numerosity.csv')
+#write_csv(df.full.30sec,'C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Comparative Cognition Shuttlebox Data December 2 2019 30 seconds with detour and numerosity.csv')
 ```
 
 #Some information on Fisher's Exact Test and the Freeman-Halton Test:
@@ -965,6 +1121,11 @@ write_csv(df.full.30sec,'C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Compara
 #https://www.researchgate.net/post/What_are_the_alternatives_to_the_Fishers_exact_test_when_assessing_independence_in_an_m_by_n_table_with_low_expected_frequencies_5
 #https://www.researchgate.net/post/Which_method_is_appropriate_for_measuring_the_effect_size_after_applying_Fishers_Exact_Test
 #http://www.biostathandbook.com/fishers.html
+
+
+
+
+
 
 
 

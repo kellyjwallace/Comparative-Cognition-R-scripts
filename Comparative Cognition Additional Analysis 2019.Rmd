@@ -29,13 +29,14 @@ library(tidyr)
 library(MASS)
 library(scales)
 library(candisc)
+library(plotrix)
 #font_import()
 
-shuttle<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Comparative Cognition Shuttlebox Data december 20 2018 30 seconds.csv")
+shuttle<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Shuttlebox/Comparative Cognition Shuttlebox Data December 2 2019 30 seconds.csv")
 
 det<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Detour/detour_data_for_R_April_5_2018.csv")
 
-num<-read.csv("C:/Users/Kelly/Desktop/Grad School/Cummings Lab/Comparative Cognition/Comparative Cognition R Scripts/Numerosity Comparative Cognition Full Dataset July_20_2018.csv")
+num<-read.csv("Y:/Cummings Lab/Comparative Cognition/Comparative Cognition R Scripts/Numerosity Comparative Cognition Full Dataset December_02_2019.csv")
 
 df.full<- left_join(det,shuttle, by = 'fish_name')
 df.full<- left_join(df.full,num, by = 'fish_name')
@@ -63,7 +64,392 @@ df.num$detour_trial_1_did_fish_solve_barrier_problem<-as.numeric(df.num$detour_t
 df.num$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive<-as.numeric(df.num$did_fish_learn_OF_SCREEN_TIME_50_percent_within_10_cm_3_consecutive)
 
 
+std.error(df.full$detour_trial_1_barrier_problem_time_around_barrier_minus_time_to_contact_barrier)
+
 ```
+
+#NEW DECEMBER 2019 - comparisons of cognitive style across tasks
+
+#activity in numerosity x average shuttlebox transits during gap
+#exploration in numerosity x latency to approach barrier in detour
+#reaction time in numerosity x latency to aproach barrier in detour
+
+
+
+
+#activity in numerosity x average shuttlebox transits during gap
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+mod<-lm(df.full$number_of_gaps_in_which_the_fish_transited_during_the_gap ~ df.full$average_number_of_entries_full_4_minutes * df.full$sex.x)
+number <- df.full%>% filter(!is.na(number_of_gaps_in_which_the_fish_transited_during_the_gap)) %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% nrow
+p_value_look_at_last_one <- summary(mod)
+r_squared <- summary(mod)$r.squared
+df.full$sex.x<-as.character(df.full$sex.x)
+plot1 <- ggplot(df.full, aes(x = average_number_of_entries_full_4_minutes, y = number_of_gaps_in_which_the_fish_transited_during_the_gap, color = sex.x)) + geom_point(size = 4) + 
+  geom_smooth(method = "lm", size = 2, se = FALSE,fullrange=TRUE) +
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=30, y=10, label= glue::glue("p(interaction) = 0.05042
+n = {number}"), size = 5, color = "gray39", hjust = 0) + 
+  theme(plot.title = element_text(hjust = 0)) + 
+  scale_color_manual(values=c("maroon", "lightblue"))
+  #annotate("text", x=0, y=0.9, label= glue::glue("  (a)"), size = 10, color = "deepskyblue4", hjust = 0) +
+  #theme(plot.title = element_text(hjust = 0))
+plot1
+
+```
+#activity in numerosity x latency to approach barrier in detour
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+mod<-lm(df.full$time_to_barrier_contact_minus_start_time ~ df.full$average_number_of_entries_full_4_minutes * df.full$sex.x)
+number <- df.full%>% filter(!is.na(time_to_barrier_contact_minus_start_time)) %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% nrow
+p_value_look_at_last_one <- summary(mod)
+r_squared <- summary(mod)$r.squared
+df.full$sex.x<-as.character(df.full$sex.x)
+plot1 <- ggplot(df.full, aes(x = average_number_of_entries_full_4_minutes, y = time_to_barrier_contact_minus_start_time, color = sex.x)) + geom_point(size = 4) + 
+  geom_smooth(method = "lm", size = 2, se = FALSE,fullrange=TRUE) +
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=30, y=0.25, label= glue::glue("p(interaction) = 0.5135
+n = {number}"), size = 5, color = "gray39", hjust = 0) + 
+  theme(plot.title = element_text(hjust = 0)) + 
+  scale_color_manual(values=c("maroon", "lightblue"))
+  #annotate("text", x=0, y=0.9, label= glue::glue("  (a)"), size = 10, color = "deepskyblue4", hjust = 0) +
+  #theme(plot.title = element_text(hjust = 0))
+plot1
+
+```
+
+
+#exploration in numerosity x latency to approach barrier in detour
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+mod<-lm(df.full$time_to_barrier_contact_minus_start_time ~ df.full$unique_zones_entered_full_4_minutes * df.full$sex.x)
+number <- df.full%>% filter(!is.na(time_to_barrier_contact_minus_start_time)) %>% filter(!is.na(unique_zones_entered_full_4_minutes)) %>% nrow
+p_value_look_at_last_one <- summary(mod)
+r_squared <- summary(mod)$r.squared
+df.full$sex.x<-as.character(df.full$sex.x)
+plot1 <- ggplot(df.full, aes(x = unique_zones_entered_full_4_minutes, y = time_to_barrier_contact_minus_start_time, color = sex.x)) + geom_point(size = 4) + 
+  geom_smooth(method = "lm", size = 2, se = FALSE,fullrange=TRUE) +
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=0.4, y=0.25, label= glue::glue("p(interaction) = 0.5135
+n = {number}"), size = 5, color = "gray39", hjust = 0) + 
+  theme(plot.title = element_text(hjust = 0)) + 
+  scale_color_manual(values=c("maroon", "lightblue"))
+  #annotate("text", x=0, y=0.9, label= glue::glue("  (a)"), size = 10, color = "deepskyblue4", hjust = 0) +
+  #theme(plot.title = element_text(hjust = 0))
+plot1
+
+```
+
+
+
+
+#reaction time in numerosity x latency to aproach barrier in detour
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+mod<-lm(df.full$time_to_barrier_contact_minus_start_time ~ df.full$average_reaction_time * df.full$sex.x)
+number <- df.full%>% filter(!is.na(time_to_barrier_contact_minus_start_time)) %>% filter(!is.na(average_reaction_time)) %>% nrow
+p_value_look_at_last_one <- summary(mod)
+r_squared <- summary(mod)$r.squared
+df.full$sex.x<-as.character(df.full$sex.x)
+plot1 <- ggplot(df.full, aes(x = average_reaction_time, y = time_to_barrier_contact_minus_start_time, color = sex.x)) + geom_point(size = 4) + 
+  geom_smooth(method = "lm", size = 2, se = FALSE,fullrange=TRUE) +
+  theme(text = element_text(size=10)) + 
+  annotate("text", x=10, y=200, label= glue::glue("p(interaction) = 0.1393
+n = {number}"), size = 5, color = "gray39", hjust = 0) + 
+  theme(plot.title = element_text(hjust = 0)) + 
+  scale_color_manual(values=c("maroon", "lightblue"))
+  #annotate("text", x=0, y=0.9, label= glue::glue("  (a)"), size = 10, color = "deepskyblue4", hjust = 0) +
+  #theme(plot.title = element_text(hjust = 0))
+plot1
+
+```
+
+#TEMPLATE
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+mod<- lm(df.full$YYY ~ df.full$XXX, na.rm = TRUE)
+number <- df.full %>% filter(!is.na(XXX)) %>% filter(!is.na(YYY)) %>% nrow
+p_value <- summary(mod)$coefficients[8]
+r_squared <- summary(mod)$r.squared
+plot1 <- ggplot(df.full, aes(XXX, YYY)) + geom_point(size = 4, color = "black") + 
+  theme(text = element_text(size=10)) + 
+ geom_smooth(method = "lm", size = 2, color = "lightgray", se = FALSE) +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+  theme(plot.title = element_text(hjust = 0))+ annotate("text", x=30, y=10, label= glue::glue("p = {round(p_value,4)}
+n = {number}"), size = 5, color = "gray39", hjust = 0)
+plot1
+```
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+mod<- lm(df.full.males$YYY ~ df.full.males$XXX, na.rm = TRUE)
+number <- df.full.males %>% filter(!is.na(XXX)) %>% filter(!is.na(YYY)) %>% nrow
+p_value <- summary(mod)$coefficients[8]
+r_squared <- summary(mod)$r.squared
+plot1 <- ggplot(df.full.males, aes(XXX, YYY)) + geom_point(size = 4, color = "lightblue") + 
+  theme(text = element_text(size=10)) + 
+ geom_smooth(method = "lm", size = 2, color = "lightgray", se = FALSE) +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+  theme(plot.title = element_text(hjust = 0))+ annotate("text", x=30, y=10, label= glue::glue("p = {round(p_value,4)}
+n = {number}"), size = 5, color = "gray39", hjust = 0)
+plot1
+```
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+mod<- lm(df.full.females$YYY ~ df.full.females$XXX, na.rm = TRUE)
+number <- df.full.females %>% filter(!is.na(XXX)) %>% filter(!is.na(YYY)) %>% nrow
+p_value <- summary(mod)$coefficients[8]
+r_squared <- summary(mod)$r.squared
+plot1 <- ggplot(df.full.females, aes(XXX, YYY)) + geom_point(size = 4, color = "maroon") + 
+  theme(text = element_text(size=10)) + 
+ geom_smooth(method = "lm", size = 2, color = "lightgray", se = FALSE) +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+  theme(plot.title = element_text(hjust = 0))+ annotate("text", x=30, y=10, label= glue::glue("p = {round(p_value,4)}
+n = {number}"), size = 5, color = "gray39", hjust = 0)
+plot1
+```
+
+
+#activity in numerosity x average shuttlebox transits during gaps
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+mod<- lm(df.full$number_of_gaps_in_which_the_fish_transited_during_the_gap ~ df.full$average_number_of_entries_full_4_minutes, na.rm = TRUE)
+number <- df.full %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% filter(!is.na(number_of_gaps_in_which_the_fish_transited_during_the_gap)) %>% nrow
+p_value <- summary(mod)$coefficients[8]
+r_squared <- summary(mod)$r.squared
+plot1 <- ggplot(df.full, aes(average_number_of_entries_full_4_minutes, number_of_gaps_in_which_the_fish_transited_during_the_gap)) + geom_point(size = 4, color = "black") + 
+  theme(text = element_text(size=10)) + 
+ geom_smooth(method = "lm", size = 2, color = "lightgray", se = FALSE) +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+  theme(plot.title = element_text(hjust = 0))+ annotate("text", x=30, y=10, label= glue::glue("p = {round(p_value,4)}
+n = {number}"), size = 5, color = "gray39", hjust = 0)  
+plot1
+```
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+mod<- lm(df.full.males$number_of_gaps_in_which_the_fish_transited_during_the_gap ~ df.full.males$average_number_of_entries_full_4_minutes, na.rm = TRUE)
+number <- df.full.males %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% filter(!is.na(number_of_gaps_in_which_the_fish_transited_during_the_gap)) %>% nrow
+p_value <- summary(mod)$coefficients[8]
+r_squared <- summary(mod)$r.squared
+plot1 <- ggplot(df.full.males, aes(average_number_of_entries_full_4_minutes, number_of_gaps_in_which_the_fish_transited_during_the_gap)) + geom_point(size = 4, color = "lightblue") + 
+  theme(text = element_text(size=10)) + 
+ geom_smooth(method = "lm", size = 2, color = "lightgray", se = FALSE) +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+  theme(plot.title = element_text(hjust = 0))+ annotate("text", x=30, y=10, label= glue::glue("p = {round(p_value,4)}
+n = {number}"), size = 5, color = "gray39", hjust = 0)
+plot1
+```
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+mod<- lm(df.full.females$number_of_gaps_in_which_the_fish_transited_during_the_gap ~ df.full.females$average_number_of_entries_full_4_minutes, na.rm = TRUE)
+number <- df.full.females %>% filter(!is.na(average_number_of_entries_full_4_minutes)) %>% filter(!is.na(number_of_gaps_in_which_the_fish_transited_during_the_gap)) %>% nrow
+p_value <- summary(mod)$coefficients[8]
+r_squared <- summary(mod)$r.squared
+plot1 <- ggplot(df.full.females, aes(average_number_of_entries_full_4_minutes, number_of_gaps_in_which_the_fish_transited_during_the_gap)) + geom_point(size = 4, color = "maroon") + 
+  theme(text = element_text(size=10)) + 
+ #geom_smooth(method = "lm", size = 2, color = "lightgray", se = FALSE) +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+  theme(plot.title = element_text(hjust = 0))+ annotate("text", x=30, y=10, label= glue::glue("p = {round(p_value,4)}
+n = {number}"), size = 5, color = "gray39", hjust = 0)
+plot1
+```
+
+
+#exploration in numerosity x latency to approach barrier in detour
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+mod<- lm(df.full$time_to_barrier_contact_minus_start_time ~ df.full$unique_zones_entered_full_4_minutes, na.rm = TRUE)
+number <- df.full %>% filter(!is.na(unique_zones_entered_full_4_minutes)) %>% filter(!is.na(time_to_barrier_contact_minus_start_time)) %>% nrow
+p_value <- summary(mod)$coefficients[8]
+r_squared <- summary(mod)$r.squared
+plot1 <- ggplot(df.full, aes(unique_zones_entered_full_4_minutes, time_to_barrier_contact_minus_start_time)) + geom_point(size = 4, color = "black") + 
+  theme(text = element_text(size=10)) + 
+ geom_smooth(method = "lm", size = 2, color = "lightgray", se = FALSE) +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+  theme(plot.title = element_text(hjust = 0))+ annotate("text", x=0.5, y=100, label= glue::glue("p = {round(p_value,4)}
+n = {number}"), size = 5, color = "gray39", hjust = 0)
+plot1
+```
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+mod<- lm(df.full.males$time_to_barrier_contact_minus_start_time ~ df.full.males$unique_zones_entered_full_4_minutes, na.rm = TRUE)
+number <- df.full.males %>% filter(!is.na(unique_zones_entered_full_4_minutes)) %>% filter(!is.na(time_to_barrier_contact_minus_start_time)) %>% nrow
+p_value <- summary(mod)$coefficients[8]
+r_squared <- summary(mod)$r.squared
+plot1 <- ggplot(df.full.males, aes(unique_zones_entered_full_4_minutes, time_to_barrier_contact_minus_start_time)) + geom_point(size = 4, color = "lightblue") + 
+  theme(text = element_text(size=10)) + 
+ #geom_smooth(method = "lm", size = 2, color = "lightgray", se = FALSE) +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+  theme(plot.title = element_text(hjust = 0))+ annotate("text", x=0.5, y=100, label= glue::glue("p = {round(p_value,4)}
+n = {number}"), size = 5, color = "gray39", hjust = 0)
+plot1
+```
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+mod<- lm(df.full.females$time_to_barrier_contact_minus_start_time ~ df.full.females$unique_zones_entered_full_4_minutes, na.rm = TRUE)
+number <- df.full.females %>% filter(!is.na(unique_zones_entered_full_4_minutes)) %>% filter(!is.na(time_to_barrier_contact_minus_start_time)) %>% nrow
+p_value <- summary(mod)$coefficients[8]
+r_squared <- summary(mod)$r.squared
+plot1 <- ggplot(df.full.females, aes(unique_zones_entered_full_4_minutes, time_to_barrier_contact_minus_start_time)) + geom_point(size = 4, color = "maroon") + 
+  theme(text = element_text(size=10)) + 
+ #geom_smooth(method = "lm", size = 2, color = "lightgray", se = FALSE) +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+  theme(plot.title = element_text(hjust = 0))+ annotate("text", x=0.5, y=100, label= glue::glue("p = {round(p_value,4)}
+n = {number}"), size = 5, color = "gray39", hjust = 0)
+plot1
+```
+
+
+#reaction time in numerosity x latency to aproach barrier in detour
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+mod<- lm(df.full$time_to_barrier_contact_minus_start_time ~ df.full$average_reaction_time, na.rm = TRUE)
+number <- df.full %>% filter(!is.na(average_reaction_time)) %>% filter(!is.na(time_to_barrier_contact_minus_start_time)) %>% nrow
+p_value <- summary(mod)$coefficients[8]
+r_squared <- summary(mod)$r.squared
+plot1 <- ggplot(df.full, aes(average_reaction_time, time_to_barrier_contact_minus_start_time)) + geom_point(size = 4, color = "black") + 
+  theme(text = element_text(size=10)) + 
+ geom_smooth(method = "lm", size = 2, color = "lightgray", se = FALSE) +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+  theme(plot.title = element_text(hjust = 0))+ annotate("text", x=30, y=10, label= glue::glue("p = {round(p_value,4)}
+n = {number}"), size = 5, color = "gray39", hjust = 0)
+plot1
+```
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+mod<- lm(df.full.males$time_to_barrier_contact_minus_start_time ~ df.full.males$average_reaction_time, na.rm = TRUE)
+number <- df.full.males %>% filter(!is.na(average_reaction_time)) %>% filter(!is.na(time_to_barrier_contact_minus_start_time)) %>% nrow
+p_value <- summary(mod)$coefficients[8]
+r_squared <- summary(mod)$r.squared
+plot1 <- ggplot(df.full.males, aes(average_reaction_time, time_to_barrier_contact_minus_start_time)) + geom_point(size = 4, color = "lightblue") + 
+  theme(text = element_text(size=10)) + 
+ #geom_smooth(method = "lm", size = 2, color = "lightgray", se = FALSE) +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+  theme(plot.title = element_text(hjust = 0))+ annotate("text", x=30, y=10, label= glue::glue("p = {round(p_value,4)}
+n = {number}"), size = 5, color = "gray39", hjust = 0)
+plot1
+```
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+mod<- lm(df.full.females$time_to_barrier_contact_minus_start_time ~ df.full.females$average_reaction_time, na.rm = TRUE)
+number <- df.full.females %>% filter(!is.na(average_reaction_time)) %>% filter(!is.na(time_to_barrier_contact_minus_start_time)) %>% nrow
+p_value <- summary(mod)$coefficients[8]
+r_squared <- summary(mod)$r.squared
+plot1 <- ggplot(df.full.females, aes(average_reaction_time, time_to_barrier_contact_minus_start_time)) + geom_point(size = 4, color = "maroon") + 
+  theme(text = element_text(size=10)) + 
+ geom_smooth(method = "lm", size = 2, color = "lightgray", se = FALSE) +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+  theme(plot.title = element_text(hjust = 0))+ annotate("text", x=30, y=10, label= glue::glue("p = {round(p_value,4)}
+n = {number}"), size = 5, color = "gray39", hjust = 0)
+plot1
+```
+
+
+
+#sociability in numerosity x sociability in detour
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+mod<- lm(df.full$detour_trial_1_prop_time_in_social_reward_following_solution ~ df.full$totalmirror_full_4_minutes, na.rm = TRUE)
+number <- df.full %>% filter(!is.na(totalmirror_full_4_minutes)) %>% filter(!is.na(detour_trial_1_prop_time_in_social_reward_following_solution)) %>% nrow
+p_value <- summary(mod)$coefficients[8]
+r_squared <- summary(mod)$r.squared
+plot1 <- ggplot(df.full, aes(totalmirror_full_4_minutes, detour_trial_1_prop_time_in_social_reward_following_solution)) + geom_point(size = 4, color = "black") + 
+  theme(text = element_text(size=10)) + 
+ geom_smooth(method = "lm", size = 2, color = "lightgray", se = FALSE) +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+  theme(plot.title = element_text(hjust = 0))+ annotate("text", x=0.4, y=0.8, label= glue::glue("p = {round(p_value,4)}
+n = {number}"), size = 5, color = "gray39", hjust = 0)
+plot1
+```
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+mod<- lm(df.full.males$detour_trial_1_prop_time_in_social_reward_following_solution ~ df.full.males$totalmirror_full_4_minutes, na.rm = TRUE)
+number <- df.full.males %>% filter(!is.na(totalmirror_full_4_minutes)) %>% filter(!is.na(detour_trial_1_prop_time_in_social_reward_following_solution)) %>% nrow
+p_value <- summary(mod)$coefficients[8]
+r_squared <- summary(mod)$r.squared
+plot1 <- ggplot(df.full.males, aes(totalmirror_full_4_minutes, detour_trial_1_prop_time_in_social_reward_following_solution)) + geom_point(size = 4, color = "lightblue") + 
+  theme(text = element_text(size=10)) + 
+ geom_smooth(method = "lm", size = 2, color = "lightgray", se = FALSE) +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+  theme(plot.title = element_text(hjust = 0))+ annotate("text", x=0.4, y=0.8, label= glue::glue("p = {round(p_value,4)}
+n = {number}"), size = 5, color = "gray39", hjust = 0)
+plot1
+```
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+mod<- lm(df.full.females$detour_trial_1_prop_time_in_social_reward_following_solution ~ df.full.females$totalmirror_full_4_minutes, na.rm = TRUE)
+number <- df.full.females %>% filter(!is.na(totalmirror_full_4_minutes)) %>% filter(!is.na(detour_trial_1_prop_time_in_social_reward_following_solution)) %>% nrow
+p_value <- summary(mod)$coefficients[8]
+r_squared <- summary(mod)$r.squared
+plot1 <- ggplot(df.full.females, aes(totalmirror_full_4_minutes, detour_trial_1_prop_time_in_social_reward_following_solution)) + geom_point(size = 4, color = "maroon") + 
+  theme(text = element_text(size=10)) + 
+ geom_smooth(method = "lm", size = 2, color = "lightgray", se = FALSE) +
+         theme(axis.text=element_text(size=16),
+         axis.title=element_text(size=14))+
+         theme(axis.line.y = element_line(color="gray", size = 1))+
+         theme(axis.line.x = element_line(color="gray", size = 1))+ 
+         theme(panel.background = element_blank()) + 
+  theme(plot.title = element_text(hjust = 0))+ annotate("text", x=0.4, y=0.8, label= glue::glue("p = {round(p_value,4)}
+n = {number}"), size = 5, color = "gray39", hjust = 0)
+plot1
+```
+
+
+
+
+
+#
+#
+#
+#
+#
+#
+#
+#
+
+
 
 #boxplots of exploration, activity, reaction time by learners vs nonlearners in SHUTTLEBOX
 
